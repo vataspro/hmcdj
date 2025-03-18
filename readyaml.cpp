@@ -1,7 +1,10 @@
+//g++ --std=c++17 gridyaml.cpp -o test -I/opt/homebrew/Cellar/yaml-cpp/0.8.0/include/ -L/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib -I/Users/alexi/Work/phd/GRID/prefix_grid_202410/include -L/Users/alexi/Work/phd/GRID/prefix_grid_202410/lib -I/Users/alexi/openssl/include -L/Users/alexi/openssl/lib -lGrid  -lyaml-cpp
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include <yaml-cpp/yaml.h>
+#include <string>
+#include <yaml-cpp/yaml.h> // yaml-cpp is required
+#include <Grid/Grid.h>
 
 /*
  * Guard
@@ -12,7 +15,7 @@ void djGuard(int argc, char* argv[]) {
 
     // Usage
     if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << "filename\n";
+        std::cerr << "Usage: " << argv[0] << " filename\n";
         std::exit(EXIT_FAILURE);
     }
 
@@ -35,6 +38,7 @@ void djGuard(int argc, char* argv[]) {
 class EnsembleReader{
   private:
     int nt, nx, ny, nz; // Lattice dims
+    std::string dimString;
 
   public:
     // Constructor - reads and loads the parameters from the yaml file
@@ -51,13 +55,15 @@ class EnsembleReader{
             ny = track["volume"]["ny"].as<int>();
             nz = track["volume"]["nz"].as<int>();
 
+            SetDimString();
+
         } catch (const YAML::Exception &e) { // protect against bad yaml file
             std::cerr << "Error loading yaml file: " << e.what() << "\n";
             exit(EXIT_FAILURE);
         }
     }
 
-    // Get the number of points for a particular lattice dimension
+    // Get the number of points in a particular lattice dimension
     int dimLength(const int i) {
         switch (i) {
             case 0: return nx;
@@ -70,6 +76,20 @@ class EnsembleReader{
             }
         }
     }
+
+    // Set the Grid dimensions string
+    void SetDimString() {
+        dimString = std::to_string(dimLength(0)) + "." +
+                    std::to_string(dimLength(1)) + "." +
+                    std::to_string(dimLength(2)) + "." +
+                    std::to_string(dimLength(3));
+    }
+
+    // Gets a char pointer to the dimension string
+    const char* GetDimStringPointer() {
+        return dimString.c_str();
+    }
+
 };
 
 /* 
@@ -83,8 +103,23 @@ int main(int argc, char* argv[]) {
     // Read Grid parameters from the input file
     EnsembleReader reader(argv[1]);
 
-    // Test output
-    std::cout << reader.dimLength(0) << "\n";
+    // Hacky way to provide Grid with "fake" command line arguments
+    int gridc = 3;
+
+    char* gridv[] = {
+        (char*)argv[0],
+        (char*)"--grid",
+        (char*)reader.GetDimStringPointer(),
+        nullptr
+    };
+
+    // This is super ugly
+    char** gridv_ptr = (char**) gridv;
+
+    // Initialise Grid and print the layout
+    Grid::Grid_init(&gridc, &gridv_ptr);
+    Grid::GridLogLayout();
+    Grid::Grid_finalize();  
 
     return 0;
 }
