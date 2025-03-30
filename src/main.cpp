@@ -1,12 +1,7 @@
 //g++ --std=c++17 gridyaml.cpp -o test -I/opt/homebrew/Cellar/yaml-cpp/0.8.0/include/ -L/opt/homebrew/Cellar/yaml-cpp/0.8.0/lib -I/Users/alexi/Work/phd/GRID/prefix_grid_202410/include -L/Users/alexi/Work/phd/GRID/prefix_grid_202410/lib -I/Users/alexi/openssl/include -L/Users/alexi/openssl/lib -lGrid  -lyaml-cpp -lz
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <string>
-#include <yaml-cpp/yaml.h> // yaml-cpp is required
+#include "deck.h"
 #include <Grid/Grid.h>
-#include <functional> // can be exchanged for ssh when I go to MD5 for the hash
-#include <sstream>
+
 
 /*
  * Guard
@@ -54,96 +49,6 @@ std::string genSerialSeed() {
 
     return RNGstr.str();
 }
-
-/*
- * Ensemble Reader class
-
- This class reads the provided yaml file and stores the required
- parameter values.
-*/
-class EnsembleReader{
-  private:
-    /* Lattice dimensions */
-    int nt, nx, ny, nz; // Lattice dims
-    std::string dimString; // Lattice dimensions string
-
-  public:
-    /* Checkpointing */
-    int saveInterval;
-    std::string config_prefix, 
-                rng_prefix,
-                format;
-    /* Action parameters */
-    double beta;
-    /* HMC parameters */
-    double trajL;
-    int MDsteps, Thermalisations, Trajectories;
-    std::string StartingType;
-    
-
-    // Constructor - reads and loads the parameters from the yaml file
-    EnsembleReader(const std::string filename) {
-
-        // Load the parameters from the yaml file
-        try {
-            // Load the yaml file
-            YAML::Node track = YAML::LoadFile(filename);
-
-            /* VOLUME */
-            // Grid lattice parameters
-            nt = track["volume"]["nt"].as<int>();
-            nx = track["volume"]["nx"].as<int>();
-            ny = track["volume"]["ny"].as<int>();
-            nz = track["volume"]["nz"].as<int>();
-
-            /* CHECKPOINTING */
-            saveInterval = track["checkpoint"]["saveInterval"].as<int>();
-            format = track["checkpoint"]["format"].as<std::string>();
-            config_prefix = track["checkpoint"]["configurations"]["prefix"].as<std::string>();
-            rng_prefix = track["checkpoint"]["rng"]["prefix"].as<std::string>();
-
-            /* ACTION */
-            beta = track["Action"]["beta"].as<double>();
-
-            /* HMC Parameters */
-            trajL = track["HMC"]["MD"]["trajL"].as<double>();
-            MDsteps = track["HMC"]["MD"]["MDsteps"].as<int>();
-
-            Thermalisations = track["HMC"]["Thermalisations"].as<int>();
-            Trajectories = track["HMC"]["Trajectories"].as<int>();
-            StartingType = track["HMC"]["StartingType"].as<std::string>();
-
-
-        } catch (const YAML::Exception &e) { // protect against bad yaml file
-            std::cerr << "Error loading yaml file: " << e.what() << "\n";
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    // Get the number of points in a particular lattice dimension
-    int dimLength(const int i) {
-        switch (i) {
-            case 0: return nx;
-            case 1: return ny;
-            case 2: return nz;
-            case 3: return nt;
-            default:{
-                std::cerr << "Error! Dimension must be between 0 and 3.\n";
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
-
-    // Set the Grid dimensions string
-    const char* GetDimStringPointer() {
-        dimString = std::to_string(dimLength(0)) + "." +
-                    std::to_string(dimLength(1)) + "." +
-                    std::to_string(dimLength(2)) + "." +
-                    std::to_string(dimLength(3));
-        return dimString.c_str();
-    }
-
-};
 
 /* 
  * MAIN
