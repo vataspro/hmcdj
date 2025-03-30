@@ -72,6 +72,23 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([no])]
     [AC_MSG_ERROR([impossible to compile a minimal Grid program])])
 
+
+AC_MSG_CHECKING([that yaml-cpp is available]);
+AC_LINK_IFELSE(
+	[AC_LANG_SOURCE([[
+    #include <yaml-cpp/yaml.h>
+        
+    int main(int argc, char *argv[])
+    {
+
+        return 0;
+    }
+    
+    ]])],
+	[AC_MSG_RESULT([yes])],
+    [AC_MSG_RESULT([no])]
+    [AC_MSG_ERROR([yaml-cpp is not available])])
+
 boop_CXX="$CXX"
 boop_CXXLD="$CXXLD"
 boop_CXXFLAGS="$CXXFLAGS"
