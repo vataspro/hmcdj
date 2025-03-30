@@ -96,8 +96,6 @@ class EnsembleReader{
             ny = track["volume"]["ny"].as<int>();
             nz = track["volume"]["nz"].as<int>();
 
-            SetDimString(); // String for Grid_init
-
             /* CHECKPOINTING */
             saveInterval = track["checkpoint"]["saveInterval"].as<int>();
             format = track["checkpoint"]["format"].as<std::string>();
@@ -137,15 +135,11 @@ class EnsembleReader{
     }
 
     // Set the Grid dimensions string
-    void SetDimString() {
+    const char* GetDimStringPointer() {
         dimString = std::to_string(dimLength(0)) + "." +
                     std::to_string(dimLength(1)) + "." +
                     std::to_string(dimLength(2)) + "." +
                     std::to_string(dimLength(3));
-    }
-
-    // Gets a char pointer to the dimension string
-    const char* GetDimStringPointer() {
         return dimString.c_str();
     }
 
