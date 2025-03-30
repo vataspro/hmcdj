@@ -37,9 +37,7 @@ if test x"$CXX" == x ; then
     CXX="`grid-config --cxx`"
 elif test "$CXX" != "`grid-config --cxx`" ; then
     GRID_CXX="`grid-config --cxx`"
-    AC_MSG_WARN([CXX differs from that reported by grid-config: "$CXX" (application) vs "$GRID_CXX" (grid-config), setting "$CXX" to "$GRID_CXX"])
-    CXX=$GRID_CXX
-    AC_SUBST(CXX)
+    AC_MSG_WARN([CXX differs from that reported by grid-config: "$CXX" (application) vs "$GRID_CXX" (grid-config)])
 fi
 if test x"$CXXLD" == x ; then
     CXXLD="`grid-config --cxxld`"
