@@ -66,7 +66,8 @@ int main(int argc, char* argv[]) {
     TheHMC.Resources.AddObservable<PlaqObs>();
 
     /* Action */
-    Grid::SpWilsonGaugeActionR Waction((Grid::RealD)reader.beta);
+    Grid::RealD beta = 6.9;
+    Grid::SpWilsonGaugeActionR Waction(beta);//((Grid::RealD)reader.beta);
   
     Grid::ActionLevel<HMCWrapper::Field> Level1(1);
     Level1.push_back(&Waction);
