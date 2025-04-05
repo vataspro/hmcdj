@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     Level2.push_back(&Waction);
 
     TheHMC.TheAction.push_back(Level1);
-    //TheHMC.TheAction.push_back(Level2);
+    TheHMC.TheAction.push_back(Level2);
 
     //Grid::ActionLevel<HMCWrapper::Field> Level1(1);
     //Level1.push_back(&Waction);
