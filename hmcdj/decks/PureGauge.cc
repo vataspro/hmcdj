@@ -53,11 +53,11 @@ int main(int argc, char* argv[]) {
         has loaded the rng from the previous run.
     */
     // For seeding the RNG
-    srand(seedRNG(argv[0]));
+    srand(SeedRNG(argv[0]));
 
     Grid::RNGModuleParameters RNGpar;
-    RNGpar.serial_seeds = genSerialSeed();
-    RNGpar.parallel_seeds = genSerialSeed();
+    RNGpar.serial_seeds = GenSerialSeed();
+    RNGpar.parallel_seeds = GenSerialSeed();
     TheHMC.Resources.SetRNGSeeds(RNGpar);
 
 

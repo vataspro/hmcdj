@@ -12,8 +12,8 @@
 void djGuard(int argc, char* argv[]);
 
 /* Functions for seeding pseudoRandom Number Generators */
-int seedRNG(const std::string& name);
-std::string genSerialSeed();
+int SeedRNG(const std::string& name);
+std::string GenSerialSeed();
 
 /* Ensemble Reader */
 class EnsembleReader{
@@ -39,7 +39,7 @@ class EnsembleReader{
     EnsembleReader(const std::string filename);
 
     // Get the number of points in a particular lattice dimension
-    int dimLength(const int i);
+    int DimLength(const int i);
 
     // Gets a char pointer to the dimension string
     const char* GetDimStringPointer();

@@ -29,13 +29,13 @@ void djGuard(int argc, char* argv[]) {
     this can be re-written using md5
     (which is part of openssl).
 */
-int seedRNG(const std::string& name) {
+int SeedRNG(const std::string& name) {
     std::string filename = name;
     
     return std::hash<std::string>{}(filename);
 }
 
-std::string genSerialSeed() {
+std::string GenSerialSeed() {
 
     std::ostringstream RNGstr;
     for (int i=0; i<5; i++) {
@@ -88,7 +88,7 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     }
 
     // Get the number of points in a particular lattice dimension
-int EnsembleReader::dimLength(const int i) {
+int EnsembleReader::DimLength(const int i) {
         switch (i) {
             case 0: return nx;
             case 1: return ny;
@@ -103,10 +103,10 @@ int EnsembleReader::dimLength(const int i) {
 
     // Gets a char pointer to the dimension string
 const char* EnsembleReader::GetDimStringPointer() {
-        dimString = std::to_string(dimLength(0)) + "." +
-                    std::to_string(dimLength(1)) + "." +
-                    std::to_string(dimLength(2)) + "." +
-                    std::to_string(dimLength(3));
+        dimString = std::to_string(DimLength(0)) + "." +
+                    std::to_string(DimLength(1)) + "." +
+                    std::to_string(DimLength(2)) + "." +
+                    std::to_string(DimLength(3));
 
         return dimString.c_str();
     }
