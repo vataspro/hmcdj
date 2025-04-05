@@ -1,5 +1,5 @@
-#ifndef DECK_H
-#define DECK_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <iostream>
 #include <fstream>
@@ -7,6 +7,15 @@
 #include <string>
 #include <yaml-cpp/yaml.h> // yaml-cpp is required
 
+
+/* Guard function called on initialisation */
+void djGuard(int argc, char* argv[]);
+
+/* Functions for seeding pseudoRandom Number Generators */
+int seedRNG(const std::string& name);
+std::string genSerialSeed();
+
+/* Ensemble Reader */
 class EnsembleReader{
   private:
     /* Lattice dimensions */

@@ -3,7 +3,7 @@ AC_INIT(boop,[v0.1],[example@test.domain],[boop])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AC_CONFIG_SRCDIR([hmcdj/main.cpp])
+AC_CONFIG_SRCDIR([hmcdj/hmcdj.h])
 AC_CONFIG_MACRO_DIR([.buildutils/m4])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])

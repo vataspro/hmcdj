@@ -1,5 +1,54 @@
-#include "deck.h"
+#include <hmcdj/utils/utils.h>
 
+/*
+ * Guard
+
+ Ensures that the programme is called correctly
+*/
+void djGuard(int argc, char* argv[]) {
+
+    // Usage
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " filename\n";
+        std::exit(EXIT_FAILURE);
+    }
+
+    // Check that the file exists
+    std::ifstream file(argv[1]); // opens a filestream of argv[1]
+    if (!file) {
+        std::cerr << "File " <<  argv[1] << " does not exist!\n";
+        std::exit(EXIT_FAILURE);
+    }
+
+    // Perhaps also check that the called file is a yaml file?
+}
+
+/* Ed's magic function to seed an rng 
+
+    Since openssl is required by Grid,
+    this can be re-written using md5
+    (which is part of openssl).
+*/
+int seedRNG(const std::string& name) {
+    std::string filename = name;
+    
+    return std::hash<std::string>{}(filename);
+}
+
+std::string genSerialSeed() {
+
+    std::ostringstream RNGstr;
+    for (int i=0; i<5; i++) {
+        if (i > 0) RNGstr << " ";
+
+        RNGstr << std::to_string(rand());
+    }
+
+    return RNGstr.str();
+}
+
+
+/* Ensemble Reader Initialisation */
 EnsembleReader::EnsembleReader(const std::string filename) {
 
     // Load the parameters from the yaml file

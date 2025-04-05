@@ -1,4 +1,4 @@
 ACLOCAL_AMFLAGS = -I .buildutils/m4
 
-bin_PROGRAMS = main
-main_SOURCES = hmcdj/deck.cpp hmcdj/main.cpp
+bin_PROGRAMS = PureGauge
+PureGauge_SOURCES = hmcdj/decks/PureGauge.cc hmcdj/utils/utils.cc
