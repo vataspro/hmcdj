@@ -1,5 +1,5 @@
 AC_PREREQ([2.63])
-AC_INIT(boop,[v0.1],[example@test.domain],[boop])
+AC_INIT([hmcDJ],[v0.1],[https://github.com/telos-collaboration/hmcdj],[hmcDJ])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -108,6 +108,9 @@ AC_SUBST([boop_LIBS])
 AC_SUBST([boop_SHA])
 AC_SUBST([boop_BRANCH])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([
+    Makefile
+    hmcdj/Makefile
+    decks/Makefile])
 AC_OUTPUT
 
