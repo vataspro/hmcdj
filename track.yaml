@@ -17,9 +17,6 @@ checkpoint:
   rng:
     prefix: "rng_ckpoint"
 
-Action:
-  beta: 6.95
-
 HMC:
   MD:
     MDsteps: 10
