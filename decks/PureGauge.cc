@@ -1,4 +1,4 @@
-#include <hmcdj/utils/dj.h>
+#include <hmcdj/hmcdj.h>
 #include <Grid/Grid.h>
 
 /* 

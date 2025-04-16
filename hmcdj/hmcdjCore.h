@@ -1,2 +1,2 @@
 #pragma once
-#include <hmcdj/utils/utils.h>
+#include <hmcdj/utils/dj.h>
