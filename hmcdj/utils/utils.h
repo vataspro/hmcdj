@@ -1,5 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -45,5 +44,3 @@ class EnsembleReader{
     const char* GetDimStringPointer();
 
 };
-
-#endif

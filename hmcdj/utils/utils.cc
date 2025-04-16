@@ -29,19 +29,28 @@ void djGuard(int argc, char* argv[]) {
     this can be re-written using md5
     (which is part of openssl).
 */
+// TODO!!! Not a good name for this function
+/* For testing, verify for a known string that the 
+generated hash is consistent */
 int SeedRNG(const std::string& name) {
+
+    // check why this line is here
     std::string filename = name;
     
     return std::hash<std::string>{}(filename);
 }
 
+// docstring
+// argument should be a seeded rng
+// test -- pass a known seeded state and
+// check that I get the right things, number of spaces etc..
 std::string GenSerialSeed() {
 
     std::ostringstream RNGstr;
     for (int i=0; i<5; i++) {
         if (i > 0) RNGstr << " ";
 
-        RNGstr << std::to_string(rand());
+        RNGstr << std::to_string(rand()); // seed the rng?!?
     }
 
     return RNGstr.str();
@@ -49,6 +58,7 @@ std::string GenSerialSeed() {
 
 
 /* Ensemble Reader Initialisation */
+// test -- use track.yaml and verify that we get the right parameters
 EnsembleReader::EnsembleReader(const std::string filename) {
 
     // Load the parameters from the yaml file
@@ -87,7 +97,8 @@ EnsembleReader::EnsembleReader(const std::string filename) {
         }
     }
 
-    // Get the number of points in a particular lattice dimension
+// Remove!
+// Get the number of points in a particular lattice dimension
 int EnsembleReader::DimLength(const int i) {
         switch (i) {
             case 0: return nx;
@@ -101,7 +112,10 @@ int EnsembleReader::DimLength(const int i) {
         }
     }
 
-    // Gets a char pointer to the dimension string
+// Gets a char pointer to the dimension string
+// ** delete lines 100-113
+// ** replace DimLength(0) with nx, ... etc
+// ** make a test
 const char* EnsembleReader::GetDimStringPointer() {
         dimString = std::to_string(DimLength(0)) + "." +
                     std::to_string(DimLength(1)) + "." +
