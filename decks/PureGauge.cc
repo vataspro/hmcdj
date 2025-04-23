@@ -18,10 +18,7 @@ int main(int argc, char* argv[]) {
     Level1.push_back(&Waction);
     hmcdj.TheHMC.TheAction.push_back(Level1);
 
-    // TheHMC.ReadCommandLine(argc, argv); // these can be parameters from file
     hmcdj.Play();
-
-    Grid::Grid_finalize();  
 
     return 0;
 }

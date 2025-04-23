@@ -4,15 +4,29 @@
 #include <fstream>
 #include <cstdlib>
 #include <string>
-#include <yaml-cpp/yaml.h> // yaml-cpp is required
-
+#include <iomanip>
+#include <yaml-cpp/yaml.h>
+#include <Grid/sitmo_rng/sitmo_prng_engine.hpp>
+#include <openssl/md5.h>
+#include <openssl/evp.h>
 
 /* Guard function called on initialisation */
 void djGuard(int argc, char* argv[]);
 
 /* Functions for seeding pseudoRandom Number Generators */
-int SeedRNG(const std::string& name);
-std::string GenSerialSeed();
+uint32_t md5FileToInt(const std::string& filename);
+
+/* sitmo Random Number Generator interface */
+class RNGManager{
+  private:
+    sitmo::prng_engine engine;
+
+  public:
+    RNGManager(std::string filename);
+    void Seed(std::string filename);
+    std::string GenerateGridRNGSeedString();
+    ~RNGManager() {};
+};
 
 /* Ensemble Reader */
 class EnsembleReader{
@@ -36,9 +50,6 @@ class EnsembleReader{
     
     // Constructor - reads and loads the parameters from the yaml file
     EnsembleReader(const std::string filename);
-
-    // Get the number of points in a particular lattice dimension
-    int DimLength(const int i);
 
     // Gets a char pointer to the dimension string
     const char* GetDimStringPointer();

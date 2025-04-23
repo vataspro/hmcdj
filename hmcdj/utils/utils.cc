@@ -2,14 +2,16 @@
 
 /*
  * Guard
+    Ensures that the program is called correctly.
 
- Ensures that the programme is called correctly
+    Further checks on the validity of the requested yaml file
+    are implemented in the Ensemble Reader.
 */
 void djGuard(int argc, char* argv[]) {
 
     // Usage
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " filename\n";
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " filename --<Other Grid arguments>\n";
         std::exit(EXIT_FAILURE);
     }
 
@@ -19,45 +21,92 @@ void djGuard(int argc, char* argv[]) {
         std::cerr << "File " <<  argv[1] << " does not exist!\n";
         std::exit(EXIT_FAILURE);
     }
-
-    // Perhaps also check that the called file is a yaml file?
 }
 
-/* Ed's magic function to seed an rng 
+/* 
+    * RNGManager Constructor
 
-    Since openssl is required by Grid,
-    this can be re-written using md5
-    (which is part of openssl).
-*/
-// TODO!!! Not a good name for this function
-/* For testing, verify for a known string that the 
-generated hash is consistent */
-int SeedRNG(const std::string& name) {
+    The RNG Manager initialises an instance of the sitmo
+    RNG engine from Grid's source code. This is deterministic
+    and should be compiler indipendent.
 
-    // check why this line is here
-    std::string filename = name;
-    
-    return std::hash<std::string>{}(filename);
+    Using the Seed method, the RNG engine is seeded from the
+    filename when the class is initialised.
+ */
+RNGManager::RNGManager(std::string filename) : engine() {
+    Seed(filename);
 }
 
-// docstring
-// argument should be a seeded rng
-// test -- pass a known seeded state and
-// check that I get the right things, number of spaces etc..
-std::string GenSerialSeed() {
+/* RNGManager Seeding */
+void RNGManager::Seed(std::string filename ) {
+    engine.seed((md5FileToInt(filename)));
+}
+
+/* Generate Grid RNG string */
+std::string RNGManager::GenerateGridRNGSeedString() {
 
     std::ostringstream RNGstr;
-    for (int i=0; i<5; i++) {
-        if (i > 0) RNGstr << " ";
+    std::uniform_int_distribution<int> dist(0, 100);
 
-        RNGstr << std::to_string(rand()); // seed the rng?!?
+    RNGstr << dist(engine);
+
+    for (int i=1; i<5; i++) {
+        RNGstr << " ";
+        RNGstr << dist(engine); 
     }
 
     return RNGstr.str();
 }
 
+/* Get an integer hash from a file's contents */
+uint32_t md5FileToInt(const std::string& filename) {
+    constexpr std::size_t bufferSize = 4096;
+    unsigned char buffer[bufferSize];
+    unsigned char md5Digest[EVP_MAX_MD_SIZE];
+    unsigned int md5Len = 0;
 
-/* Ensemble Reader Initialisation */
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Failed to open file");
+    }
+
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) throw std::runtime_error("Failed to create EVP_MD_CTX");
+
+    if (!EVP_DigestInit_ex(ctx, EVP_md5(), nullptr)) {
+        EVP_MD_CTX_free(ctx);
+        throw std::runtime_error("DigestInit failed");
+    }
+
+    while (file.read(reinterpret_cast<char*>(buffer), bufferSize) || file.gcount() > 0) {
+        if (!EVP_DigestUpdate(ctx, buffer, file.gcount())) {
+            EVP_MD_CTX_free(ctx);
+            throw std::runtime_error("DigestUpdate failed");
+        }
+    }
+
+    if (!EVP_DigestFinal_ex(ctx, md5Digest, &md5Len)) {
+        EVP_MD_CTX_free(ctx);
+        throw std::runtime_error("DigestFinal failed");
+    }
+
+    EVP_MD_CTX_free(ctx);
+
+    uint32_t result;
+    std::memcpy(&result, md5Digest, sizeof(result)); // Use first 4 bytes
+    return result;
+}
+
+
+/* 
+ * Ensemble Reader Initialisation 
+    Read an HMCDJ yaml file.
+
+    Load the Grid job parameters.
+
+    Check that the requested contents exist and raises
+    and error if an issue occurs.
+ */
 // test -- use track.yaml and verify that we get the right parameters
 EnsembleReader::EnsembleReader(const std::string filename) {
 
@@ -79,9 +128,6 @@ EnsembleReader::EnsembleReader(const std::string filename) {
         config_prefix = track["checkpoint"]["configurations"]["prefix"].as<std::string>();
         rng_prefix = track["checkpoint"]["rng"]["prefix"].as<std::string>();
 
-        /* ACTION */
-        //beta = track["Action"]["beta"].as<double>();
-
         /* HMC Parameters */
         trajL = track["HMC"]["MD"]["trajL"].as<double>();
         MDsteps = track["HMC"]["MD"]["MDsteps"].as<int>();
@@ -91,36 +137,24 @@ EnsembleReader::EnsembleReader(const std::string filename) {
         StartingType = track["HMC"]["StartingType"].as<std::string>();
 
 
-    } catch (const YAML::Exception &e) { // protect against bad yaml file
-            std::cerr << "Error loading yaml file: " << e.what() << "\n";
-            exit(EXIT_FAILURE);
-        }
+    } catch (const YAML::Exception &e) { // protect against mistake in yaml file
+        std::cerr << "Error loading yaml file: " << e.what() << "\n";
+        exit(EXIT_FAILURE);
     }
 
-// Remove!
-// Get the number of points in a particular lattice dimension
-int EnsembleReader::DimLength(const int i) {
-        switch (i) {
-            case 0: return nx;
-            case 1: return ny;
-            case 2: return nz;
-            case 3: return nt;
-            default:{
-                std::cerr << "Error! Dimension must be between 0 and 3.\n";
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
+}
 
-// Gets a char pointer to the dimension string
-// ** delete lines 100-113
-// ** replace DimLength(0) with nx, ... etc
 // ** make a test
+/*
+ * Grid Dimensions String
+    Returns a Grid-readable string (pointer to char) to initialise the
+    lattice 4-volume from the yaml file.
+*/
 const char* EnsembleReader::GetDimStringPointer() {
-        dimString = std::to_string(DimLength(0)) + "." +
-                    std::to_string(DimLength(1)) + "." +
-                    std::to_string(DimLength(2)) + "." +
-                    std::to_string(DimLength(3));
+        dimString = std::to_string(nx) + "." +
+                    std::to_string(ny) + "." +
+                    std::to_string(nz) + "." +
+                    std::to_string(nt);
 
         return dimString.c_str();
     }

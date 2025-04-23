@@ -55,16 +55,12 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
     TheHMC.Resources.LoadNerscCheckpointer(CPparams);
 
 
-    /* Seeding the RNG */
-    /* An if statement can check whether the ckpointer
-        has loaded the rng from the previous run.
-    */
-    // For seeding the RNG
-    srand(SeedRNG(argv[0]));
+    /* Seeding the Grid RNG */
+    RNGManager rng(argv[1]); // Seed with a deterministic rng from the yaml file
 
     Grid::RNGModuleParameters RNGpar;
-    RNGpar.serial_seeds = GenSerialSeed();
-    RNGpar.parallel_seeds = GenSerialSeed();
+    RNGpar.serial_seeds = rng.GenerateGridRNGSeedString();
+    RNGpar.parallel_seeds = rng.GenerateGridRNGSeedString();
     TheHMC.Resources.SetRNGSeeds(RNGpar);
 
 
