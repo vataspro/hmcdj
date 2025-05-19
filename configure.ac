@@ -29,6 +29,13 @@ AC_ARG_WITH([grid],
     [CXXFLAGS="$CXXFLAGS -I$with_grid/include"]
     [LDFLAGS="$LDFLAGS -L$with_grid/lib"])
 
+AC_ARG_ENABLE([tests],
+    AS_HELP_STRING([--enable-tests]),
+    [enable_tests=$enableval],
+    [enable_tests=no])
+
+AM_CONDITIONAL( [BUILD_TESTS], [test "x$enable_tests" = "xyes"])
+
 AC_CHECK_PROG([GRIDCONF],[grid-config],[yes])
 if test x"$GRIDCONF" != x"yes" ; then
     AC_MSG_ERROR([grid-config not found])
@@ -111,5 +118,6 @@ AC_SUBST([boop_BRANCH])
 AC_CONFIG_FILES([
     Makefile
     hmcdj/Makefile
-    decks/Makefile])
+    decks/Makefile
+    tests/Makefile])
 AC_OUTPUT
