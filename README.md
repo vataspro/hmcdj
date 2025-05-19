@@ -39,3 +39,13 @@ build directory:
 Please note that for a chosen deck the only valid
 top level namespaces in the track are either `Global` or
 the `deckName`.
+
+## Testing
+
+Tests have been written in [googletest](https://github.com/google/googletest). In order to run them, please first run the following in the home directory:
+
+``` bash
+git submodule update --init --recursive
+```
+
+Now the `-enable-tests=yes` flag can be passed during configuration. This will automatically run the tests. Please note that some of the default tests rely on the `track.yaml`'s file contents to be unchanged from those found in the repository.
