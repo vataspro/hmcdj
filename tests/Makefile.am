@@ -12,8 +12,8 @@ AM_CPPFLAGS += -I$(top_srcdir)/hmcdj/utils
 AM_CPPFLAGS += -DTOP_SRCDIR=\"$(top_srcdir)\"
 
 # Will make these programs when using make check
-check_PROGRAMS = run_test
-run_test_SOURCES = run_test.cpp
-run_test_LDADD = libgtest.a $(top_builddir)/hmcdj/libtestutils.a
+check_PROGRAMS = utils_test
+utils_test_SOURCES = utils_test.cpp
+utils_test_LDADD = libgtest.a $(top_builddir)/hmcdj/libtestutils.a
 
-TESTS = run_test
+TESTS = utils_test
