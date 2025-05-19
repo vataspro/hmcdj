@@ -1,11 +1,14 @@
 #include <gtest/gtest.h>
 #include <utils.h>
 
+// The file used to test the RNG seed
+#define TESTSEEDFILE std::string(TOP_SRCDIR) + "/track.yaml"
+
 // Check that the ensemble reader loads the correct lattice dimensions string
 TEST(UtilTest, EnsembleReaderTest) {
 
     // Load the test "track.yaml" file
-    std::string filename = std::string(TOP_SRCDIR) + "/track.yaml";
+    std::string filename = TESTSEEDFILE;
     EnsembleReader reader(filename);
 
     // Check that the reader loads the correct values
@@ -27,6 +30,14 @@ TEST(UtilTest, EnsembleReaderTest) {
 
 }
 
+// Check that the RNG manager is consistent
+//32 65 9 98 86
+TEST(RNGTest, CheckGridString) {
+
+    RNGManager rng(TESTSEEDFILE);
+
+    EXPECT_STREQ(rng.GenerateGridRNGSeedString().c_str(), "32 65 9 98 86");
+}
 
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
