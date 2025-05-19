@@ -118,6 +118,9 @@ AC_SUBST([hmcdj_BRANCH])
 AC_CONFIG_FILES([
     Makefile
     hmcdj/Makefile
-    decks/Makefile
-    tests/Makefile])
+    decks/Makefile])
+
+if test "x$enable_tests" = "xyes"; then
+  AC_CONFIG_FILES([tests/Makefile])
+fi
 AC_OUTPUT
