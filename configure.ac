@@ -96,24 +96,24 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([no])]
     [AC_MSG_ERROR([yaml-cpp is not available])])
 
-boop_CXX="$CXX"
-boop_CXXLD="$CXXLD"
-boop_CXXFLAGS="$CXXFLAGS"
-boop_LDFLAGS="$LDFLAGS"
-boop_LIBS="$LIBS"
-boop_SHA=`git rev-parse HEAD`
-boop_BRANCH=`git rev-parse --abbrev-ref HEAD`
+hmcdj_CXX="$CXX"
+hmcdj_CXXLD="$CXXLD"
+hmcdj_CXXFLAGS="$CXXFLAGS"
+hmcdj_LDFLAGS="$LDFLAGS"
+hmcdj_LIBS="$LIBS"
+hmcdj_SHA=`git rev-parse HEAD`
+hmcdj_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 AC_SUBST([CXXLD])
 AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_LDFLAGS])
-AC_SUBST([boop_CXX])
-AC_SUBST([boop_CXXLD])
-AC_SUBST([boop_CXXFLAGS])
-AC_SUBST([boop_LDFLAGS])
-AC_SUBST([boop_LIBS])
-AC_SUBST([boop_SHA])
-AC_SUBST([boop_BRANCH])
+AC_SUBST([hmcdj_CXX])
+AC_SUBST([hmcdj_CXXLD])
+AC_SUBST([hmcdj_CXXFLAGS])
+AC_SUBST([hmcdj_LDFLAGS])
+AC_SUBST([hmcdj_LIBS])
+AC_SUBST([hmcdj_SHA])
+AC_SUBST([hmcdj_BRANCH])
 
 AC_CONFIG_FILES([
     Makefile
