@@ -6,7 +6,7 @@
 ## Requirements
 
 HMCDJ requires the [Grid](https://github.com/paboyle/Grid)
- and [yaml-cpp](https://github.com/jbeder/yaml-cpp) libraries.
+ and [yaml-cpp](https://github.com/jbeder/yaml-cpp) libraries. 
 
 ## Compiling HMCDJ
 
@@ -28,7 +28,7 @@ make -C decks
 
 Once the executable has been compiled,
  a test case is provided by the sample
-tracks provided in the `tracks` directory.
+tracks provided in the `example_tracks` directory.
  To run the Pure Gauge deck from the
 build directory:
 
@@ -42,10 +42,18 @@ the `deckName`.
 
 ## Testing
 
-Tests have been written in [googletest](https://github.com/google/googletest). In order to run them, please first run the following in the home directory:
+Tests have been written in 
+[googletest](https://github.com/google/googletest).
+ In order to run the tests,
+ first run the following in the root of the repository.
 
 ``` bash
 git submodule update --init --recursive
 ```
 
-Now the `-enable-tests=yes` flag can be passed during configuration. This will automatically run the tests. Please note that some of the default tests rely on the `track.yaml`'s file contents to be unchanged from those found in the repository.
+Now the `--enable-tests=yes` flag can be passed 
+during configuration. 
+This will automatically run the tests.
+ Please note that some of the default tests rely
+ on the `track.yaml`'s file contents to be u
+nchanged from those found in the repository.
