@@ -2,7 +2,7 @@
 #include <utils.h>
 
 // The file used to test the RNG seed
-#define TESTSEEDFILE std::string(TOP_SRCDIR) + "/track.yaml"
+#define TESTSEEDFILE std::string(TOP_SRCDIR) + "/tests/testTrack1.yaml"
 
 // Check that the ensemble reader loads the correct lattice dimensions string
 TEST(UtilTest, EnsembleReaderTest) {
