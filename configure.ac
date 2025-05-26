@@ -20,7 +20,8 @@ AC_ARG_WITH([yaml-cpp],
             [AS_HELP_STRING([--with-yaml-cpp=<prefix>],
                             [try this for a non-standard install prefix of yaml-cpp])],
             [CXXFLAGS="$CXXFLAGS -I$with_yaml_cpp/include"]
-            [LDFLAGS="$LDFLAGS -L$with_yaml_cpp/lib -lyaml-cpp"])
+            [LDFLAGS="$LDFLAGS -L$with_yaml_cpp/lib"]
+            [LIBS="$LIBS -lyaml-cpp"])
 
 AC_ARG_WITH([grid],
     [AS_HELP_STRING([--with-grid=<prefix>],
@@ -87,8 +88,8 @@ AC_LINK_IFELSE(
 
     int main(int argc, char *argv[])
     {
-
-        return 0;
+        auto node = YAML::Load("key: value");
+        return node["key"].as<int>();
     }
 
     ]])],
