@@ -34,18 +34,3 @@ track.yaml provided in the home directory.
 ``` bash
 ./decks/PureGauge ../track.yaml
 ```
-
-## Testing
-
-Tests have been written in
-[googletest](https://github.com/google/googletest).
- In order to run the tests,
- first run the following in the root of the repository.
-
-``` bash
-git submodule update --init --recursive
-```
-
-Now the `--enable-tests=yes` flag can be passed
-during configuration.
-This will automatically run the tests.
