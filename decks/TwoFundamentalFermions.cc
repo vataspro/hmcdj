@@ -1,56 +1,55 @@
-#include <hmcdj/hmcdj.h>
 #include <Grid/Grid.h>
+#include <hmcdj/hmcdj.h>
 
-/* 
+/*
  * MAIN
  */
 int main(int argc, char* argv[]) {
+  /* typedefs */
+  typedef Grid::Representations<Grid::SpFundamentalRepresentation>
+      TheRepresentations;
+  typedef Grid::SpWilsonImplR FermionImplPolicy;
+  typedef Grid::SpWilsonFermionD FermionAction;
+  typedef typename FermionAction::FermionField FermionField;
 
+  typedef Grid::GenericSpHMCRunnerHirep<TheRepresentations, Grid::MinimumNorm2>
+      HMCWrapper;
 
-    /* typedefs */
-    typedef Grid::Representations<Grid::SpFundamentalRepresentation> TheRepresentations;
-    typedef Grid::SpWilsonImplR FermionImplPolicy;
-    typedef Grid::SpWilsonFermionD FermionAction;
-    typedef typename FermionAction::FermionField FermionField;
+  DJ<HMCWrapper> hmcdj(argc, argv);
 
-    typedef Grid::GenericSpHMCRunnerHirep<TheRepresentations, Grid::MinimumNorm2> HMCWrapper;
+  // Print the layout
+  Grid::GridLogLayout();
 
-    DJ<HMCWrapper> hmcdj(argc, argv);
+  /* Action */
+  Grid::RealD beta = 6.95;
+  Grid::RealD mass = -0.87;
 
-    // Print the layout
-    Grid::GridLogLayout();
+  Grid::SpWilsonGaugeActionR Waction(beta);
 
-    /* Action */
-    Grid::RealD beta = 6.95;
-    Grid::RealD mass = -0.87;
+  auto GridPtr = hmcdj.TheHMC.Resources.GetCartesian();
+  auto GridRBPtr = hmcdj.TheHMC.Resources.GetRBCartesian();
 
-    Grid::SpWilsonGaugeActionR Waction(beta);
+  Grid::SpFundamentalRepresentation::LatticeField U(GridPtr);
 
-    auto GridPtr = hmcdj.TheHMC.Resources.GetCartesian();
-    auto GridRBPtr = hmcdj.TheHMC.Resources.GetRBCartesian();
+  FermionAction FermOp(U, *GridPtr, *GridRBPtr, mass);
 
-    Grid::SpFundamentalRepresentation::LatticeField U(GridPtr);
+  Grid::ConjugateGradient<FermionField> CG(1.0e-8, 2000, false);
 
-    FermionAction FermOp(U, *GridPtr, *GridRBPtr, mass);
+  Grid::TwoFlavourPseudoFermionAction<FermionImplPolicy> Nf2(FermOp, CG, CG);
 
-    Grid::ConjugateGradient<FermionField> CG(1.0e-8, 2000, false);
+  Nf2.is_smeared = false;
 
-    Grid::TwoFlavourPseudoFermionAction<FermionImplPolicy> Nf2(FermOp, CG, CG);
+  Grid::ActionLevel<HMCWrapper::Field, TheRepresentations> Level1(1);
+  Level1.push_back(&Nf2);
 
-    Nf2.is_smeared = false;
+  Grid::ActionLevel<HMCWrapper::Field, TheRepresentations> Level2(4);
+  Level2.push_back(&Waction);
 
-    Grid::ActionLevel<HMCWrapper::Field, TheRepresentations> Level1(1);
-    Level1.push_back(&Nf2);
+  hmcdj.TheHMC.TheAction.push_back(Level1);
+  hmcdj.TheHMC.TheAction.push_back(Level2);
 
-    Grid::ActionLevel<HMCWrapper::Field, TheRepresentations> Level2(4);
-    Level2.push_back(&Waction);
+  /* RUN THE HMC */
+  hmcdj.Play();
 
-    hmcdj.TheHMC.TheAction.push_back(Level1);
-    hmcdj.TheHMC.TheAction.push_back(Level2);
-
-
-    /* RUN THE HMC */
-    hmcdj.Play();
-
-    return 0;
+  return 0;
 }

@@ -29,8 +29,3 @@ HMC:
   StartingType: "HotStart"
 
   StartingTrajectory: -1 #not set yet
-
-
-
-  
-
