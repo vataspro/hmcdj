@@ -13,7 +13,7 @@ for src in *.cc *.cpp; do
     [ -e "$src" ] || continue
 
     exe="${src%.*}"
-    
+
     # Add the program name and sources
     echo "bin_PROGRAMS += $exe" >> Makefile.am
     echo "${exe}_SOURCES = $src" >> Makefile.am
