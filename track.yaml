@@ -24,8 +24,11 @@ HMC:
 
   Thermalisations: 0
 
-  Trajectories: 1
+  Trajectories: 10
 
   StartingType: "HotStart"
 
-  StartingTrajectory: -1 #not set yet
+  StartingTrajectory: 0
+
+HMCDJ:
+  EnsembleDirectory: "."
