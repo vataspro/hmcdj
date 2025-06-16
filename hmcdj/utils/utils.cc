@@ -100,7 +100,7 @@ uint32_t md5FileToInt(const std::string& filename) {
 
     Load the Grid job parameters.
 
-    Check that the requested contents exist and raises
+    Check that the requested contents exist and raise
     and error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
@@ -131,6 +131,14 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     Thermalisations = track["HMC"]["Thermalisations"].as<int>();
     Trajectories = track["HMC"]["Trajectories"].as<int>();
     StartingType = track["HMC"]["StartingType"].as<std::string>();
+    StartingTrajectory = track["HMC"]["StartingTrajectory"].as<int>();
+
+    /* HMCDJ Parameters */
+    EnsembleDirectory = track["HMCDJ"]["EnsembleDirectory"].as<std::string>();
+
+    /* Dynamic Start */
+    setStart();  // Choose the StartingType and StartingTrajectory dynamically
+                 // by checking the enseble home directory for configurations
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
     std::cerr << "Error loading yaml file: " << e.what() << "\n";
@@ -138,7 +146,6 @@ EnsembleReader::EnsembleReader(const std::string filename) {
   }
 }
 
-// ** make a test
 /*
  * Grid Dimensions String
     Returns a Grid-readable string (pointer to char) to initialise the
@@ -149,4 +156,57 @@ const char* EnsembleReader::GetDimStringPointer() {
               std::to_string(nz) + "." + std::to_string(nt);
 
   return dimString.c_str();
+}
+
+/*
+ * setStart
+    Chooses the correct Starting Type and Starting Trajectory for
+    the run.
+
+    This is done by checking in the Ensemble Home Directory for files
+    matching "config_prefix".
+      If it does exist,  set the Starting Type
+    to Checkpoint Start and  the largest configuration as the Starting
+    Trajetory.
+      Else, use the chosen defaults from the track.
+
+ */
+void EnsembleReader::setStart() {
+  int lastConfig = -1;  // What is the last configuration generated?
+
+  // This regular expression matches the grid output configuration file names
+  std::regex pattern("^" + config_prefix + R"(\.(\d+)$)");
+
+  /* Loop over the ensemble directory contents
+      match any configuration files
+      and find last configuration
+  */
+  for (const auto& entry :
+       std::filesystem::directory_iterator(EnsembleDirectory)) {
+    if (!entry.is_regular_file()) {
+      continue;
+    }  // check that entry is a file
+
+    const std::string filename = entry.path().filename().string();
+    std::smatch match;
+
+    // try to match the regex to the file name and get the number
+    if (std::regex_match(filename, match, pattern)) {
+      int number = std::stoi(match[1].str());
+      if (number > lastConfig) {
+        lastConfig = number;
+      }
+    }
+  }
+
+  /* If there are configurations present
+      set the starting type to checkpoint start
+      and the starting trajectory as the last trajectory
+  */
+  if (lastConfig > -1) {
+    StartingType = "CheckpointStart";
+    StartingTrajectory = lastConfig;
+  }
+
+  std::cout << "StartingTrajectory: " << StartingTrajectory << std::endl;
 }

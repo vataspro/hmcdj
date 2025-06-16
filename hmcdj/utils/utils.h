@@ -6,9 +6,11 @@
 
 #include <Grid/sitmo_rng/sitmo_prng_engine.hpp>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <regex>
 #include <string>
 
 /* Guard function called on initialisation */
@@ -46,10 +48,18 @@ class EnsembleReader {
   double trajL;
   int MDsteps, Thermalisations, Trajectories;
   std::string StartingType;
+  /* Dynamic Trajectory Initialisation */
+  int StartingTrajectory;
+  /* HMCDJ metadata */
+  std::string EnsembleDirectory;  // The ensemble/chain home directory
 
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string filename);
 
+  /* Methods */
   // Gets a char pointer to the dimension string
   const char* GetDimStringPointer();
+
+  // Chooses the correct starting type and starting trajectory
+  void setStart();
 };

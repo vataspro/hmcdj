@@ -67,7 +67,11 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
   TheHMC.Parameters.NoMetropolisUntil = reader.Thermalisations;
   TheHMC.Parameters.Trajectories = reader.Trajectories;
 
+  // Set the starting type and starting trajectory
   TheHMC.Parameters.StartingType = reader.StartingType;
+  if (TheHMC.Parameters.StartingType == "CheckpointStart") {
+    TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
+  }
 }
 
 /* Play the track: Run the HMC */
