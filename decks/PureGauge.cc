@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
   DJ<HMCWrapper> hmcdj(argc, argv);
 
   /* Action */
-  Grid::RealD beta = 6.9;
+  Grid::RealD beta = hmcdj.reader.Parameters["beta"];
   Grid::SpWilsonGaugeActionR Waction(beta);
 
   Grid::ActionLevel<HMCWrapper::Field> Level1(1);

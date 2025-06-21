@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <regex>
 #include <string>
 
@@ -55,6 +56,7 @@ class EnsembleReader {
   int StartingTrajectory;
   /* HMCDJ metadata */
   std::string EnsembleDirectory;  // The ensemble/chain home directory
+  std::map<std::string, double> Parameters;  // "Dictionary" of paramters
 
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string filename);
@@ -62,6 +64,9 @@ class EnsembleReader {
   /* Methods */
   // Gets a char pointer to the dimension string
   const char* GetDimStringPointer();
+
+  // Reads the parameters in track["HMCDJ"]["Parameters"]
+  void getParams(const YAML::Node track);
 
   // Chooses the correct starting type and starting trajectory
   void setStart();
