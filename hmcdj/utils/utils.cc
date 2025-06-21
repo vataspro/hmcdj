@@ -160,6 +160,9 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     setStart();  // Choose the StartingType and StartingTrajectory dynamically
                  // by checking the enseble home directory for configurations
 
+    /* Read other HMCDJ parameters */
+    getParams(track);
+
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
     std::cerr << "Error loading yaml file: " << e.what() << "\n";
     exit(EXIT_FAILURE);
@@ -176,6 +179,26 @@ const char* EnsembleReader::GetDimStringPointer() {
               std::to_string(nz) + "." + std::to_string(nt);
 
   return dimString.c_str();
+}
+
+/*
+ * getParams
+     Reads other parameters the user provides to the deck in the
+     track["HMCDJ"]["Parameters"] section of the track (YAML file).
+
+     These are all assumed to be double (floating point) parameters.
+ */
+void EnsembleReader::getParams(const YAML::Node track) {
+  const YAML::Node& params = track["HMCDJ"]["Parameters"];
+
+  // Loop over the parameters and load them
+  for (const auto& item : params) {  // item is the (key, value) pairs
+
+    const std::string key = item.first.as<std::string>();
+    const double value = item.second.as<double>();
+
+    Parameters[key] = value;  // Update the parameter map
+  }
 }
 
 /*

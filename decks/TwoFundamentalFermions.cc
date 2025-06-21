@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
   Grid::GridLogLayout();
 
   /* Action */
-  Grid::RealD beta = 6.95;
-  Grid::RealD mass = -0.87;
+  Grid::RealD beta = hmcdj.reader.Parameters["beta"];
+  Grid::RealD mass = hmcdj.reader.Parameters["mass"];
 
   Grid::SpWilsonGaugeActionR Waction(beta);
 

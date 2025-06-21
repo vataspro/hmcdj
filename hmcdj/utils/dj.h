@@ -6,18 +6,16 @@ template <typename HMCWrapper>
 class DJ {
  public:
   DJ(int argc, char* argv[]);
+  EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
   ~DJ();
 };
 
 template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
+DJ<HMCWrapper>::DJ(int argc, char* argv[]) : reader(argv[1]) {
   // Ensure correct usage
   djGuard(argc, argv);
-
-  // Read Grid parameters from the input file
-  EnsembleReader reader(argv[1]);
 
   // Hacky way to provide Grid with "fake" command line arguments
   int gridc = 3;
