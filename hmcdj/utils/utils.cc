@@ -131,7 +131,6 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     Thermalisations = track["HMC"]["Thermalisations"].as<int>();
     Trajectories = track["HMC"]["Trajectories"].as<int>();
     StartingType = track["HMC"]["StartingType"].as<std::string>();
-    StartingTrajectory = track["HMC"]["StartingTrajectory"].as<int>();
 
     /* HMCDJ Parameters */
     EnsembleDirectory = track["HMCDJ"]["EnsembleDirectory"].as<std::string>();
@@ -172,7 +171,7 @@ const char* EnsembleReader::GetDimStringPointer() {
 
  */
 void EnsembleReader::setStart() {
-  int lastConfig = -1;  // What is the last configuration generated?
+  StartingTrajectory = 0;  // What is the last configuration generated?
 
   // This regular expression matches the grid output configuration file names
   std::regex pattern("^" + config_prefix + R"(\.(\d+)$)");
@@ -192,9 +191,9 @@ void EnsembleReader::setStart() {
 
     // try to match the regex to the file name and get the number
     if (std::regex_match(filename, match, pattern)) {
-      int number = std::stoi(match[1].str());
-      if (number > lastConfig) {
-        lastConfig = number;
+      int configNumber = std::stoi(match[1].str());
+      if (configNumber > StartingTrajectory) {
+        StartingTrajectory = configNumber;
       }
     }
   }
@@ -203,10 +202,7 @@ void EnsembleReader::setStart() {
       set the starting type to checkpoint start
       and the starting trajectory as the last trajectory
   */
-  if (lastConfig > -1) {
+  if (StartingTrajectory > 0) {
     StartingType = "CheckpointStart";
-    StartingTrajectory = lastConfig;
   }
-
-  std::cout << "StartingTrajectory: " << StartingTrajectory << std::endl;
 }

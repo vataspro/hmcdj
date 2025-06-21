@@ -69,9 +69,17 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
 
   // Set the starting type and starting trajectory
   TheHMC.Parameters.StartingType = reader.StartingType;
-  if (TheHMC.Parameters.StartingType == "CheckpointStart") {
-    TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
+  // Check that the starting type is valid
+  if (TheHMC.Parameters.StartingType == "HotStart" &&
+      TheHMC.Parameters.StartingType == "ColdStart") {
+    std::cerr << "Please provide a valid starting type, either 'HotStart' or "
+                 "'ColdStart'"
+              << std::endl;
+    std::exit(EXIT_FAILURE);
   }
+
+  // Get the starting trajectory
+  TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
 }
 
 /* Play the track: Run the HMC */
