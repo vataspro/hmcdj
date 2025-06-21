@@ -171,7 +171,9 @@ const char* EnsembleReader::GetDimStringPointer() {
 
  */
 void EnsembleReader::setStart() {
-  StartingTrajectory = 0;  // What is the last configuration generated?
+  // Initialise the starting trajectory to 0
+  // update if configurations present
+  StartingTrajectory = 0;
 
   // This regular expression matches the grid output configuration file names
   std::regex pattern("^" + config_prefix + R"(\.(\d+)$)");
