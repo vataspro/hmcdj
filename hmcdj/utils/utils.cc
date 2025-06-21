@@ -192,9 +192,7 @@ void EnsembleReader::setStart() {
     // try to match the regex to the file name and get the number
     if (std::regex_match(filename, match, pattern)) {
       int configNumber = std::stoi(match[1].str());
-      if (configNumber > StartingTrajectory) {
-        StartingTrajectory = configNumber;
-      }
+      StartingTrajectory = std::max(configNumber, StartingTrajectory);
     }
   }
 
