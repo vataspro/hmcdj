@@ -28,7 +28,5 @@ HMC:
 
   StartingType: "HotStart"
 
-  StartingTrajectory: 0
-
 HMCDJ:
   EnsembleDirectory: "."
