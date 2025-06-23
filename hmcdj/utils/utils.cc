@@ -115,7 +115,7 @@ uint32_t md5FileToInt(const std::string& filename) {
     Load the Grid job parameters.
 
     Check that the requested contents exist and raise
-    and error if an issue occurs.
+    an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
 EnsembleReader::EnsembleReader(const std::string filename) {
