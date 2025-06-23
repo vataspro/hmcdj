@@ -1,7 +1,7 @@
 #include <hmcdj/utils/utils.h>
 
 /*
- * Guard
+    * Guard
     Ensures that the program is called correctly.
 
     Further checks on the validity of the requested yaml file
@@ -20,6 +20,20 @@ void djGuard(int argc, char* argv[]) {
     std::cerr << "File " << argv[1] << " does not exist!\n";
     std::exit(EXIT_FAILURE);
   }
+}
+
+/*
+    * isValidStartingType
+
+    Checks that a string is a valid Grid starting type,
+    with the valid starting types being:
+    - HotStart
+    - TepidStart
+    - ColdStart
+ */
+bool isValidStartingType(const std::string& startingType) {
+  return startingType == "HotStart" || startingType == "TepidStart" ||
+         startingType == "ColdStart";
 }
 
 /*

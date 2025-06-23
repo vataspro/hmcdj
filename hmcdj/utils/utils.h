@@ -16,6 +16,9 @@
 /* Guard function called on initialisation */
 void djGuard(int argc, char* argv[]);
 
+/* Checks that a string is a valid Grid starting type */
+bool isValidStartingType(const std::string& startingType);
+
 /* Functions for seeding pseudoRandom Number Generators */
 uint32_t md5FileToInt(const std::string& filename);
 
