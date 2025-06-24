@@ -9,6 +9,14 @@ int main(int argc, char* argv[]) {
 
   DJ<HMCWrapper> hmcdj(argc, argv);
 
+  /* Observables */
+  // Add the Plaquette observable
+  typedef Grid::PlaquetteMod<HMCWrapper::ImplPolicy> PlaqObs;
+  hmcdj.TheHMC.Resources.AddObservable<PlaqObs>();
+  // Add the temporal Polyakov Loop observable
+  typedef Grid::PolyakovMod<HMCWrapper::ImplPolicy> PolyakovObs;
+  hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();
+
   /* Action */
   Grid::RealD beta = hmcdj.reader.Parameters["beta"];
   Grid::SpWilsonGaugeActionR Waction(beta);
