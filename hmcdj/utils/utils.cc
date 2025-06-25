@@ -103,7 +103,7 @@ uint32_t md5FileToInt(const std::string& filename) {
 
   EVP_MD_CTX_free(ctx);
 
-  return *reinterpret_cast<uint32_t*>(num);
+  return *reinterpret_cast<uint32_t*>(md5Digest);
 }
 
 /*
