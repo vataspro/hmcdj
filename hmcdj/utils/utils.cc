@@ -103,9 +103,7 @@ uint32_t md5FileToInt(const std::string& filename) {
 
   EVP_MD_CTX_free(ctx);
 
-  uint32_t result;
-  std::memcpy(&result, md5Digest, sizeof(result));  // Use first 4 bytes
-  return result;
+  return *reinterpret_cast<uint32_t*>(md5Digest);
 }
 
 /*
