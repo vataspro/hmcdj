@@ -69,13 +69,6 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
 
   // Set the starting type and starting trajectory
   TheHMC.Parameters.StartingType = reader.StartingType;
-  // Check that the starting type is valid
-  if (isValidStartingType(reader.StartingType)) {
-    std::cerr << "Please provide a valid starting type, 'HotStart',"
-                 "'ColdStart' or 'TepidStart'"
-              << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
 
   // Get the starting trajectory
   TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;

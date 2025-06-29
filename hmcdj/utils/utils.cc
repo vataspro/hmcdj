@@ -147,6 +147,15 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     /* HMCDJ Parameters */
     EnsembleDirectory = track["HMCDJ"]["EnsembleDirectory"].as<std::string>();
 
+    /* Checks */
+    /* Check that the Starting Type is valid */
+    if (not isValidStartingType(StartingType)) {
+        std::cerr << "Please provide a valid starting type, 'HotStart',"
+                     "'ColdStart' or 'TepidStart'"
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
     /* Dynamic Start */
     setStart();  // Choose the StartingType and StartingTrajectory dynamically
                  // by checking the enseble home directory for configurations
@@ -216,5 +225,6 @@ void EnsembleReader::setStart() {
   */
   if (StartingTrajectory > 0) {
     StartingType = "CheckpointStart";
+    Thermalisations = 0;
   }
 }
