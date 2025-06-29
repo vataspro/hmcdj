@@ -31,7 +31,21 @@ int main(int argc, char* argv[]) {
 
   Grid::SpFundamentalRepresentation::LatticeField U(GridPtr);
 
-  FermionAction FermOp(U, *GridPtr, *GridRBPtr, mass);
+  /* Observables */
+  // Add the Plaquette observable
+  typedef Grid::PlaquetteMod<HMCWrapper::ImplPolicy> PlaqObs;
+  hmcdj.TheHMC.Resources.AddObservable<PlaqObs>();
+  // Add the temporal Polyakov Loop observable
+  typedef Grid::PolyakovMod<HMCWrapper::ImplPolicy> PolyakovObs;
+  hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();
+
+  // Boundary conditions input  by hand right now, should be fixed
+  // with allowing integer params
+  // THIS BC IMPLEMENTS FINITE TEMPERATURE PHYSICS
+  std::vector<Grid::ComplexD> boundary = {1, 1, 1, -1};
+  FermionAction::ImplParams bc(boundary);
+
+  FermionAction FermOp(U, *GridPtr, *GridRBPtr, mass, bc);
 
   Grid::ConjugateGradient<FermionField> CG(1.0e-8, 2000, false);
 
