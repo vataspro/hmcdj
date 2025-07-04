@@ -145,7 +145,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
   /* Compute the projected duration of the next trajectory,
      from the mean of those that have been completed so far.
      Add padding of safetyFactor times the standard deviation,
-     where available.. */
+     where available. */
   std::chrono::high_resolution_clock::duration projectNextTrajectory(
       int safetyFactor) {
     switch (trajectoryDurations.size()) {
