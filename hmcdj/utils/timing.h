@@ -49,17 +49,6 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
   };
 
  private:
-  void setUpSignals() {
-    struct sigaction signalHandler;
-    signalHandler.sa_handler = [](int signal) {
-      TrajectoryTimer::preemptedAndStopping = true;
-    };
-    sigemptyset(&signalHandler.sa_mask);
-    signalHandler.sa_flags = 0;
-
-    sigaction(SIGUSR1, &signalHandler, NULL);
-  };
-
   void checkTiming(const int traj) {
     // Ensure that we don't accidentally handle timing twice.
     assert(!trajectoryDurations.contains(traj));
@@ -77,6 +66,17 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
       haltAsOutOfTime(
           "Insufficient time projected to complete another trajectory.");
     }
+  };
+
+  void setUpSignals() {
+    struct sigaction signalHandler;
+    signalHandler.sa_handler = [](int signal) {
+      TrajectoryTimer::preemptedAndStopping = true;
+    };
+    sigemptyset(&signalHandler.sa_mask);
+    signalHandler.sa_flags = 0;
+
+    sigaction(SIGUSR1, &signalHandler, NULL);
   };
 
   void notifyProgress(const int traj) {
