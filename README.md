@@ -42,6 +42,33 @@ Please note that for a chosen deck the only valid
 top level namespaces in the track are either `Global` or
 the `deckName`.
 
+### Timing
+
+HMCDJ will compmute a running average of time-to-trajectory,
+and use this to automatically stop before hitting a time limit.
+
+Currently,
+it reads this time limit from the environment variable
+`SLURM_JOB_END_TIME`,
+which is expected to be a Unix timestamp
+(number of seconds since 1970-01-01),
+and is set automatically for Slurm jobs.
+
+Additionally,
+it will complete the current trajectory and exit
+after receiving `SIGUSR1`.
+To have Slurm generate this automatically,
+for example,
+thirty minutes (1800 seconds) before a job completes,
+one may add the following flag to their job script:
+
+```
+#SBATCH --signal=R:USR1@1800
+```
+
+The delay after the signal should be slightly greater than
+the anticipated time to generate one trajectory.
+
 ## Testing
 
 Tests have been written in
