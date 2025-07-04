@@ -17,6 +17,8 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
   typedef typename Impl::Field Field;
 
   std::chrono::high_resolution_clock::time_point startTime, lastUpdate;
+
+  // map from trajectory index to time taken to complete that trajectory
   std::map<int, std::chrono::high_resolution_clock::duration>
       trajectoryDurations;
 
