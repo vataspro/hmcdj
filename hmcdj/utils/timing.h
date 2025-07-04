@@ -58,11 +58,11 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     sigaction(SIGUSR1, &signalHandler, NULL);
   };
 
-  void checkTiming(int traj) {
+  void checkTiming(const int traj) {
     // Ensure that we don't accidentally handle timing twice.
     assert(!trajectoryDurations.contains(traj));
 
-    std::chrono::high_resolution_clock::time_point currentTime =
+    const std::chrono::high_resolution_clock::time_point currentTime =
         std::chrono::high_resolution_clock::now();
     trajectoryDurations[traj] = currentTime - lastUpdate;
     lastUpdate = currentTime;
@@ -77,7 +77,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     }
   };
 
-  void notifyProgress(int traj) {
+  void notifyProgress(const int traj) {
     const int meanOnly = 0;
     std::cout << DJLogTiming << "Trajectory " << traj << " ("
               << trajectoryDurations.size() << " of this run) completed in "
@@ -85,7 +85,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     std::cout << DJLogTiming << "Mean trajectory time is "
               << projectNextTrajectory(meanOnly) << "." << std::endl;
     if (trajectoryDurations.size() > 0 && haveSchedulerDeadline) {
-      int projectedRemainingTrajectories = projectRemainingTrajectories();
+      const int projectedRemainingTrajectories = projectRemainingTrajectories();
       if (projectedRemainingTrajectories > 0) {
         std::cout << DJLogTiming << "Project generating "
                   << projectedRemainingTrajectories
@@ -147,7 +147,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
      Add padding of safetyFactor times the standard deviation,
      where available. */
   std::chrono::high_resolution_clock::duration projectNextTrajectory(
-      int safetyFactor) {
+      const int safetyFactor) {
     switch (trajectoryDurations.size()) {
       case 0:
         // We want to try one trajectory at least
@@ -167,7 +167,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
         using namespace std::chrono_literals;
         std::chrono::high_resolution_clock::duration sumDuration = 0ms;
         long sumSquareDuration = 0;
-        int firstTrajectory = trajectoryDurations.begin()->first;
+        const int firstTrajectory = trajectoryDurations.begin()->first;
         for (auto const &[trajectory, trajectoryDuration] :
              trajectoryDurations) {
           if (trajectory != firstTrajectory) {
@@ -179,12 +179,12 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
             sumSquareDuration += trajectoryDurationNS * trajectoryDurationNS;
           }
         }
-        long numDurations = trajectoryDurations.size() - 1;
-        std::chrono::high_resolution_clock::duration meanDuration =
+        const long numDurations = trajectoryDurations.size() - 1;
+        const std::chrono::high_resolution_clock::duration meanDuration =
             sumDuration / numDurations;
-        long meanDurationNS = meanDuration / 1.0ns;
-        double meanSquareDurationNS = sumSquareDuration / numDurations;
-        double stdDuration = std::sqrt(
+        const long meanDurationNS = meanDuration / 1.0ns;
+        const double meanSquareDurationNS = sumSquareDuration / numDurations;
+        const double stdDuration = std::sqrt(
             ((double)meanSquareDurationNS - meanDurationNS * meanDurationNS) *
             (double)numDurations / (numDurations - 1));
 
