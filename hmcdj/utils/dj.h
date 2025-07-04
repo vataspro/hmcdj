@@ -14,6 +14,9 @@ class DJ {
   ~DJ();
 };
 
+const int DJ_NUM_EXTRA_ARGS = 2;
+char** getGridArgv(int argc, char* argv[], const char* grid);
+
 template <typename HMCWrapper>
 DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
                    djParameterList Parameters)
@@ -21,19 +24,13 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   // Ensure correct usage
   djGuard(argc, argv);
 
-  // Hacky way to provide Grid with "fake" command line arguments
-  int gridc = 3;
-
-  char* gridv[] = {(char*)argv[0], (char*)"--grid",
-                   (char*)reader.GetDimStringPointer(), nullptr};
-
-  // This is super ugly
-  char** gridv_ptr = (char**)gridv;
-
   /* GRID PURE GAUGE STARTS HERE */
 
   // Initialise Grid and print the layout
-  Grid::Grid_init(&gridc, &gridv_ptr);
+  // Subtract one as we remove the track filename
+  int gridArgc = argc + DJ_NUM_EXTRA_ARGS - 1;
+  char** gridArgv = getGridArgv(argc, argv, reader.GetDimStringPointer());
+  Grid::Grid_init(&gridArgc, &gridArgv);
   Grid::GridLogLayout();
 
   // Add gauge field
