@@ -1,6 +1,7 @@
 #pragma once
 #include <Grid/Grid.h>
 #include <hmcdj/utils/parameter.h>
+#include <hmcdj/utils/timing.h>
 #include <hmcdj/utils/utils.h>
 
 template <typename HMCWrapper>
@@ -81,6 +82,12 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
 /* Play the track: Run the HMC */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Play() {
+  // Make timer the last observable we add,
+  // so it doesn't preempt any other obserable calculations on the last
+  // trajectory
+  typedef TimingMod<typename HMCWrapper::ImplPolicy> TimingObs;
+  TheHMC.Resources.template AddObservable<TimingObs>();
+
   TheHMC.Run();
 }
 
