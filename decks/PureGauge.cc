@@ -7,7 +7,11 @@
 int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
 
-  DJ<HMCWrapper> hmcdj(argc, argv);
+  // Define parameters
+  auto BetaParam = std::make_unique<djParameter<double>>("beta");
+  std::vector<ParameterBase*> params = {BetaParam.get()};
+
+  DJ<HMCWrapper> hmcdj(argc, argv, params);
 
   /* Observables */
   // Add the Plaquette observable
@@ -18,7 +22,9 @@ int main(int argc, char* argv[]) {
   hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();
 
   /* Action */
-  Grid::RealD beta = hmcdj.reader.Parameters["beta"];
+  // Grid::RealD beta = hmcdj.reader.Parameters["beta"];
+  Grid::RealD beta = BetaParam->value;
+
   Grid::SpWilsonGaugeActionR Waction(beta);
 
   Grid::ActionLevel<HMCWrapper::Field> Level1(1);

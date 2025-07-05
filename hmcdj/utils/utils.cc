@@ -1,3 +1,4 @@
+#include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
 /*
@@ -116,7 +117,9 @@ uint32_t md5FileToInt(const std::string& filename) {
     an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
-EnsembleReader::EnsembleReader(const std::string filename) {
+EnsembleReader::EnsembleReader(const std::string filename,
+                               std::vector<ParameterBase*> params)
+    : Parameters(params) {
   // Load the parameters from the yaml file
   try {
     // Load the yaml file
@@ -150,10 +153,10 @@ EnsembleReader::EnsembleReader(const std::string filename) {
     /* Checks */
     /* Check that the Starting Type is valid */
     if (not isValidStartingType(StartingType)) {
-        std::cerr << "Please provide a valid starting type, 'HotStart',"
-                     "'ColdStart' or 'TepidStart'"
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
+      std::cerr << "Please provide a valid starting type, 'HotStart',"
+                   "'ColdStart' or 'TepidStart'"
+                << std::endl;
+      std::exit(EXIT_FAILURE);
     }
 
     /* Dynamic Start */
@@ -161,7 +164,9 @@ EnsembleReader::EnsembleReader(const std::string filename) {
                  // by checking the enseble home directory for configurations
 
     /* Read other HMCDJ parameters */
-    getParams(track);
+    if (!Parameters.empty()) {
+      getParams(track);
+    }
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
     std::cerr << "Error loading yaml file: " << e.what() << "\n";
@@ -192,12 +197,8 @@ void EnsembleReader::getParams(const YAML::Node track) {
   const YAML::Node& params = track["HMCDJ"]["Parameters"];
 
   // Loop over the parameters and load them
-  for (const auto& item : params) {  // item is the (key, value) pairs
-
-    const std::string key = item.first.as<std::string>();
-    const double value = item.second.as<double>();
-
-    Parameters[key] = value;  // Update the parameter map
+  for (auto* param : Parameters) {
+    param->readFromYAML(params);
   }
 }
 

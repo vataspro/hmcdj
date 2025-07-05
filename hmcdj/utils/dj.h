@@ -1,11 +1,12 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
 template <typename HMCWrapper>
 class DJ {
  public:
-  DJ(int argc, char* argv[]);
+  DJ(int argc, char* argv[], std::vector<ParameterBase*> Parameters);
   EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
@@ -13,7 +14,9 @@ class DJ {
 };
 
 template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(int argc, char* argv[]) : reader(argv[1]) {
+DJ<HMCWrapper>::DJ(int argc, char* argv[],
+                   std::vector<ParameterBase*> Parameters)
+    : reader(argv[1], Parameters) {
   // Ensure correct usage
   djGuard(argc, argv);
 

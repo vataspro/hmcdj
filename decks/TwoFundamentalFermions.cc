@@ -15,14 +15,20 @@ int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunnerHirep<TheRepresentations, Grid::MinimumNorm2>
       HMCWrapper;
 
-  DJ<HMCWrapper> hmcdj(argc, argv);
+  // HMCDJ Parameters
+  auto BetaParam = std::make_unique<djParameter<double>>("beta");
+  auto MassParam = std::make_unique<djParameter<double>>("mass");
+  std::vector<ParameterBase*> params = {BetaParam.get(), MassParam.get()};
+
+  // Initialise HMCDJ
+  DJ<HMCWrapper> hmcdj(argc, argv, params);
 
   // Print the layout
   Grid::GridLogLayout();
 
   /* Action */
-  Grid::RealD beta = hmcdj.reader.Parameters["beta"];
-  Grid::RealD mass = hmcdj.reader.Parameters["mass"];
+  Grid::RealD beta = BetaParam->value;
+  Grid::RealD mass = MassParam->value;
 
   Grid::SpWilsonGaugeActionR Waction(beta);
 

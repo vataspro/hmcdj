@@ -1,5 +1,6 @@
 #pragma once
 
+#include <hmcdj/utils/parameter.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
@@ -55,11 +56,14 @@ class EnsembleReader {
   /* Dynamic Trajectory Initialisation */
   int StartingTrajectory;
   /* HMCDJ metadata */
-  std::string EnsembleDirectory;  // The ensemble/chain home directory
-  std::map<std::string, double> Parameters;  // "Dictionary" of paramters
+  std::string EnsembleDirectory;           // The ensemble/chain home directory
+  std::vector<ParameterBase*> Parameters;  // Vector of parameters,
+                                           // individually wrapped
+                                           // in the Base class.
 
   // Constructor - reads and loads the parameters from the yaml file
-  EnsembleReader(const std::string filename);
+  EnsembleReader(const std::string filename,
+                 std::vector<ParameterBase*> Parameters);
 
   /* Methods */
   // Gets a char pointer to the dimension string
