@@ -7,6 +7,7 @@ template <typename HMCWrapper>
 class DJ {
  public:
   DJ(int argc, char* argv[], djParameterList Parameters);
+  DJ(int argc, char* argv[]);
   EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
@@ -73,6 +74,10 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[], djParameterList Parameters)
   // Get the starting trajectory
   TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
 }
+
+// Overload for passing no parameters
+template <typename HMCWrapper>
+DJ<HMCWrapper>::DJ(int argc, char* argv[]) : DJ(argc, argv, {}) {}
 
 /* Play the track: Run the HMC */
 template <typename HMCWrapper>
