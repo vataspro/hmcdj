@@ -60,9 +60,11 @@ class EnsembleReader {
   djParameterList Parameters;     // Vector of parameters,
                                   // individually wrapped
                                   // in the Base class.
+  std::string trackname;
 
   // Constructor - reads and loads the parameters from the yaml file
-  EnsembleReader(const std::string filename, djParameterList Parameters);
+  EnsembleReader(const std::string filename, djParameterList Parameters,
+                 std::string trackname);
 
   /* Methods */
   // Gets a char pointer to the dimension string

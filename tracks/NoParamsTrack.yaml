@@ -30,6 +30,4 @@ HMC:
 
 HMCDJ:
   EnsembleDirectory: "."
-  Parameters:
-    beta: 6.9
-    mass: -0.87
+

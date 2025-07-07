@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
 
   // Instantiate DJ
-  DJ<HMCWrapper> hmcdj(argc, argv);
+  DJ<HMCWrapper> hmcdj(argc, argv, "NoParams");
 
   /* Observables */
   // Add the Plaquette observable

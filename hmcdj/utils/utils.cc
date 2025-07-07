@@ -118,8 +118,8 @@ uint32_t md5FileToInt(const std::string& filename) {
  */
 // test -- use track.yaml and verify that we get the right parameters
 EnsembleReader::EnsembleReader(const std::string filename,
-                               djParameterList params)
-    : Parameters(params) {
+                               djParameterList params, std::string tracknm)
+    : Parameters(params), trackname(tracknm) {
   // Load the parameters from the yaml file
   try {
     // Load the yaml file
@@ -194,11 +194,16 @@ const char* EnsembleReader::GetDimStringPointer() {
      These are all assumed to be double (floating point) parameters.
  */
 void EnsembleReader::getParams(const YAML::Node track) {
-  const YAML::Node& params = track["HMCDJ"]["Parameters"];
+  try {
+    const YAML::Node& params = track[trackname];
+    // Loop over the parameters and load them
+    for (auto& param : Parameters) {
+      param.get().readFromYAML(params);
+    }
 
-  // Loop over the parameters and load them
-  for (auto& param : Parameters) {
-    param.get().readFromYAML(params);
+  } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
+    std::cerr << "Error loading yaml file: " << e.what() << "\n";
+    exit(EXIT_FAILURE);
   }
 }
 
