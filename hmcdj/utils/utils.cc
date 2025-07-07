@@ -118,7 +118,7 @@ uint32_t md5FileToInt(const std::string& filename) {
  */
 // test -- use track.yaml and verify that we get the right parameters
 EnsembleReader::EnsembleReader(const std::string filename,
-                               std::vector<ParameterBase*> params)
+                               djParameterList params)
     : Parameters(params) {
   // Load the parameters from the yaml file
   try {
@@ -197,8 +197,8 @@ void EnsembleReader::getParams(const YAML::Node track) {
   const YAML::Node& params = track["HMCDJ"]["Parameters"];
 
   // Loop over the parameters and load them
-  for (auto* param : Parameters) {
-    param->readFromYAML(params);
+  for (auto& param : Parameters) {
+    param.get().readFromYAML(params);
   }
 }
 

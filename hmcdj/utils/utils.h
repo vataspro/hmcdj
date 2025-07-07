@@ -56,14 +56,13 @@ class EnsembleReader {
   /* Dynamic Trajectory Initialisation */
   int StartingTrajectory;
   /* HMCDJ metadata */
-  std::string EnsembleDirectory;           // The ensemble/chain home directory
-  std::vector<ParameterBase*> Parameters;  // Vector of parameters,
-                                           // individually wrapped
-                                           // in the Base class.
+  std::string EnsembleDirectory;  // The ensemble/chain home directory
+  djParameterList Parameters;     // Vector of parameters,
+                                  // individually wrapped
+                                  // in the Base class.
 
   // Constructor - reads and loads the parameters from the yaml file
-  EnsembleReader(const std::string filename,
-                 std::vector<ParameterBase*> Parameters);
+  EnsembleReader(const std::string filename, djParameterList Parameters);
 
   /* Methods */
   // Gets a char pointer to the dimension string

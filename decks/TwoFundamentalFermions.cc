@@ -16,9 +16,9 @@ int main(int argc, char* argv[]) {
       HMCWrapper;
 
   // HMCDJ Parameters
-  auto BetaParam = std::make_unique<djParameter<double>>("beta");
-  auto MassParam = std::make_unique<djParameter<double>>("mass");
-  std::vector<ParameterBase*> params = {BetaParam.get(), MassParam.get()};
+  auto beta = djParameter<double>("beta");
+  auto mass = djParameter<double>("mass");
+  djParameterList params = {beta, mass};
 
   // Initialise HMCDJ
   DJ<HMCWrapper> hmcdj(argc, argv, params);
@@ -27,9 +27,6 @@ int main(int argc, char* argv[]) {
   Grid::GridLogLayout();
 
   /* Action */
-  Grid::RealD beta = BetaParam->value;
-  Grid::RealD mass = MassParam->value;
-
   Grid::SpWilsonGaugeActionR Waction(beta);
 
   auto GridPtr = hmcdj.TheHMC.Resources.GetCartesian();
