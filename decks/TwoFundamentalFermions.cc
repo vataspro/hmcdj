@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   djParameterList params = {beta, mass};
 
   // Initialise HMCDJ
-  DJ<HMCWrapper> hmcdj(argc, argv, params, "TwoFundamentalFermions");
+  DJ<HMCWrapper> hmcdj("TwoFundamentalFermions", argc, argv, params);
 
   // Print the layout
   Grid::GridLogLayout();

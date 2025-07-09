@@ -117,38 +117,53 @@ uint32_t md5FileToInt(const std::string& filename) {
     an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
-EnsembleReader::EnsembleReader(const std::string filename,
-                               djParameterList params, std::string tracknm)
-    : Parameters(params), trackname(tracknm) {
+EnsembleReader::EnsembleReader(const std::string deckNm,
+                               const std::string filename,
+                               djParameterList params)
+    : Parameters(params), deckName(deckNm) {
   // Load the parameters from the yaml file
   try {
     // Load the yaml file
     YAML::Node track = YAML::LoadFile(filename);
 
+    // Loop over the highest level namespaces
+    // Ensure that only 'Global' and deckName are present
+    for (const auto& pair : track) {
+      std::string name = pair.first.as<std::string>();
+      if ((name != "Global") && (name != deckName)) {
+        std::cerr << "Error: " << name << " is an invalid namespace"
+                  << " for deck " << deckName << std::endl;
+
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    YAML::Node global = track["Global"];
+
     /* VOLUME */
     // Grid lattice parameters
-    nt = track["volume"]["nt"].as<int>();
-    nx = track["volume"]["nx"].as<int>();
-    ny = track["volume"]["ny"].as<int>();
-    nz = track["volume"]["nz"].as<int>();
+    nt = global["volume"]["nt"].as<int>();
+    nx = global["volume"]["nx"].as<int>();
+    ny = global["volume"]["ny"].as<int>();
+    nz = global["volume"]["nz"].as<int>();
 
     /* CHECKPOINTING */
-    saveInterval = track["checkpoint"]["saveInterval"].as<int>();
-    format = track["checkpoint"]["format"].as<std::string>();
+    saveInterval = global["checkpoint"]["saveInterval"].as<int>();
+    format = global["checkpoint"]["format"].as<std::string>();
     config_prefix =
-        track["checkpoint"]["configurations"]["prefix"].as<std::string>();
-    rng_prefix = track["checkpoint"]["rng"]["prefix"].as<std::string>();
+        global["checkpoint"]["configurations"]["prefix"].as<std::string>();
+    rng_prefix = global["checkpoint"]["rng"]["prefix"].as<std::string>();
 
     /* HMC Parameters */
-    trajL = track["HMC"]["MD"]["trajL"].as<double>();
-    MDsteps = track["HMC"]["MD"]["MDsteps"].as<int>();
+    trajL = global["HMC"]["MD"]["trajL"].as<double>();
+    MDsteps = global["HMC"]["MD"]["MDsteps"].as<int>();
 
-    Thermalisations = track["HMC"]["Thermalisations"].as<int>();
-    Trajectories = track["HMC"]["Trajectories"].as<int>();
-    StartingType = track["HMC"]["StartingType"].as<std::string>();
+    Thermalisations = global["HMC"]["Thermalisations"].as<int>();
+    Trajectories = global["HMC"]["Trajectories"].as<int>();
+    StartingType = global["HMC"]["StartingType"].as<std::string>();
 
     /* HMCDJ Parameters */
-    EnsembleDirectory = track["HMCDJ"]["EnsembleDirectory"].as<std::string>();
+    EnsembleDirectory = global["HMCDJ"]["EnsembleDirectory"].as<std::string>();
 
     /* Checks */
     /* Check that the Starting Type is valid */
@@ -195,7 +210,7 @@ const char* EnsembleReader::GetDimStringPointer() {
  */
 void EnsembleReader::getParams(const YAML::Node track) {
   try {
-    const YAML::Node& params = track[trackname];
+    const YAML::Node& params = track[deckName];
     // Loop over the parameters and load them
     for (auto& param : Parameters) {
       param.get().readFromYAML(params);

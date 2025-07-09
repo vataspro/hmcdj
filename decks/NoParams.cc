@@ -2,7 +2,7 @@
   * decks/NoParams.cc
 
   This example deck has no custom hmcdj parameters
-  and implements the 
+  and implements the
   overloaded constructor for the DJ class.
 
   It runs a Pure Gauge HMC chain with the value
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
 
   // Instantiate DJ
-  DJ<HMCWrapper> hmcdj(argc, argv, "NoParams");
+  DJ<HMCWrapper> hmcdj("NoParams", argc, argv);
 
   /* Observables */
   // Add the Plaquette observable

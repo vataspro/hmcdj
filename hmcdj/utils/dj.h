@@ -6,8 +6,8 @@
 template <typename HMCWrapper>
 class DJ {
  public:
-  DJ(int argc, char* argv[], djParameterList Parameters, std::string trackname);
-  DJ(int argc, char* argv[], std::string trackname);
+  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters);
+  DJ(std::string deckName, int argc, char* argv[]);
   EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
@@ -15,9 +15,9 @@ class DJ {
 };
 
 template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(int argc, char* argv[], djParameterList Parameters,
-                   std::string trackname)
-    : reader(argv[1], Parameters, trackname) {
+DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
+                   djParameterList Parameters)
+    : reader(deckName, argv[1], Parameters) {
   // Ensure correct usage
   djGuard(argc, argv);
 
@@ -78,8 +78,8 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[], djParameterList Parameters,
 
 // Overload for passing no parameters
 template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(int argc, char* argv[], std::string trackname)
-    : DJ(argc, argv, {}, trackname) {}
+DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
+    : DJ(deckName, argc, argv, {}) {}
 
 /* Play the track: Run the HMC */
 template <typename HMCWrapper>

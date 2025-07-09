@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
   auto beta = djParameter<double>("beta");
   djParameterList params = {beta};
 
-  DJ<HMCWrapper> hmcdj(argc, argv, params, "PureGauge");
+  DJ<HMCWrapper> hmcdj("PureGauge", argc, argv, params);
 
   /* Observables */
   // Add the Plaquette observable
