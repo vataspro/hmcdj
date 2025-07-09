@@ -1,5 +1,18 @@
+/*
+  * decks/NoParams.cc
+
+  This example deck has no custom hmcdj parameters
+  and implements the
+  overloaded constructor for the DJ class.
+
+  It runs a Pure Gauge HMC chain with the value
+  of beta hard coded below
+
+*/
 #include <Grid/Grid.h>
 #include <hmcdj/hmcdj.h>
+
+#define BETA_VAL 7.2
 
 /*
  * MAIN
@@ -7,11 +20,8 @@
 int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
 
-  // Define parameters
-  auto beta = djParameter<double>("beta");
-  djParameterList params = {beta};
-
-  DJ<HMCWrapper> hmcdj("PureGauge", argc, argv, params);
+  // Instantiate DJ
+  DJ<HMCWrapper> hmcdj("NoParams", argc, argv);
 
   /* Observables */
   // Add the Plaquette observable
@@ -22,7 +32,7 @@ int main(int argc, char* argv[]) {
   hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();
 
   /* Action */
-  Grid::SpWilsonGaugeActionR Waction(beta);
+  Grid::SpWilsonGaugeActionR Waction(BETA_VAL);
 
   Grid::ActionLevel<HMCWrapper::Field> Level1(1);
   Level1.push_back(&Waction);

@@ -1,23 +1,25 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
 template <typename HMCWrapper>
 class DJ {
  public:
-  DJ(int argc, char* argv[]);
+  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters);
+  DJ(std::string deckName, int argc, char* argv[]);
+  EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
   ~DJ();
 };
 
 template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
+DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
+                   djParameterList Parameters)
+    : reader(deckName, argv[1], Parameters) {
   // Ensure correct usage
   djGuard(argc, argv);
-
-  // Read Grid parameters from the input file
-  EnsembleReader reader(argv[1]);
 
   // Hacky way to provide Grid with "fake" command line arguments
   int gridc = 3;
@@ -73,6 +75,11 @@ DJ<HMCWrapper>::DJ(int argc, char* argv[]) {
   // Get the starting trajectory
   TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
 }
+
+// Overload for passing no parameters
+template <typename HMCWrapper>
+DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
+    : DJ(deckName, argc, argv, {}) {}
 
 /* Play the track: Run the HMC */
 template <typename HMCWrapper>

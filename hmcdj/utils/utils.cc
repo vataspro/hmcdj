@@ -1,3 +1,4 @@
+#include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
 /*
@@ -116,49 +117,71 @@ uint32_t md5FileToInt(const std::string& filename) {
     an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
-EnsembleReader::EnsembleReader(const std::string filename) {
+EnsembleReader::EnsembleReader(const std::string deckNm,
+                               const std::string filename,
+                               djParameterList params)
+    : Parameters(params), deckName(deckNm) {
   // Load the parameters from the yaml file
   try {
     // Load the yaml file
     YAML::Node track = YAML::LoadFile(filename);
 
+    // Loop over the highest level namespaces
+    // Ensure that only 'Global' and deckName are present
+    for (const auto& pair : track) {
+      std::string name = pair.first.as<std::string>();
+      if ((name != "Global") && (name != deckName)) {
+        std::cerr << "Error: " << name << " is an invalid namespace"
+                  << " for deck " << deckName << std::endl;
+
+        exit(EXIT_FAILURE);
+      }
+    }
+
+    YAML::Node global = track["Global"];
+
     /* VOLUME */
     // Grid lattice parameters
-    nt = track["volume"]["nt"].as<int>();
-    nx = track["volume"]["nx"].as<int>();
-    ny = track["volume"]["ny"].as<int>();
-    nz = track["volume"]["nz"].as<int>();
+    nt = global["volume"]["nt"].as<int>();
+    nx = global["volume"]["nx"].as<int>();
+    ny = global["volume"]["ny"].as<int>();
+    nz = global["volume"]["nz"].as<int>();
 
     /* CHECKPOINTING */
-    saveInterval = track["checkpoint"]["saveInterval"].as<int>();
-    format = track["checkpoint"]["format"].as<std::string>();
+    saveInterval = global["checkpoint"]["saveInterval"].as<int>();
+    format = global["checkpoint"]["format"].as<std::string>();
     config_prefix =
-        track["checkpoint"]["configurations"]["prefix"].as<std::string>();
-    rng_prefix = track["checkpoint"]["rng"]["prefix"].as<std::string>();
+        global["checkpoint"]["configurations"]["prefix"].as<std::string>();
+    rng_prefix = global["checkpoint"]["rng"]["prefix"].as<std::string>();
 
     /* HMC Parameters */
-    trajL = track["HMC"]["MD"]["trajL"].as<double>();
-    MDsteps = track["HMC"]["MD"]["MDsteps"].as<int>();
+    trajL = global["HMC"]["MD"]["trajL"].as<double>();
+    MDsteps = global["HMC"]["MD"]["MDsteps"].as<int>();
 
-    Thermalisations = track["HMC"]["Thermalisations"].as<int>();
-    Trajectories = track["HMC"]["Trajectories"].as<int>();
-    StartingType = track["HMC"]["StartingType"].as<std::string>();
+    Thermalisations = global["HMC"]["Thermalisations"].as<int>();
+    Trajectories = global["HMC"]["Trajectories"].as<int>();
+    StartingType = global["HMC"]["StartingType"].as<std::string>();
 
     /* HMCDJ Parameters */
-    EnsembleDirectory = track["HMCDJ"]["EnsembleDirectory"].as<std::string>();
+    EnsembleDirectory = global["HMCDJ"]["EnsembleDirectory"].as<std::string>();
 
     /* Checks */
     /* Check that the Starting Type is valid */
     if (not isValidStartingType(StartingType)) {
-        std::cerr << "Please provide a valid starting type, 'HotStart',"
-                     "'ColdStart' or 'TepidStart'"
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
+      std::cerr << "Please provide a valid starting type, 'HotStart',"
+                   "'ColdStart' or 'TepidStart'"
+                << std::endl;
+      std::exit(EXIT_FAILURE);
     }
 
     /* Dynamic Start */
     setStart();  // Choose the StartingType and StartingTrajectory dynamically
                  // by checking the enseble home directory for configurations
+
+    /* Read other HMCDJ parameters */
+    if (!Parameters.empty()) {
+      getParams(track);
+    }
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
     std::cerr << "Error loading yaml file: " << e.what() << "\n";
@@ -176,6 +199,27 @@ const char* EnsembleReader::GetDimStringPointer() {
               std::to_string(nz) + "." + std::to_string(nt);
 
   return dimString.c_str();
+}
+
+/*
+ * getParams
+     Reads other parameters the user provides to the deck in the
+     track["HMCDJ"]["Parameters"] section of the track (YAML file).
+
+     These are all assumed to be double (floating point) parameters.
+ */
+void EnsembleReader::getParams(const YAML::Node track) {
+  try {
+    const YAML::Node& params = track[deckName];
+    // Loop over the parameters and load them
+    for (auto& param : Parameters) {
+      param.get().readFromYAML(params);
+    }
+
+  } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
+    std::cerr << "Error loading yaml file: " << e.what() << "\n";
+    exit(EXIT_FAILURE);
+  }
 }
 
 /*

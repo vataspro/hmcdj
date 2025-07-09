@@ -1,5 +1,6 @@
 #pragma once
 
+#include <hmcdj/utils/parameter.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
 #include <yaml-cpp/yaml.h>
@@ -10,6 +11,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <regex>
 #include <string>
 
@@ -55,13 +57,21 @@ class EnsembleReader {
   int StartingTrajectory;
   /* HMCDJ metadata */
   std::string EnsembleDirectory;  // The ensemble/chain home directory
+  djParameterList Parameters;     // Vector of parameters,
+                                  // individually wrapped
+                                  // in the Base class.
+  std::string deckName;
 
   // Constructor - reads and loads the parameters from the yaml file
-  EnsembleReader(const std::string filename);
+  EnsembleReader(const std::string deckName, const std::string filename,
+                 djParameterList Parameters);
 
   /* Methods */
   // Gets a char pointer to the dimension string
   const char* GetDimStringPointer();
+
+  // Reads the parameters in track["HMCDJ"]["Parameters"]
+  void getParams(const YAML::Node track);
 
   // Chooses the correct starting type and starting trajectory
   void setStart();

@@ -28,9 +28,14 @@ make -C decks
 
 Once the executable has been compiled,
  a test case is provided by the sample
-track.yaml provided in the home directory.
- In the build directory, run:
+tracks provided in the `tracks` directory.
+ To run the Pure Gauge deck from the
+build directory:
 
 ``` bash
-./decks/PureGauge ../track.yaml
+./decks/PureGauge ../example_tracks/PureGaugeTrack.yaml
 ```
+
+Please note that for a chosen deck the only valid
+top level namespaces in the track are either `Global` or
+the `deckName`.
