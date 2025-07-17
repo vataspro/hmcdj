@@ -54,6 +54,29 @@ git submodule update --init --recursive
 Now the `--enable-tests=yes` flag can be passed 
 during configuration. 
 This will automatically run the tests.
- Please note that some of the default tests rely
- on the `track.yaml`'s file contents to be u
-nchanged from those found in the repository.
+
+Beware that tests should be run on a compute node
+with GPUs when Grid has been compiled with GPU enabled.
+The `LD_LIBRARY_PATH` should also be updated on runtime
+to contain any dynamically linked libraries 
+(such as `mpfr`).
+
+Please note that for a chosen deck the only valid
+top level namespaces in the track are either `Global` or
+the `deckName`.
+
+## Testing
+
+Tests have been written in [googletest](https://github.com/google/googletest). In order to run them, please first run the following in the home directory:
+
+``` bash
+git submodule update --init --recursive
+```
+
+This will automatically run the tests, when executing `make check`.
+
+Beware that tests should be run on a compute node
+with GPUs when Grid has been compiled with GPU enabled.
+The `LD_LIBRARY_PATH` should also be updated on runtime
+to contain any dynamically linked libraries 
+(such as `mpfr`).
