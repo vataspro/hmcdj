@@ -1,8 +1,26 @@
 #include <gtest/gtest.h>
 #include <utils.h>
+#include <algorithm> // needed for count
 
 // The file used to test the RNG seed
 #define TESTSEEDFILE std::string(TOP_SRCDIR) + "/tests/testTrack1.yaml"
+
+// Number of spaces in a Grid seed string
+#define NUM_GRID_SEED_STR_INTS 4
+
+// Checks that a string contains only whitespace or digits
+bool StrIsDigits(const std::string str) {
+
+    std::istringstream stream(str);
+    std::string word;
+    while (stream >> word) {
+        for (char c : word) {
+            if (!(std::isdigit(c))) {return false;}
+        }
+    }
+
+    return true;
+}
 
 // Check that the ensemble reader loads the correct lattice dimensions string
 TEST(UtilTest, EnsembleReaderTest) {
@@ -31,12 +49,48 @@ TEST(UtilTest, EnsembleReaderTest) {
 }
 
 // Check that the RNG manager is consistent
-//32 65 9 98 86
+/*
+     The RNG used by Grid is not architecture
+   independent. In order to check consistency
+   on the same machine/compiler two managers
+   with the same seed file are instantiated,
+   checking that they generate the same Grid
+   seed string.
+     The Grid seed string is also checked to
+   conform with the following format:
+     - Contains 4 spaces
+     - The first and last character are not spaces
+     - All non-whitespace characters are digits
+   
+     An example string satisfying the format is:
+     "32 54 6 123 3"
+
+ */
 TEST(RNGTest, CheckGridString) {
 
-    RNGManager rng(TESTSEEDFILE);
+    // Initialise two RNG Managers with the same seed
+    RNGManager rng1(TESTSEEDFILE);
+    RNGManager rng2(TESTSEEDFILE);
 
-    EXPECT_STREQ(rng.GenerateGridRNGSeedString().c_str(), "32 65 9 98 86");
+    std::string str1, str2;
+
+    // Verify that the two Grid seed strings are equal
+    str1 = rng1.GenerateGridRNGSeedString();
+    str2 = rng2.GenerateGridRNGSeedString();
+    // For std::string EXPECT_EQ should be used rather than EXPECT_STREQ
+    EXPECT_EQ(str1, str2);
+
+    // Count the number of spaces in the string and verify that they are 4
+    int space_count = std::count(str1.begin(), str1.end(), ' ');
+    EXPECT_EQ(space_count, NUM_GRID_SEED_STR_INTS);
+
+    // Check that the first and last characters are not spaces
+    bool flag = true;
+    if (str1.front() == ' ' || str1.back() == ' ') {flag = false;}
+    EXPECT_TRUE(flag);
+
+    // Check that all the non-whitespace characters are digits
+    EXPECT_TRUE(StrIsDigits(str1));
 }
 
 int main(int argc, char **argv) {
