@@ -8,7 +8,7 @@ libgtest_a_SOURCES = $(gtest_dir)/src/gtest-all.cc
 
 # Include gtest when compiling tests
 AM_CPPFLAGS = -I$(gtest_dir) -I$(gtest_dir)/include
-AM_CPPFLAGS += -I$(top_srcdir)/hmcdj/utils
+AM_CPPFLAGS += -I$(top_srcdir)
 AM_CPPFLAGS += -DTOP_SRCDIR=\"$(top_srcdir)\"
 
 # Will make these programs when using make check
