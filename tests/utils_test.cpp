@@ -4,7 +4,8 @@
 #include <algorithm>  // needed for count
 
 // The file used to test the RNG seed
-#define TESTSEEDFILE std::string(TOP_SRCDIR) + "/tests/testTrack1.yaml"
+#define TESTSEEDFILE \
+  std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml"
 
 // Number of spaces in a Grid seed string
 #define NUM_GRID_SEED_STR_INTS 4
@@ -28,7 +29,7 @@ bool StrIsDigits(const std::string str) {
 TEST(UtilTest, EnsembleReaderTest) {
   // Load the test "track.yaml" file
   std::string filename = TESTSEEDFILE;
-  EnsembleReader reader(filename);
+  EnsembleReader reader("NoParams", filename, {});
 
   // Check that the reader loads the correct values
   const char* dimStr = reader.GetDimStringPointer();
@@ -45,7 +46,7 @@ TEST(UtilTest, EnsembleReaderTest) {
   EXPECT_EQ(reader.trajL, 1.0);
   EXPECT_EQ(reader.MDsteps, 10);
   EXPECT_EQ(reader.Thermalisations, 0);
-  EXPECT_EQ(reader.Trajectories, 1);
+  EXPECT_EQ(reader.Trajectories, 10);
 }
 
 // Check that the RNG manager is consistent
