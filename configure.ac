@@ -20,7 +20,8 @@ AC_ARG_WITH([yaml-cpp],
             [AS_HELP_STRING([--with-yaml-cpp=<prefix>],
                             [try this for a non-standard install prefix of yaml-cpp])],
             [CXXFLAGS="$CXXFLAGS -I$with_yaml_cpp/include"]
-            [LDFLAGS="$LDFLAGS -L$with_yaml_cpp/lib -lyaml-cpp"])
+            [LDFLAGS="$LDFLAGS -L$with_yaml_cpp/lib"]
+            [LIBS="$LIBS -lyaml-cpp"])
 
 AC_ARG_WITH([grid],
     [AS_HELP_STRING([--with-grid=<prefix>],
@@ -28,6 +29,13 @@ AC_ARG_WITH([grid],
     [PATH="$with_grid/bin$PATH_SEPARATOR$PATH"]
     [CXXFLAGS="$CXXFLAGS -I$with_grid/include"]
     [LDFLAGS="$LDFLAGS -L$with_grid/lib"])
+
+AC_ARG_ENABLE([tests],
+    AS_HELP_STRING([--enable-tests]),
+    [enable_tests=$enableval],
+    [enable_tests=no])
+
+AM_CONDITIONAL( [BUILD_TESTS], [test "x$enable_tests" = "xyes"])
 
 AC_CHECK_PROG([GRIDCONF],[grid-config],[yes])
 if test x"$GRIDCONF" != x"yes" ; then
@@ -80,8 +88,8 @@ AC_LINK_IFELSE(
 
     int main(int argc, char *argv[])
     {
-
-        return 0;
+        auto node = YAML::Load("key: value");
+        return node["key"].as<int>();
     }
 
     ]])],
@@ -89,27 +97,31 @@ AC_LINK_IFELSE(
     [AC_MSG_RESULT([no])]
     [AC_MSG_ERROR([yaml-cpp is not available])])
 
-boop_CXX="$CXX"
-boop_CXXLD="$CXXLD"
-boop_CXXFLAGS="$CXXFLAGS"
-boop_LDFLAGS="$LDFLAGS"
-boop_LIBS="$LIBS"
-boop_SHA=`git rev-parse HEAD`
-boop_BRANCH=`git rev-parse --abbrev-ref HEAD`
+hmcdj_CXX="$CXX"
+hmcdj_CXXLD="$CXXLD"
+hmcdj_CXXFLAGS="$CXXFLAGS"
+hmcdj_LDFLAGS="$LDFLAGS"
+hmcdj_LIBS="$LIBS"
+hmcdj_SHA=`git rev-parse HEAD`
+hmcdj_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 AC_SUBST([CXXLD])
 AC_SUBST([AM_CXXFLAGS])
 AC_SUBST([AM_LDFLAGS])
-AC_SUBST([boop_CXX])
-AC_SUBST([boop_CXXLD])
-AC_SUBST([boop_CXXFLAGS])
-AC_SUBST([boop_LDFLAGS])
-AC_SUBST([boop_LIBS])
-AC_SUBST([boop_SHA])
-AC_SUBST([boop_BRANCH])
+AC_SUBST([hmcdj_CXX])
+AC_SUBST([hmcdj_CXXLD])
+AC_SUBST([hmcdj_CXXFLAGS])
+AC_SUBST([hmcdj_LDFLAGS])
+AC_SUBST([hmcdj_LIBS])
+AC_SUBST([hmcdj_SHA])
+AC_SUBST([hmcdj_BRANCH])
 
 AC_CONFIG_FILES([
     Makefile
     hmcdj/Makefile
     decks/Makefile])
+
+if test "x$enable_tests" = "xyes"; then
+  AC_CONFIG_FILES([tests/Makefile])
+fi
 AC_OUTPUT
