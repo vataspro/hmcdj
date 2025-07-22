@@ -95,6 +95,21 @@ TEST(RNGTest, CheckGridString) {
   EXPECT_TRUE(StrIsDigits(str1));
 }
 
+TEST(CommandLineArgsTest, CheckStartingTypesAccepted) {
+  EXPECT_EQ(isValidStartingType("HotStart"), true);
+  EXPECT_EQ(isValidStartingType("TepidStart"), true);
+  EXPECT_EQ(isValidStartingType("ColdStart"), true);
+}
+
+TEST(CommandLineArgsTest, CheckValidGridStartingTypesRejected) {
+  EXPECT_EQ(isValidStartingType("CheckpointStart"), false);
+  EXPECT_EQ(isValidStartingType("CheckpointStartWithReseed"), false);
+}
+
+TEST(CommandLineArgsTest, CheckInvalidStartingTypesRejected) {
+  EXPECT_EQ(isValidStartingType("ThisIsNonsenseAndShouldBeRejected"), false);
+}
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
