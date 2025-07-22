@@ -6,7 +6,7 @@
 ## Requirements
 
 HMCDJ requires the [Grid](https://github.com/paboyle/Grid)
- and [yaml-cpp](https://github.com/jbeder/yaml-cpp) libraries. 
+ and [yaml-cpp](https://github.com/jbeder/yaml-cpp) libraries.
 
 ## Compiling HMCDJ
 
@@ -23,6 +23,8 @@ mkdir build; cd build
 make
 make -C decks
 ```
+
+Note that C++20 support must be enabled in the compiler.
 
 ## Example usage
 
@@ -42,7 +44,7 @@ the `deckName`.
 
 ## Testing
 
-Tests have been written in 
+Tests have been written in
 [googletest](https://github.com/google/googletest).
  In order to run the tests,
  first run the following in the root of the repository.
@@ -51,32 +53,16 @@ Tests have been written in
 git submodule update --init --recursive
 ```
 
-Now the `--enable-tests=yes` flag can be passed 
-during configuration. 
+Now the `--enable-tests=yes` flag can be passed
+during configuration.
 This will automatically run the tests.
 
 Beware that tests should be run on a compute node
 with GPUs when Grid has been compiled with GPU enabled.
 The `LD_LIBRARY_PATH` should also be updated on runtime
-to contain any dynamically linked libraries 
+to contain any dynamically linked libraries
 (such as `mpfr`).
 
 Please note that for a chosen deck the only valid
 top level namespaces in the track are either `Global` or
 the `deckName`.
-
-## Testing
-
-Tests have been written in [googletest](https://github.com/google/googletest). In order to run them, please first run the following in the home directory:
-
-``` bash
-git submodule update --init --recursive
-```
-
-This will automatically run the tests, when executing `make check`.
-
-Beware that tests should be run on a compute node
-with GPUs when Grid has been compiled with GPU enabled.
-The `LD_LIBRARY_PATH` should also be updated on runtime
-to contain any dynamically linked libraries 
-(such as `mpfr`).
