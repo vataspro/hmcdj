@@ -1,11 +1,18 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/checkpoint.h>
 #include <hmcdj/utils/parameter.h>
-#include <hmcdj/utils/timing.h>
 #include <hmcdj/utils/utils.h>
 
-template <typename HMCWrapper>
+/* DJSuccessfulExit should always be zero in production code.
+   It should only be set to a non-zero value from a test harness,
+   to allow detection of unwanted exits. */
+template <typename HMCWrapper, int DJSuccessfulExit = 0>
 class DJ {
+  template <typename ImplementationPolicy>
+  using theCPModule =
+      ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
+
  public:
   DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters);
   DJ(std::string deckName, int argc, char* argv[]);
@@ -18,9 +25,9 @@ class DJ {
 const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
 
-template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
-                   djParameterList Parameters)
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
+                                     char* argv[], djParameterList Parameters)
     : reader(deckName, argc < 2 ? "(no filename specified)" : argv[1],
              Parameters) {
   // Ensure correct usage
@@ -46,7 +53,7 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
 
-  TheHMC.Resources.LoadNerscCheckpointer(CPparams);
+  TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams);
 
   /* Seeding the Grid RNG */
   RNGManager rng(argv[1]);  // Seed with a deterministic rng from the yaml file
@@ -76,24 +83,19 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 }
 
 // Overload for passing no parameters
-template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
+                                     char* argv[])
     : DJ(deckName, argc, argv, {}) {}
 
 /* Play the track: Run the HMC */
-template <typename HMCWrapper>
-void DJ<HMCWrapper>::Play() {
-  // Make timer the last observable we add,
-  // so it doesn't preempt any other obserable calculations on the last
-  // trajectory
-  typedef TimingMod<typename HMCWrapper::ImplPolicy> TimingObs;
-  TheHMC.Resources.template AddObservable<TimingObs>();
-
+template <typename HMCWrapper, int DJSuccessfulExit>
+void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
   TheHMC.Run();
 }
 
 /* Destructor closes Grid */
-template <typename HMCWrapper>
-DJ<HMCWrapper>::~DJ() {
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::~DJ() {
   Grid::Grid_finalize();
 }

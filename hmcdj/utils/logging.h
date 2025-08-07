@@ -10,4 +10,7 @@ class DJLogger : public Grid::Logger {
 };
 
 extern DJLogger DJLogTiming;
+extern DJLogger DJLogMessage;
+extern DJLogger DJLogError;
+extern DJLogger DJLogDebug;
 extern Grid::Colours GridLogColours;
