@@ -66,15 +66,17 @@ class TrajectoryTimer {
     signalHandler.sa_flags = 0;
 
     sigaction(SIGUSR1, &signalHandler, NULL);
-  };
+  }
 
   void notifyProgress(const int traj) {
     const int meanOnly = 0;
     std::cout << DJLogTiming << "Trajectory " << traj << " ("
               << trajectoryDurations.size() << " of this run) completed in "
-              << trajectoryDurations[traj] << "." << std::endl;
+              << std::chrono::duration<double>(trajectoryDurations[traj])
+              << " seconds." << std::endl;
     std::cout << DJLogTiming << "Mean trajectory time is "
-              << projectNextTrajectory(meanOnly) << "." << std::endl;
+              << std::chrono::duration<double>(projectNextTrajectory(meanOnly))
+              << " seconds." << std::endl;
     if (trajectoryDurations.size() > 0 && haveSchedulerDeadline) {
       const int projectedRemainingTrajectories = projectRemainingTrajectories();
       if (projectedRemainingTrajectories > 0) {
@@ -85,7 +87,7 @@ class TrajectoryTimer {
                   << traj + projectedRemainingTrajectories << "." << std::endl;
       }
     }
-  };
+  }
 
   void getSchedulerDeadline() {
     haveSchedulerDeadline = false;
