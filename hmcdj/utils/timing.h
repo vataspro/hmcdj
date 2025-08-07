@@ -9,13 +9,10 @@
 #include <cmath>
 #include <map>
 
-template <class Impl>
-class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
- public:
-  /* Grid boilerplate */
-  INHERIT_GIMPL_TYPES(Impl);
-  typedef typename Impl::Field Field;
+enum TimerStatus { OK, PREEMPTED, OUT_OF_TIME };
 
+class TrajectoryTimer {
+ public:
   std::chrono::high_resolution_clock::time_point startTime, lastUpdate;
 
   // map from trajectory index to time taken to complete that trajectory
@@ -25,20 +22,11 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
   // Static as this must be set from a signal handler
   inline static bool preemptedAndStopping;
 
+  // Save interval; required to be able to compute time until next save
+  int saveInterval = 1;
+
   bool haveSchedulerDeadline;
   std::chrono::system_clock::time_point schedulerDeadline;
-
-  virtual void TrajectoryComplete(int traj,
-                                  Grid::ConfigurationBase<Field> &SmartConfig,
-                                  Grid::GridSerialRNG &sRNG,
-                                  Grid::GridParallelRNG &pRNG) {
-    checkTiming(traj);
-  };
-
-  void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
-                          Grid::GridParallelRNG &pRNG) {
-    checkTiming(traj);
-  };
 
   TrajectoryTimer() {
     startTime = std::chrono::high_resolution_clock::now();
@@ -48,8 +36,7 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     TrajectoryTimer::preemptedAndStopping = false;
   };
 
- private:
-  void checkTiming(const int traj) {
+  TimerStatus updateTiming(const int traj) {
     // Ensure that we don't accidentally handle timing twice.
     assert(!trajectoryDurations.contains(traj));
 
@@ -59,15 +46,17 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     lastUpdate = currentTime;
 
     notifyProgress(traj);
+
     if (preemptedAndStopping) {
-      haltAsOutOfTime("Job has been pre-empted by Slurm.");
+      return PREEMPTED;
     }
     if (!sufficientTimeForNextTrajectory()) {
-      haltAsOutOfTime(
-          "Insufficient time projected to complete another trajectory.");
+      return OUT_OF_TIME;
     }
+    return OK;
   };
 
+ private:
   void setUpSignals() {
     struct sigaction signalHandler;
     signalHandler.sa_handler = [](int signal) {
@@ -106,7 +95,11 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     if (const char *slurmDeadline = std::getenv("SLURM_JOB_END_TIME")) {
       haveSchedulerDeadline = true;
       schedulerDeadline = std::chrono::system_clock::time_point(
-          std::chrono::seconds(atoi(slurmDeadline)));
+          std::chrono::seconds(atol(slurmDeadline)));
+      auto const localDeadline =
+          std::chrono::current_zone()->to_local(schedulerDeadline);
+      std::cout << DJLogTiming << "Slurm requests we end before "
+                << std::format("{:%Y-%m-%d %X}", localDeadline) << std::endl;
     }
   };
 
@@ -132,16 +125,6 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
     return !haveSchedulerDeadline || (std::chrono::system_clock::now() +
                                           projectNextTrajectory(safetyFactor) <
                                       schedulerDeadline);
-  };
-
-  void haltAsOutOfTime(const std::string reason) {
-    std::cout << Grid::GridLogHMC
-              << ":::::::::::::::::::::::::::::::::::::::::::" << std::endl;
-    std::cout << DJLogTiming << "Stopping now by request of hmcdj."
-              << std::endl;
-    std::cout << DJLogTiming << "Reason: " << reason << std::endl;
-    Grid::Grid_finalize();
-    std::exit(0);
   };
 
   /* Compute the projected duration of the next trajectory,
@@ -193,22 +176,4 @@ class TrajectoryTimer : public Grid::HmcObservable<typename Impl::Field> {
         return std::lround(meanDurationNS + safetyFactor * stdDuration) * 1ns;
     }
   };
-};
-
-/* We are not creating an observable,
-   but we inherit from ObservableModule
-   so that we may hook a callback into the end of the HMC trajectory. */
-template <class Impl>
-class TimingMod
-    : public Grid::ObservableModule<TrajectoryTimer<Impl>, Grid::NoParameters> {
-  typedef Grid::ObservableModule<TrajectoryTimer<Impl>, Grid::NoParameters>
-      ObsBase;
-  using ObsBase::ObsBase;
-
-  virtual void initialize() {
-    this->ObservablePtr.reset(new TrajectoryTimer<Impl>());
-  }
-
- public:
-  TimingMod() : ObsBase(Grid::NoParameters()) {}
 };
