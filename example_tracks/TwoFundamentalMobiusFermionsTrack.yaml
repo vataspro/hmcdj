@@ -1,0 +1,41 @@
+Global:
+  name: "Ensemble"
+
+  volume:
+    nx: 4
+    ny: 4
+    nz: 4
+    nt: 4
+
+
+  checkpoint:
+    saveInterval: 5
+    format: "IEEE64BIG"
+
+    configurations:
+      prefix: "cfg_ckpoint"
+
+    rng:
+      prefix: "rng_ckpoint"
+
+  HMC:
+    MD:
+      MDsteps: 10
+      trajL: 1.0
+
+    Thermalisations: 0
+
+    Trajectories: 10
+
+    StartingType: "HotStart"
+
+  HMCDJ:
+    EnsembleDirectory: "."
+
+TwoFundamentalMobiusFermions:
+    beta: 6.9
+    mass: -0.87
+    M5: 1.8
+    b: 1.5
+    c: 0.5
+    Ls: 8
