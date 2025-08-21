@@ -36,6 +36,7 @@ TwoFundamentalMobiusFermions:
     beta: 6.9
     mass: -0.87
     M5: 1.8
+    pv_mass: 1.0
     b: 1.5
     c: 0.5
     Ls: 8

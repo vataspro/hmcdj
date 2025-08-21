@@ -26,19 +26,17 @@ int main(int argc, char *argv[]) {
   typedef Grid::GenericSpHMCRunnerHirep<TheRepresentations, Grid::MinimumNorm2>
       HMCWrapper;
 
-  // Hardcoded parameter
-  Grid::RealD pv_mass = 1.0;
-
   // HMCDJ Parameters
   auto beta = djParameter<double>("beta");
   auto mass = djParameter<double>("mass");
   // Mobius parameters
   auto M5 = djParameter<double>("M5");
+  auto pv_mass = djParameter<double>("pv_mass");
   auto b = djParameter<double>("b");
   auto c = djParameter<double>("c");
   auto Ls = djParameter<int>("Ls");
   // To parameter list
-  djParameterList params = {beta, mass, M5, b, c, Ls};
+  djParameterList params = {beta, mass, M5, pv_mass, b, c, Ls};
 
   // Initialise HMCDJ
   DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params);
