@@ -74,5 +74,5 @@ class EnsembleReader {
   void getParams(const YAML::Node track);
 
   // Chooses the correct starting type and starting trajectory
-  void setStart();
+  void setStart(int targetThermalisations);
 };

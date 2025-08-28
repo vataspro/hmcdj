@@ -11,14 +11,15 @@
 void djGuard(int argc, char* argv[]) {
   // Usage
   if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " filename --<Other Grid arguments>\n";
+    std::cerr << "Usage: " << argv[0] << " filename --<Other Grid arguments>"
+              << std::endl;
     std::exit(EXIT_FAILURE);
   }
 
   // Check that the file exists
   std::ifstream file(argv[1]);  // opens a filestream of argv[1]
   if (!file) {
-    std::cerr << "File " << argv[1] << " does not exist!\n";
+    std::cerr << "File " << argv[1] << " does not exist!" << std::endl;
     if (static_cast<std::string>(argv[1]).substr(0, 2) == "--") {
       std::cerr << "The first provided argument should be the track"
                 << std::endl;
@@ -190,7 +191,7 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
     }
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
-    std::cerr << "Error loading yaml file: " << e.what() << "\n";
+    std::cerr << "Error loading yaml file: " << e.what() << std::endl;
     exit(EXIT_FAILURE);
   }
 }
@@ -223,7 +224,7 @@ void EnsembleReader::getParams(const YAML::Node track) {
     }
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
-    std::cerr << "Error loading yaml file: " << e.what() << "\n";
+    std::cerr << "Error loading yaml file: " << e.what() << std::endl;
     exit(EXIT_FAILURE);
   }
 }
