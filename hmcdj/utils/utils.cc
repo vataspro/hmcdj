@@ -179,8 +179,10 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
     }
 
     /* Dynamic Start */
-    setStart();  // Choose the StartingType and StartingTrajectory dynamically
-                 // by checking the enseble home directory for configurations
+    setStart(
+        Thermalisations);  // Choose the StartingType and
+                           // StartingTrajectory dynamically by checking
+                           // the ensemble home directory for configurations
 
     /* Read other HMCDJ parameters */
     if (!Parameters.empty()) {
@@ -239,7 +241,7 @@ void EnsembleReader::getParams(const YAML::Node track) {
       Else, use the chosen defaults from the track.
 
  */
-void EnsembleReader::setStart() {
+void EnsembleReader::setStart(int targetThermalisations) {
   // Initialise the starting trajectory to 0
   // update if configurations present
   StartingTrajectory = 0;
@@ -273,6 +275,13 @@ void EnsembleReader::setStart() {
   */
   if (StartingTrajectory > 0) {
     StartingType = "CheckpointStart";
-    Thermalisations = 0;
+
+    // Ensure that a run that died before finishing the initial thermalisation
+    // stage gets the full requested thermalisation
+    if (targetThermalisations > StartingTrajectory) {
+      Thermalisations = targetThermalisations - StartingTrajectory;
+    } else {
+      Thermalisations = 0;
+    }
   }
 }
