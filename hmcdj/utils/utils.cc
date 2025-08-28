@@ -1,3 +1,4 @@
+#include <hmcdj/utils/ensemble.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
@@ -122,9 +123,12 @@ uint32_t md5FileToInt(const std::string& filename) {
     an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
-EnsembleReader::EnsembleReader(const std::string deckNm,
-                               const std::string filename,
-                               djParameterList params)
+EnsembleReader::EnsembleReader(
+    const std::string deckNm, const std::string filename,
+    djParameterList params,
+    std::filesystem::path (*ensembleDirectoryPathOverride)(EnsembleReader*,
+                                                           std::string,
+                                                           djParameterList))
     : Parameters(params), deckName(deckNm) {
   // Load the parameters from the yaml file
   try {
@@ -155,9 +159,6 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
     /* CHECKPOINTING */
     saveInterval = global["checkpoint"]["saveInterval"].as<int>();
     format = global["checkpoint"]["format"].as<std::string>();
-    config_prefix =
-        global["checkpoint"]["configurations"]["prefix"].as<std::string>();
-    rng_prefix = global["checkpoint"]["rng"]["prefix"].as<std::string>();
 
     /* HMC Parameters */
     trajL = global["HMC"]["MD"]["trajL"].as<double>();
@@ -166,9 +167,6 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
     Thermalisations = global["HMC"]["Thermalisations"].as<int>();
     Trajectories = global["HMC"]["Trajectories"].as<int>();
     StartingType = global["HMC"]["StartingType"].as<std::string>();
-
-    /* HMCDJ Parameters */
-    EnsembleDirectory = global["HMCDJ"]["EnsembleDirectory"].as<std::string>();
 
     /* Checks */
     /* Check that the Starting Type is valid */
@@ -179,16 +177,22 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
       std::exit(EXIT_FAILURE);
     }
 
-    /* Dynamic Start */
-    setStart(
-        Thermalisations);  // Choose the StartingType and
-                           // StartingTrajectory dynamically by checking
-                           // the ensemble home directory for configurations
-
-    /* Read other HMCDJ parameters */
+    /* Read other HMCDJ parameters specific to the deck */
     if (!Parameters.empty()) {
       getParams(track);
     }
+
+    /* Pathing: Ensemble directory depends on having read deck-specific
+     * parameters */
+    EnsembleDirectory = getEnsembleDirectory(this, deckNm, params,
+                                             ensembleDirectoryPathOverride);
+    config_prefix = (EnsembleDirectory / "cnfg" / "ckpoint_lat").string();
+    rng_prefix = (EnsembleDirectory / "rand" / "ckpoint_rng").string();
+
+    /* Dynamic Start: Depends on knowing ensemble directory */
+    setStart(Thermalisations);  // Choose the StartingType and
+                                // StartingTrajectory dynamically by checking
+                                // the enseble home directory for configurations
 
   } catch (const YAML::Exception& e) {  // protect against mistake in yaml file
     std::cerr << "Error loading yaml file: " << e.what() << std::endl;
@@ -198,13 +202,19 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
 
 /*
  * Grid Dimensions String
-    Returns a Grid-readable string (pointer to char) to initialise the
-    lattice 4-volume from the yaml file.
+    Returns a std::string representing the lattice 4-volume in the format Grid
+ expects.
+*/
+const std::string EnsembleReader::GetDimString() {
+  return std::format("{}.{}.{}.{}", nx, ny, nz, nt);
+}
+
+/*
+ * Grid Dimensions String
+    Returns the lattice 4-volume as a C string such that Grid will read it.
 */
 const char* EnsembleReader::GetDimStringPointer() {
-  dimString = std::to_string(nx) + "." + std::to_string(ny) + "." +
-              std::to_string(nz) + "." + std::to_string(nt);
-
+  std::string dimString = GetDimString();
   return dimString.c_str();
 }
 
@@ -255,7 +265,7 @@ void EnsembleReader::setStart(int targetThermalisations) {
       and find last configuration
   */
   for (const auto& entry :
-       std::filesystem::directory_iterator(EnsembleDirectory)) {
+       std::filesystem::directory_iterator(EnsembleDirectory / "cnfg")) {
     if (!entry.is_regular_file()) {
       continue;
     }  // check that entry is a file

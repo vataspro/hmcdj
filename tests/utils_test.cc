@@ -38,8 +38,6 @@ TEST(UtilTest, EnsembleReaderTest) {
   // Check that the correct checkpointing parameters are loaded
   EXPECT_EQ(reader.saveInterval, 5);
   EXPECT_STREQ(reader.format.c_str(), "IEEE64BIG");
-  EXPECT_STREQ(reader.config_prefix.c_str(), "cfg_ckpoint");
-  EXPECT_STREQ(reader.rng_prefix.c_str(), "rng_ckpoint");
 
   // Check that the correct HMC parameters are loaded
   EXPECT_STREQ(reader.StartingType.c_str(), "HotStart");
