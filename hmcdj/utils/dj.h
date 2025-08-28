@@ -18,8 +18,11 @@ class DJ {
 
  public:
   DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters,
-     bool useReducedStorage = false);
-  DJ(std::string deckName, int argc, char* argv[]);
+     bool useReducedStorage = false,
+     pathCallback ensembleDirectoryPathOverride = nullptr);
+  DJ(std::string deckName, int argc, char* argv[],
+     bool useReducedStorage = false,
+     pathCallback ensembleDirectoryPathOverride = nullptr);
   EnsembleReader reader;
   HMCWrapper TheHMC;
   void Play();
@@ -30,9 +33,12 @@ const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
 
 template <typename HMCWrapper, int DJSuccessfulExit>
-DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[],
-				     djParameterList Parameters, bool useReducedStorage)
-    : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters) {
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
+                                     char* argv[], djParameterList Parameters,
+                                     bool useReducedStorage,
+                                     pathCallback ensembleDirectoryPathOverride)
+    : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters,
+             ensembleDirectoryPathOverride) {
   // Using the comma operator in the line above
   // (`(djGuard(argv, argv), argv[1])`)
   // allows guarding against incorrect usage (including calling without
@@ -99,8 +105,10 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[
 // Overload for passing no parameters
 template <typename HMCWrapper, int DJSuccessfulExit>
 DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
-                                     char* argv[])
-    : DJ(deckName, argc, argv, {}) {}
+                                     char* argv[], bool useReducedStorage,
+                                     pathCallback ensembleDirectoryPathOverride)
+    : DJ(deckName, argc, argv, {}, useReducedStorage,
+         ensembleDirectoryPathOverride) {}
 
 /* Play the track: Run the HMC */
 template <typename HMCWrapper, int DJSuccessfulExit>

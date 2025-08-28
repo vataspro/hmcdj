@@ -15,15 +15,13 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithHomeDir) {
   TemporaryEnvironmentOverride homeDir("HOME",
                                        tmpDir.getDirectoryPath().string());
 
-  DJRun testRun(testName);
+  DJRun testRun(testName, nullptr, false);
 
   // Target directories created
   EXPECT_TRUE(std::filesystem::exists(
-      tmpDir.getDirectoryPath() / "hmcdj_ensembles" / "NoParams" /
-      std::format("Nc{}", Grid::Nc) / "4.4.4.4" / "HotStart" / "cnfg"));
+      getSubDir(tmpDir.getDirectoryPath() / "hmcdj_ensembles") / "cnfg"));
   EXPECT_TRUE(std::filesystem::exists(
-      tmpDir.getDirectoryPath() / "hmcdj_ensembles" / "NoParams" /
-      std::format("Nc{}", Grid::Nc) / "4.4.4.4" / "HotStart" / "rand"));
+      getSubDir(tmpDir.getDirectoryPath() / "hmcdj_ensembles") / "rand"));
 
   // Checkpoints being put in correct directory is tested in
   // ensembledir_base_test.cc, so doesn't need to be checked again here

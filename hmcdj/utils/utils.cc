@@ -123,12 +123,10 @@ uint32_t md5FileToInt(const std::string& filename) {
     an error if an issue occurs.
  */
 // test -- use track.yaml and verify that we get the right parameters
-EnsembleReader::EnsembleReader(
-    const std::string deckNm, const std::string filename,
-    djParameterList params,
-    std::filesystem::path (*ensembleDirectoryPathOverride)(EnsembleReader*,
-                                                           std::string,
-                                                           djParameterList))
+EnsembleReader::EnsembleReader(const std::string deckNm,
+                               const std::string filename,
+                               djParameterList params,
+                               pathCallback ensembleDirectoryPathOverride)
     : Parameters(params), deckName(deckNm) {
   // Load the parameters from the yaml file
   try {

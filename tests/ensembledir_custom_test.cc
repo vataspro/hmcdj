@@ -1,6 +1,11 @@
 #include "run_test_helpers.h"
 
-/* Check that a directory is correctly created when the base directory is
+std::filesystem::path overridePath(EnsembleReader* ensemble,
+                                   djParameterList params) {
+  return std::filesystem::path("TestOverride");
+}
+
+/* Check that a directory is correctly created when a custom subdirectory is
  * specified */
 TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   std::string testName = "hmcdj_basedir";
@@ -10,21 +15,17 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   TemporaryDirectory tmpHomeDir(testName);
   TemporaryEnvironmentOverride homeDir("HOME",
                                        tmpHomeDir.getDirectoryPath().string());
-  DJRun testRun(testName);
+  DJRun testRun(testName, overridePath);
 
-  std::filesystem::path ensemblePath = getSubDir(testRun.getDirectoryPath());
+  std::filesystem::path ensemblePath =
+      testRun.getDirectoryPath() / "NoParams" / "TestOverride";
 
   // Target directories created
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg"));
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand"));
 
-  testRun.play();
-
-  // Checkpoints put in correct directories
-  EXPECT_FALSE(std::filesystem::exists(testRun.getDirectoryPath() / "cnfg" /
-                                       "ckpoint_lat.5"));
-  EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg" / "ckpoint_lat.5"));
-  EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand" / "ckpoint_rng.5"));
+  // Checkpoints being put in correct directory is tested in
+  // ensembledir_base_test.cc, so doesn't need to be checked again here
 }
 
 int main(int argc, char** argv) {

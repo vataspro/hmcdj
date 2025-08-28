@@ -42,7 +42,7 @@ TEST(UtilTest, EnsembleReaderTest) {
 
   // Load the test "track.yaml" file
   std::string filename = TESTSEEDFILE;
-  EnsembleReader reader("NoParams", filename, {});
+  EnsembleReader reader("NoParams", filename, {}, nullptr);
 
   // Check that the reader loads the correct values
   const char* dimStr = reader.GetDimStringPointer();

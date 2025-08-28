@@ -17,10 +17,8 @@ static std::filesystem::path getBaseDir() {
 }
 
 static std::filesystem::path getEnsembleDirectoryPath(EnsembleReader* ensemble,
-                                                      std::string deckName,
                                                       djParameterList params) {
-  std::filesystem::path path =
-      getBaseDir() / deckName / std::format("Nc{}", Grid::Nc);
+  std::filesystem::path path = std::format("Nc{}", Grid::Nc);
   for (auto& param : params) {
     path = path / param.get().toString();
   }
@@ -35,15 +33,14 @@ static void createEnsembleDirectories(std::filesystem::path baseDir) {
 
 std::filesystem::path getEnsembleDirectory(
     EnsembleReader* ensemble, std::string deckName, djParameterList params,
-    std::filesystem::path (*ensembleDirectoryPathOverride)(EnsembleReader*,
-                                                           std::string,
-                                                           djParameterList)) {
-  std::filesystem::path ensembleDirectory;
+    pathCallback ensembleDirectoryPathOverride) {
+  std::filesystem::path ensembleDirectory = getBaseDir() / deckName;
   if (ensembleDirectoryPathOverride == nullptr) {
-    ensembleDirectory = getEnsembleDirectoryPath(ensemble, deckName, params);
+    ensembleDirectory =
+        ensembleDirectory / getEnsembleDirectoryPath(ensemble, params);
   } else {
     ensembleDirectory =
-        ensembleDirectoryPathOverride(ensemble, deckName, params);
+        ensembleDirectory / ensembleDirectoryPathOverride(ensemble, params);
   }
   createEnsembleDirectories(ensembleDirectory);
   return ensembleDirectory;

@@ -42,6 +42,8 @@ class EnsembleReader {
   /* Lattice dimensions */
   int nt, nx, ny, nz;     // Lattice dims
   std::string dimString;  // Lattice dimensions string
+  typedef std::filesystem::path (*pathCallback)(EnsembleReader*,
+                                                djParameterList);
 
  public:
   /* Checkpointing */
@@ -65,8 +67,7 @@ class EnsembleReader {
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string deckName, const std::string filename,
                  djParameterList Parameters,
-                 std::filesystem::path (*ensembleDirectoryPathOverride)(
-                     EnsembleReader*, std::string, djParameterList) = nullptr);
+                 pathCallback ensembleDirectoryPathOverride);
 
   /* Methods */
   // Gets the dimension string
@@ -81,3 +82,5 @@ class EnsembleReader {
   // Chooses the correct starting type and starting trajectory
   void setStart(int targetThermalisations);
 };
+
+typedef std::filesystem::path (*pathCallback)(EnsembleReader*, djParameterList);

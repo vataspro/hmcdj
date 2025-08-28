@@ -9,7 +9,7 @@ TEST(EnsembleDirectoryTest, DISABLED_TestEnsembleDirectoryWithNoDir) {
   TemporaryDirectory tmpDir(testName, true);
   TemporaryEnvironmentSuppress baseDir("HMCDJ_BASE_PATH");
   TemporaryEnvironmentSuppress homeDir("HOME");
-  DJRun testRun(testName);
+  DJRun testRun(testName, nullptr, false);
 
   EXPECT_TRUE(std::filesystem::exists(
       tmpDir.getDirectoryPath() / "hmcdj_ensembles" / "NoParams" /
