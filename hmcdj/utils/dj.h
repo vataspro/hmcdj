@@ -20,7 +20,8 @@ char** getGridArgv(int argc, char* argv[], const char* grid);
 template <typename HMCWrapper>
 DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
                    djParameterList Parameters)
-    : reader(deckName, argv[1], Parameters) {
+    : reader(deckName, argc < 2 ? "(no filename specified)" : argv[1],
+             Parameters) {
   // Ensure correct usage
   djGuard(argc, argv);
 
