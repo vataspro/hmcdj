@@ -98,6 +98,7 @@ int main(int argc, char *argv[]) {
   /////////////////////////////////////////////////////////////
   // Gauge action
   /////////////////////////////////////////////////////////////
+  Level2.push_back(&Waction);
   hmcdj.TheHMC.TheAction.push_back(Level1);
   hmcdj.TheHMC.TheAction.push_back(Level2);
   std::cout << Grid::GridLogMessage << " Action complete " << std::endl;
