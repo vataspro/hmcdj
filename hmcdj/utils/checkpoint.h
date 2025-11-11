@@ -16,7 +16,11 @@
    and can exit if it estimates insufficient time is available to complete
    another. Large portions of this have been borrowed from
    Grid/qcd/hmc/ILDGCheckpointer.h; reproduced because `Params` is declared as
-   private, so it's impossible to override any methods that depend on it. */
+   private, so it's impossible to override any methods that depend on it.
+
+  DJSuccessfulExit should always be zero in production code.
+   It should only be set to a non-zero value from a test harness,
+   to allow detection of unwanted exits. */
 template <class Implementation, int DJSuccessfulExit>
 class ILDGTimingHmcCheckpointer
     : public Grid::BaseHmcCheckpointer<Implementation> {
@@ -62,11 +66,11 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
     TimerStatus status = timer->updateTiming(traj);
-    if ((traj % Params.saveInterval == 0) || status != OK) {
+    if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, SmartConfig, sRNG, pRNG);
     }
 
-    if (status != OK) {
+    if (status != TimerStatus::OK) {
       haltAsOutOfTime(status);
     }
   };
@@ -79,19 +83,19 @@ class ILDGTimingHmcCheckpointer
     std::cout << DJLogTiming << "Stopping now by request of hmcdj."
               << std::endl;
     switch (status) {
-      case PREEMPTED:
+      case TimerStatus::PREEMPTED:
         std::cout << DJLogTiming << "Reason: Job has been pre-empted by Slurm."
                   << std::endl;
         break;
-      case OUT_OF_TIME:
+      case TimerStatus::OUT_OF_TIME:
         std::cout << DJLogTiming
                   << "Reason: Insufficient time projected to complete another "
                      "trajectory."
                   << std::endl;
         break;
       default:
-        std::cout << DJLogTiming << "Reason: Unknown (" << status << ")."
-                  << std::endl;
+        std::cout << DJLogTiming << "Reason: Unknown (" << as_integer(status)
+                  << ")." << std::endl;
         break;
     }
     Grid::Grid_finalize();
@@ -163,6 +167,10 @@ class ILDGTimingHmcCheckpointer
   };
 };
 
+/* Wrap the ILDGTimingHmcCheckpointer in a CheckpointerModule
+   so that it can be registered in an HMC.
+   This is directly patterned on the built-in CheckpointerModules in Grid,
+   but additionally allowing templating on the exit code. */
 template <class ImplementationPolicy, int DJSuccessfulExit>
 class ILDGTimingCPModule
     : public Grid::CheckPointerModule<ImplementationPolicy> {
