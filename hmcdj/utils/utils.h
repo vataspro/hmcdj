@@ -33,7 +33,7 @@ class RNGManager {
   RNGManager(std::string filename);
   void Seed(std::string filename);
   std::string GenerateGridRNGSeedString();
-  ~RNGManager() {};
+  ~RNGManager(){};
 };
 
 /* Ensemble Reader */

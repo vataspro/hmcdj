@@ -9,6 +9,9 @@
    to allow detection of unwanted exits. */
 template <typename HMCWrapper, int DJSuccessfulExit = 0>
 class DJ {
+  // Create a type alias such that the LoadCheckpointer template function called
+  // below will accept this type as a template parameter. The
+  // ImplementationPolicy parameter will be specified by that function.
   template <typename ImplementationPolicy>
   using theCPModule =
       ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
