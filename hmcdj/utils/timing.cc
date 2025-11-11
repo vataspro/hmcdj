@@ -107,36 +107,37 @@ std::tuple<hrclock::duration, long> sumElementsAndSquares(
     std::map<int, hrclock::duration> vector, int skip_key) {
   using namespace std::chrono_literals;
   hrclock::duration sum = 0ms;
-  long sumSquareNS =
+  long sumSquareMS =
       0;  // C++ durations cannot be squared, so this must be a long
 
   for (auto const &[key, duration] : vector) {
     if (key != skip_key) {
       sum += duration;
-      const long durationNS = duration / 1.0ns;
-      sumSquareNS += durationNS * durationNS;
+      const long durationMS = duration / 1ms;
+      sumSquareMS += durationMS * durationMS;
     }
   }
 
-  return {sum, sumSquareNS};
+  return {sum, sumSquareMS};
 }
 
 /* Given the sum and sum square of a duration,
    and the number of elements in the sum,
    compute the standard deviation. */
-hrclock::duration stdDevDuration(long sumDurationNS, long sumSquareDurationNS,
+hrclock::duration stdDevDuration(long sumDurationMS, long sumSquareDurationMS,
                                  long durationCount) {
   using namespace std::chrono_literals;
-  const double stdDurationNS =
-      std::sqrt(((double)sumSquareDurationNS - sumDurationNS * sumDurationNS) *
-                (double)durationCount / (durationCount - 1));
-  return std::lround(stdDurationNS) * 1ns;
+  const double stdDurationUS =
+      std::sqrt((double)(sumSquareDurationMS - sumDurationMS * sumDurationMS) *
+                (double)durationCount / (durationCount - 1)) *
+      1000;
+  return std::lround(stdDurationUS) * 1us;
 }
 
 hrclock::duration stdDevDuration(hrclock::duration sumDuration,
-                                 long sumSquareDurationNS, long durationCount) {
+                                 long sumSquareDurationMS, long durationCount) {
   using namespace std::chrono_literals;
-  return stdDevDuration(sumDuration / 1ns, sumSquareDurationNS, durationCount);
+  return stdDevDuration(sumDuration / 1ms, sumSquareDurationMS, durationCount);
 }
 
 /* Compute the projected duration of the next trajectory,
@@ -165,10 +166,10 @@ hrclock::duration TrajectoryTimer::projectNextTrajectory(
       const int firstTrajectory = trajectoryDurations.begin()->first;
       const long numDurations = trajectoryDurations.size() - 1;
 
-      auto [sumDuration, sumSquareDurationNS] =
+      auto [sumDuration, sumSquareDurationMS] =
           sumElementsAndSquares(trajectoryDurations, firstTrajectory);
       return sumDuration / numDurations +
              safetyFactor *
-                 stdDevDuration(sumDuration, sumSquareDurationNS, numDurations);
+                 stdDevDuration(sumDuration, sumSquareDurationMS, numDurations);
   }
 }
