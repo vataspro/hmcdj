@@ -45,11 +45,11 @@ void TrajectoryTimer::notifyProgress(const int traj) {
   const int meanOnly = 0;
   std::cout << DJLogTiming << "Trajectory " << traj << " ("
             << trajectoryDurations.size() << " of this run) completed in "
-            << std::chrono::duration<double>(trajectoryDurations[traj])
-            << " seconds." << std::endl;
+            << std::chrono::duration<double>(trajectoryDurations[traj]) << "."
+            << std::endl;
   std::cout << DJLogTiming << "Mean trajectory time is "
             << std::chrono::duration<double>(projectNextTrajectory(meanOnly))
-            << " seconds." << std::endl;
+            << "." << std::endl;
   if (trajectoryDurations.size() > 0 && haveSchedulerDeadline) {
     const int projectedRemainingTrajectories = projectRemainingTrajectories();
     if (projectedRemainingTrajectories > 0) {
