@@ -12,6 +12,14 @@
 
 enum class TimerStatus { OK, PREEMPTED, OUT_OF_TIME };
 
+typedef std::chrono::high_resolution_clock hrclock;
+typedef std::chrono::system_clock sysclock;
+
+hrclock::duration meanDurations(std::map<int, hrclock::duration> vector,
+                                int skip_key);
+std::tuple<hrclock::duration, hrclock::duration> meanStdDevDurations(
+    std::map<int, hrclock::duration> vector, int skip_key);
+
 /* Be able to print enum class value directly;
    from
    https://stackoverflow.com/questions/11421432/how-can-i-output-the-value-of-an-enum-class-in-c11

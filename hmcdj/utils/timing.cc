@@ -1,8 +1,5 @@
 #include <hmcdj/utils/timing.h>
 
-typedef std::chrono::high_resolution_clock hrclock;
-typedef std::chrono::system_clock sysclock;
-
 TrajectoryTimer::TrajectoryTimer() {
   startTime = hrclock::now();
   lastUpdate = startTime;
@@ -101,43 +98,38 @@ bool TrajectoryTimer::sufficientTimeForNextTrajectory() {
           schedulerDeadline);
 }
 
-/* Sum the elements and squares of elements of a std::map from int to duration,
-   skipping at most one specified key. */
-std::tuple<hrclock::duration, long> sumElementsAndSquares(
-    std::map<int, hrclock::duration> vector, int skip_key) {
+hrclock::duration meanDurations(std::map<int, hrclock::duration> vector,
+                                int skip_key) {
   using namespace std::chrono_literals;
-  hrclock::duration sum = 0ms;
-  long sumSquareMS =
-      0;  // C++ durations cannot be squared, so this must be a long
+  hrclock::duration sum = 0us;
+  int count = 0;
 
   for (auto const &[key, duration] : vector) {
     if (key != skip_key) {
       sum += duration;
-      const long durationMS = duration / 1ms;
-      sumSquareMS += durationMS * durationMS;
+      count++;
+    }
+  }
+  return sum / count;
+}
+
+/* Compute the mean and standard deviation of a std::map of durations,
+   skipping at most one key. */
+std::tuple<hrclock::duration, hrclock::duration> meanStdDevDurations(
+    std::map<int, hrclock::duration> vector, int skip_key) {
+  using namespace std::chrono_literals;
+  long sum = 0;  // C++ durations cannot be squared, so this must be a long
+  long mean = meanDurations(vector, skip_key) / 1us;
+  int count = 0;
+
+  for (auto const &[key, duration] : vector) {
+    if (key != skip_key) {
+      sum += (duration / 1us - mean) * (duration / 1us - mean);
+      count++;
     }
   }
 
-  return {sum, sumSquareMS};
-}
-
-/* Given the sum and sum square of a duration,
-   and the number of elements in the sum,
-   compute the standard deviation. */
-hrclock::duration stdDevDuration(long sumDurationMS, long sumSquareDurationMS,
-                                 long durationCount) {
-  using namespace std::chrono_literals;
-  const double stdDurationUS =
-      std::sqrt((double)(sumSquareDurationMS - sumDurationMS * sumDurationMS) *
-                (double)durationCount / (durationCount - 1)) *
-      1000;
-  return std::lround(stdDurationUS) * 1us;
-}
-
-hrclock::duration stdDevDuration(hrclock::duration sumDuration,
-                                 long sumSquareDurationMS, long durationCount) {
-  using namespace std::chrono_literals;
-  return stdDevDuration(sumDuration / 1ms, sumSquareDurationMS, durationCount);
+  return {mean * 1us, std::lround(std::sqrt((double)sum / count)) * 1us};
 }
 
 /* Compute the projected duration of the next trajectory,
@@ -164,12 +156,9 @@ hrclock::duration TrajectoryTimer::projectNextTrajectory(
       // trajectory.
       using namespace std::chrono_literals;
       const int firstTrajectory = trajectoryDurations.begin()->first;
-      const long numDurations = trajectoryDurations.size() - 1;
 
-      auto [sumDuration, sumSquareDurationMS] =
-          sumElementsAndSquares(trajectoryDurations, firstTrajectory);
-      return sumDuration / numDurations +
-             safetyFactor *
-                 stdDevDuration(sumDuration, sumSquareDurationMS, numDurations);
+      auto [meanDuration, stdDevDuration] =
+          meanStdDevDurations(trajectoryDurations, firstTrajectory);
+      return meanDuration + safetyFactor * stdDevDuration;
   }
 }
