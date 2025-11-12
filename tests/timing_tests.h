@@ -7,8 +7,22 @@
 #include <cstdlib>
 #include <filesystem>
 
+/* Helpers for timing tests.
+
+   This header is used by all timing tests,
+   and allows testing a full HMC run.
+   Each HMC test run must be placed in a separate .cc file,
+   since each will call `Grid_Init()`,
+   and calling this multiple times in a single run
+   will cause Grid to error out.
+
+   Also contains helpers for setting and overriding
+   system environment variables. */
+
 const int DJSuccessfulExit = 128;
 
+/* Create a temporary directory with a specified base name.
+   Delete it again when the instance is destroyed or goes out of scope. */
 class TemporaryDirectory {
  private:
   std::filesystem::path directoryPath;
@@ -33,6 +47,8 @@ class TemporaryDirectory {
   std::filesystem::path getDirectoryPath() { return directoryPath; }
 };
 
+/* Find the most recent-modified file in a directory
+   matching the given pattern. */
 std::filesystem::path mostRecentDirectory(const std::string prefix) {
   const std::filesystem::path baseTempDir =
       std::filesystem::temp_directory_path();
@@ -57,6 +73,7 @@ std::filesystem::path mostRecentDirectory(const std::string prefix) {
   return mostRecentMatch;
 }
 
+/* Represents a single test run of hmcdj. */
 class DJRun {
  private:
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
@@ -101,6 +118,9 @@ class DJRun {
   };
 };
 
+/* Override a single environment variable.
+   Reset to the original value when
+   the instance is destroyed or goes out of scope. */
 class TemporaryEnvironmentOverride {
  private:
   bool varAlreadyExists = false;
@@ -126,6 +146,9 @@ class TemporaryEnvironmentOverride {
   };
 };
 
+/* Remove a single environment variable from the environment.
+   Reset to the original value when
+   the instance is destroyed or goes out of scope. */
 class TemporaryEnvironmentSuppress : public TemporaryEnvironmentOverride {
  public:
   TemporaryEnvironmentSuppress(std::string name)
