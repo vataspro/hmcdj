@@ -3,7 +3,8 @@
 cd "$(dirname "$0")"
 
 # Write header
-echo "# Build gtest from ./external/
+cat <<EOF > Makefile.am
+# Build gtest from ./external/
 gtest_dir = \$(top_srcdir)/external/googletest/googletest
 gtest_build = \$(top_srcdir)/tests/gtest
 
@@ -13,16 +14,17 @@ libgtest_a_SOURCES = \$(gtest_dir)/src/gtest-all.cc
 
 # Include gtest when compiling tests
 AM_CPPFLAGS = -I\$(gtest_dir) -I\$(gtest_dir)/include
-AM_CPPFLAGS += -I\$(top_srcdir)" > Makefile.am
+AM_CPPFLAGS += -I\$(top_srcdir)
 
-echo 'AM_CPPFLAGS += -DTOP_SRCDIR=\"\$(top_srcdir)\"' >> Makefile.am
+AM_CPPFLAGS += -DTOP_SRCDIR=\"\$(top_srcdir)\"
 
-echo "
 # Will make these programs when using make check
 check_PROGRAMS =
 TESTS =
 
-# Tests to generate" >> Makefile.am
+# Tests to generate
+
+EOF
 
 # Loop through all .cc and .cpp files in the current directory
 for src in *_test.cc; do
