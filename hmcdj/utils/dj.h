@@ -1,8 +1,9 @@
 #pragma once
 #include <Grid/Grid.h>
-#include <hmcdj/utils/acceptance.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
+
+#include "acceptance.h"
 
 template <typename HMCWrapper>
 class DJ {
