@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Grid/Grid.h>
 
 // Acceptance Rate Observable logger
@@ -17,7 +16,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
   virtual ~AcceptanceLogger() = default;
 
   // Get the acceptance of the step
-  void TrajectoryComplete(int traj, Grid::Field &U, Grid::GridSerialRNG &sRNG,
+  void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG, bool accept) override {
     // Placeholder -- print acceptance
     std::cout << Grid::GridLogMessage
@@ -31,15 +30,16 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     TrajectoryComplete(traj, SmartConfig.get_U(false), sRNG, pRNG, accept);
   }
 
-  void TrajectoryComplete(int traj, Grid::Field &U, Grid::GridSerialRNG &sRNG,
+  void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) override {}
 };
 
 // Acceptance Rate Observable Module
 template <class Impl>
-class AcceptanceMod
-    : public Grid::ObservableModule<AcceptanceLogger<Impl>, NoParameters> {
-  typedef ObservableModule<AcceptanceLogger<Impl>, NoParameters> ObsBase;
+class AcceptanceMod : public Grid::ObservableModule<AcceptanceLogger<Impl>,
+                                                    Grid::NoParameters> {
+  typedef Grid::ObservableModule<AcceptanceLogger<Impl>, Grid::NoParameters>
+      ObsBase;
   using ObsBase::ObsBase;  // for constructors
 
   // acquire resource
@@ -48,5 +48,5 @@ class AcceptanceMod
   }
 
  public:
-  AcceptanceMod() : ObsBase(NoParameters()) {}
+  AcceptanceMod() : ObsBase(Grid::NoParameters()) {}
 };
