@@ -1,5 +1,6 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/acceptance.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
@@ -58,6 +59,8 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   /* Observables -- just plaquette for now */
   typedef Grid::PlaquetteMod<typename HMCWrapper::ImplPolicy> PlaqObs;
   TheHMC.Resources.template AddObservable<PlaqObs>();
+  typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
+  TheHMC.Resources.template AddObservable<AccObs>();
 
   // HMC parameters MD parameters
   TheHMC.Parameters.MD.MDsteps = reader.MDsteps;
