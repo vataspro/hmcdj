@@ -4,6 +4,7 @@
 #include <hmcdj/utils/utils.h>
 
 #include "acceptance.h"
+#include "observable_logging.h"
 
 template <typename HMCWrapper>
 class DJ {
@@ -60,8 +61,11 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   /* Observables -- just plaquette for now */
   typedef Grid::PlaquetteMod<typename HMCWrapper::ImplPolicy> PlaqObs;
   TheHMC.Resources.template AddObservable<PlaqObs>();
+  // Need to define acc par
+  AcceptanceObsParameters AccPar;
+  AccPar.aNumber = 20;
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
-  TheHMC.Resources.template AddObservable<AccObs>();
+  TheHMC.Resources.template AddObservable<AccObs>(AccPar);
 
   // HMC parameters MD parameters
   TheHMC.Parameters.MD.MDsteps = reader.MDsteps;

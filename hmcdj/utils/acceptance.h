@@ -1,16 +1,30 @@
 #pragma once
 #include <Grid/Grid.h>
 
+// Serializable class for Acceptance Rate Tuning
+struct AcceptanceObsParameters : Grid::Serializable {
+  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int, aNumber)
+
+  AcceptanceObsParameters(int anumber = 12) : aNumber(anumber) {}
+};
+
 // Acceptance Rate Observable logger
 template <class Impl>
 class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
+  AcceptanceObsParameters Pars;
+
  public:
   // here forces the Impl to be of gauge fields
   // if not the compiler will complain
   INHERIT_GIMPL_TYPES(Impl);
 
+  // Constructor
+  AcceptanceLogger(AcceptanceObsParameters P) : Pars(P) {}
+
   // necessary for HmcObservable compatibility
   typedef typename Impl::Field Field;
+
+  std::vector<double> log;
 
   // destructor
   virtual ~AcceptanceLogger() = default;
@@ -21,6 +35,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     // Placeholder -- print acceptance
     std::cout << Grid::GridLogMessage
               << "Acceptance: " << static_cast<int>(accept) << std::endl;
+    log.push_back(static_cast<double>(accept));
   }
 
   // SmartConfig version
@@ -37,16 +52,17 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
 // Acceptance Rate Observable Module
 template <class Impl>
 class AcceptanceMod : public Grid::ObservableModule<AcceptanceLogger<Impl>,
-                                                    Grid::NoParameters> {
-  typedef Grid::ObservableModule<AcceptanceLogger<Impl>, Grid::NoParameters>
+                                                    AcceptanceObsParameters> {
+  typedef Grid::ObservableModule<AcceptanceLogger<Impl>,
+                                 AcceptanceObsParameters>
       ObsBase;
   using ObsBase::ObsBase;  // for constructors
 
   // acquire resource
   virtual void initialize() {
-    this->ObservablePtr.reset(new AcceptanceLogger<Impl>());
+    this->ObservablePtr.reset(new AcceptanceLogger<Impl>(this->Par_));
   }
 
  public:
-  AcceptanceMod() : ObsBase(Grid::NoParameters()) {}
+  AcceptanceMod(AcceptanceObsParameters Par) : ObsBase(Par) {}
 };
