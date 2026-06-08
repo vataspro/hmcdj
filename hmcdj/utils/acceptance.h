@@ -3,9 +3,22 @@
 
 // Serializable class for Acceptance Rate Tuning
 struct AcceptanceObsParameters : Grid::Serializable {
-  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int, aNumber)
+  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int, num_init_skip,
+                                  int, num_tuning_samples, double, target_rate,
+                                  double, target_rate_flex, bool,
+                                  tuning_active);
+  // function pointer);
 
-  AcceptanceObsParameters(int anumber = 12) : aNumber(anumber) {}
+  std::vector<int> *AcceptanceArray = new std::vector<int>;
+  AcceptanceObsParameters(int num_init_skip_ = 10, int num_tuning_samples_ = 50,
+                          double target_rate_ = 0.8,
+                          double target_rate_flex_ = 0.05,
+                          bool tuning_active_ = true)
+      : num_init_skip(num_init_skip_),
+        num_tuning_samples(num_tuning_samples_),
+        target_rate(target_rate_),
+        target_rate_flex(target_rate_flex_),
+        tuning_active(tuning_active_) {}
 };
 
 // Acceptance Rate Observable logger
@@ -36,6 +49,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     std::cout << Grid::GridLogMessage
               << "Acceptance: " << static_cast<int>(accept) << std::endl;
     log.push_back(static_cast<double>(accept));
+    Pars.AcceptanceArray->push_back(static_cast<int>(accept));
   }
 
   // SmartConfig version
