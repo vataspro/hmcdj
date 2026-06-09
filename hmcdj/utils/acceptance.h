@@ -7,9 +7,12 @@ struct AcceptanceObsParameters : Grid::Serializable {
                                   int, num_tuning_samples, double, target_rate,
                                   double, target_rate_flex, bool,
                                   tuning_active);
-  // function pointer);
 
+  // Acceptance array
   std::vector<int> *AcceptanceArray = new std::vector<int>;
+  // Trajectory number array
+  std::vector<int> *TrajectoryArray = new std::vector<int>;
+
   AcceptanceObsParameters(int num_init_skip_ = 10, int num_tuning_samples_ = 50,
                           double target_rate_ = 0.8,
                           double target_rate_flex_ = 0.05,
@@ -37,19 +40,18 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
   // necessary for HmcObservable compatibility
   typedef typename Impl::Field Field;
 
-  std::vector<double> log;
-
   // destructor
   virtual ~AcceptanceLogger() = default;
 
   // Get the acceptance of the step
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG, bool accept) override {
-    // Placeholder -- print acceptance
+    // Print acceptance
     std::cout << Grid::GridLogMessage
               << "Acceptance: " << static_cast<int>(accept) << std::endl;
-    log.push_back(static_cast<double>(accept));
+    // Save the acceptance and trajectory index
     Pars.AcceptanceArray->push_back(static_cast<int>(accept));
+    Pars.TrajectoryArray->push_back(static_cast<int>(traj));
   }
 
   // SmartConfig version
