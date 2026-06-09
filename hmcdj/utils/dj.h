@@ -17,7 +17,8 @@ class DJ {
       ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
 
  public:
-  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters);
+  DJ(std::string deckName, int argc, char* argv[], 
+                           djParameterList Parameters, bool reduce_group=false);
   DJ(std::string deckName, int argc, char* argv[]);
   EnsembleReader reader;
   HMCWrapper TheHMC;
@@ -29,8 +30,10 @@ const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
 
 template <typename HMCWrapper, int DJSuccessfulExit>
-DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
-                                     char* argv[], djParameterList Parameters)
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, 
+                                     int argc, char* argv[], 
+                                     djParameterList Parameters,
+                                     bool reduce_group)
     : reader(deckName, argc < 2 ? "(no filename specified)" : argv[1],
              Parameters) {
   // Ensure correct usage
@@ -55,6 +58,18 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
+  CPparams.group  = "sp";
+  CPparams.reduced_matrix  = reduce_group;
+
+  if(CPparams.reduced_matrix) {
+    std::cout << DJLogMessage << "Checkpointer using reduced format writer"
+                              << std::endl;
+  }
+  else {
+    std::cout << DJLogMessage << "Checkpointer not using reduced format writer"
+                              << std::endl;
+  }
+
 
   TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams);
 
