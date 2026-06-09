@@ -42,19 +42,30 @@ class ILDGTimingHmcCheckpointer
 
     // check here that the format is valid
     int ieee32big = (Params.format == std::string("IEEE32BIG"));
-    int ieee32 = (Params.format == std::string("IEEE32"));
     int ieee64big = (Params.format == std::string("IEEE64BIG"));
-    int ieee64 = (Params.format == std::string("IEEE64"));
 
-    if (!(ieee64big || ieee32 || ieee32big || ieee64)) {
+    if (!(ieee64big || ieee32big)) {
       std::cout << DJLogError << "Unrecognized file format " << Params.format
                 << std::endl;
       std::cout << DJLogError
-                << "Allowed: IEEE32BIG | IEEE32 | IEEE64BIG | IEEE64"
+                << "Allowed: IEEE32BIG | IEEE64BIG"
                 << std::endl;
-
       exit(1);
     }
+
+    if ( !((Params.group == std::string("su")) || (Params.group == std::string("sp"))) ) {
+      std::cout << Grid::GridLogError << "Unrecognized gauge group "
+                                            << Params.group << std::endl;
+      std::cout << Grid::GridLogError << "Allowed: su | sp" << std::endl;
+      exit(1);
+    }
+
+    if ( Params.group == std::string("sp") && Grid::Nc%2!=0 ) {
+      std::cout << Grid::GridLogError << "Nc=" << Grid::Nc;
+      std::cout << ", Sp fields require even Nc" << std::endl;
+      exit(1);
+    }
+
   }
 
   /* On completing a trajectory,
@@ -102,6 +113,51 @@ class ILDGTimingHmcCheckpointer
     std::exit(DJSuccessfulExit);
   };
 
+  /* choose appropriate template instantiation here since the
+     non-const checkpointer parameters cannot be used directly as
+     template arguments to IldgWriter */
+  void chooseIldgWriter( std::string format, std::string group, bool reduced_matrix,
+                         std::string lat_obj, int traj,
+                         Grid::ConfigurationBase<GaugeField> &SmartConfig) {
+
+      Grid::GridBase *grid = SmartConfig.get_U(false).Grid();
+
+      Grid::IldgWriter _IldgWriter(grid->IsBoss());
+      _IldgWriter.open(lat_obj);
+
+      if(format=="IEEE64BIG") {
+        if(group=="su" && reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="su" && !reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="sp" && reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="sp" && !reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+      }
+      else if (format=="IEEE32BIG") {
+         if(group=="su" && reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="su" && !reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="sp" && reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+        else if (group=="sp" && !reduced_matrix) {
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+        }
+      }
+
+      _IldgWriter.close();
+  }
+
+
   /* Write the given configuration to disk,
      constructing the filename.
      Borrowed from the body of Grid's ILDGHmcCheckpointer::TrajectoryComplete(),
@@ -120,11 +176,12 @@ class ILDGTimingHmcCheckpointer
               << std::hex << nersc_csum << "/" << scidac_csuma << "/"
               << scidac_csumb << std::dec << std::endl;
 
-    Grid::IldgWriter _IldgWriter(grid->IsBoss());
-    _IldgWriter.open(config);
-    _IldgWriter.writeConfiguration<GaugeStats>(SmartConfig.get_U(false), traj,
-                                               config, config);
-    _IldgWriter.close();
+    std::cout << "DEBUG INFO:\n" << "Params.group: " << Params.group << std::endl;
+    std::cout << "Params.format: " << Params.format << std::endl;
+    std::cout << "Params.reduced_matrix: " << Params.reduced_matrix << std::endl;
+
+    chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, config, traj,
+                      SmartConfig);
 
     std::cout << DJLogMessage << "Written ILDG Configuration on " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
