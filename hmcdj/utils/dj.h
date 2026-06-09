@@ -6,6 +6,10 @@
 #include "acceptance.h"
 #include "observable_logging.h"
 
+/*
+ *  TUNING HELPER FUNCS
+ */
+// TODO: Move the helper functions to tuning.h
 // Very advanced function
 template <typename T>
 double arrMean(std::vector<T> x) {
@@ -46,6 +50,14 @@ inline float myErfInv(float x) {
   return (sgn * sqrtf(-tt1 + sqrtf(tt1 * tt1 - tt2)));
 }
 
+template <typename T>
+inline double myErfcinv(T x) {
+  return static_cast<double>(myErfInv(1 - static_cast<float>(x)));
+}
+/*
+ *  END HELPER TUNING FUNCS
+ */
+
 template <typename HMCWrapper>
 class DJ {
  public:
@@ -71,8 +83,6 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
              Parameters) {
   // Ensure correct usage
   djGuard(argc, argv);
-
-  /* GRID PURE GAUGE STARTS HERE */
 
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename
@@ -109,9 +119,8 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 
   // Acceptance rate & tuning
   // TODO: read from track
-  AccPar.num_init_skip =
-      10 + reader.Thermalisations;  // Thermalisation + initial skip
-  AccPar.num_tuning_samples = 50;   // Number of samples to tune for
+  AccPar.num_init_skip = 10;        // Number of parameters to skip from
+  AccPar.num_tuning_samples = 100;  // Number of samples to tune for
   AccPar.target_rate = 0.8;         // Target acceptance rate
   AccPar.target_rate_flex = 0.05;   // Flexibiility of acceptance rate
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
@@ -140,50 +149,85 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
 /* Acceptance Rate tuning */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Tune() {
-  // Create tuning file (or read it if it already exists)
-  // For the first time only, skip the num_init_skips
-  TheHMC.Parameters.Trajectories =
-      AccPar.num_init_skip + AccPar.num_tuning_samples;
-  // Run
+  // TODO: Create tuning file (or read it if it already exists)
+  //
+  int tuning_ctr = 0;  // TODO: Read from tuning file, also MD steps
+                       //  End tuning if HMC already tuned
+
+  // TODO: Run one more time if tuning successful, for good measure;
+
+  // TODO: implement the skip in the obs
+  //  Set number of trajectories
+  if (tuning_ctr == 0) {  // For the first time only, thermalise
+    TheHMC.Parameters.Trajectories = reader.Thermalisations +
+                                     AccPar.num_init_skip +
+                                     AccPar.num_tuning_samples;
+  } else {
+    TheHMC.Parameters.Trajectories =
+        AccPar.num_init_skip + AccPar.num_tuning_samples;
+  }
+
+  // Tuning loop
   while (AccPar.tuning_active) {
+    // Run the HMC
     Play();
-    // Tune it
-    double mean = arrMean(*AccPar.AcceptanceArray);
-    double stddev = arrStdErr(*AccPar.AcceptanceArray);
 
-    std::cout << "ACCRATE IS: " << mean << " +/- " << stddev << std::endl;
+    // Update HMC parameters
+    TheHMC.Parameters.StartTrajectory =  // Update starting traj
+        TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
 
-    if (abs(mean - AccPar.target_rate) < AccPar.target_rate_flex) {
+    if (tuning_ctr == 0) {  // Set trajectories
+      TheHMC.Parameters.Trajectories =
+          AccPar.num_init_skip + AccPar.num_tuning_samples;
+      TheHMC.Parameters.NoMetropolisUntil = 0;
+    }
+
+    tuning_ctr++;
+
+    // Measure acceptance rate
+    double pacc = arrMean(*AccPar.AcceptanceArray);
+    double pacc_err = arrStdErr(*AccPar.AcceptanceArray);
+    // Empty the acceptance array
+    AccPar.AcceptanceArray->clear();
+
+    std::cout << Grid::GridLogMessage << "Current acceptance rate is: " << pacc
+              << " +/- " << pacc_err << std::endl;
+
+    // Apply tuning if required
+    if (abs(pacc - AccPar.target_rate) < AccPar.target_rate_flex) {
       // Tuning complete
       AccPar.tuning_active = false;
-      std::cout << Grid::GridLogMessage << "Tuning complete!" << std::endl;
-    } else {
+      std::cout << Grid::GridLogMessage
+                << "Tuning successful, with final MD steps: "
+                << TheHMC.Parameters.MD.trajL << std::endl;
+
+    } else {  // Bad acceptance rate - tuning MD steps
       // To get the new acceptance rate we use the numerical formula
-      // Δτ = 2 / sqrt(λ) * inverfc(pacc)
+      // Δτ = 2 / λ * inverfc(pacc)
+      // TODO: Move this to a function
       double DeltaTau = static_cast<double>(TheHMC.Parameters.MD.trajL) /
                         TheHMC.Parameters.MD.MDsteps;
-      // double lam = 4 * myErfInv2(mean) / pow(DeltaTau, 4);
-      double DeltaTau_target =
-          pow(pow(DeltaTau, 2) * myErfInv(AccPar.target_rate / mean), 0.5);
-      std::cout << Grid::GridLogMessage << "Target Dt: " << DeltaTau_target
-                << std::endl;
+      double lam = 2 * myErfcinv(pacc) / (DeltaTau * DeltaTau);
+
+      double DeltaTau_target = sqrt(2 * myErfcinv(AccPar.target_rate) / lam);
+
+      std::cout << Grid::GridLogMessage
+                << "Estimated target Dt: " << DeltaTau_target << std::endl;
 
       int target_MD = static_cast<int>(std::round(
           static_cast<double>(TheHMC.Parameters.MD.trajL) / DeltaTau_target));
-      std::cout << "Best I can do is MDsteps: " << target_MD << "with Dt: "
+
+      std::cout << Grid::GridLogMessage
+                << "Best approximation for target MDsteps: " << target_MD
+                << " with Dt: "
                 << static_cast<double>(TheHMC.Parameters.MD.trajL) / target_MD
                 << std::endl;
 
       TheHMC.Parameters.MD.MDsteps = target_MD;
     }
-
-    TheHMC.Parameters.StartTrajectory =
-        TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
-    // AccPar.tuning_active = false;
   }
-  // Tune : TheHMC.Resources.MDsteps += x
-  // Update parameters;
 }
+
 /* Play the track: Run the HMC */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Play() {
