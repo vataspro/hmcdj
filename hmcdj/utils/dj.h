@@ -46,16 +46,21 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName,
   std::string group;
   if constexpr (std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup,
                                Grid::Sp<Grid::Nc>>) {
-     std::cout << DJLogMessage
-               << "GaugeGroup is Grid::Sp - "
-               << "setting group to sp" << std::endl;
-     group = "sp";
-    } else {
     std::cout << DJLogMessage
-               << "GaugeGroup is NOT Grid::Sp - "
-               << "setting group to su" << std::endl;
+              << "GaugeGroup is Grid::Sp - "
+              << "setting group to sp" << std::endl;
+    group = "sp";
+  } else if constexpr(std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup
+                                    ,Grid::SU<Grid::Nc>>) {
+    std::cout << DJLogMessage
+              << "GaugeGroup is Grid::SU - "
+              << "setting group to su" << std::endl;
     group = "su";
-    }
+  } else {
+    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
+                            << std::endl;
+    exit(1);
+  }
 
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename
@@ -85,7 +90,6 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName,
     std::cout << DJLogMessage << "Checkpointer not using reduced format writer"
                               << std::endl;
   }
-
 
   TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams);
 
