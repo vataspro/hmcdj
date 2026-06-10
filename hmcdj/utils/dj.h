@@ -210,8 +210,8 @@ void DJ<HMCWrapper>::Tune() {
     AccPar.TrajectoryArray->clear();
 
     // Measure acceptance rate
-    double pacc = arrMean(*AccPar.AcceptanceArray);
-    double pacc_err = arrStdErr(*AccPar.AcceptanceArray);
+    double pacc = mean(*AccPar.AcceptanceArray);
+    double pacc_err = stdErr(*AccPar.AcceptanceArray);
     // Empty the acceptance array
     AccPar.AcceptanceArray->clear();
 
@@ -238,9 +238,9 @@ void DJ<HMCWrapper>::Tune() {
       // TODO: Move this to a function
       double DeltaTau = static_cast<double>(TheHMC.Parameters.MD.trajL) /
                         TheHMC.Parameters.MD.MDsteps;
-      double lam = 2 * myErfcinv(pacc) / (DeltaTau * DeltaTau);
+      double lam = 2 * erfcinv(pacc) / (DeltaTau * DeltaTau);
 
-      double DeltaTau_target = sqrt(2 * myErfcinv(AccPar.target_rate) / lam);
+      double DeltaTau_target = sqrt(2 * erfcinv(AccPar.target_rate) / lam);
 
       std::cout << Grid::GridLogMessage
                 << "Estimated target Dt: " << DeltaTau_target << std::endl;

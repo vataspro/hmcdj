@@ -2,7 +2,7 @@
 #include <Grid/Grid.h>
 
 template <typename T>
-double arrMean(std::vector<T> x) {
+double mean(std::vector<T> x) {
   T sum = 0;
   for (T el : x) {
     sum += el;
@@ -12,11 +12,11 @@ double arrMean(std::vector<T> x) {
 
 // Standard deviation
 template <typename T>
-double arrStdErr(std::vector<T> x) {
-  double mean = arrMean(x);
+double stdErr(std::vector<T> x) {
+  double mean_ = mean(x);
   double sum = 0;
   for (T el : x) {
-    sum += pow(el - mean, 2);
+    sum += pow(el - mean_, 2);
   }
 
   return sqrt(sum / (x.size() - 1) / x.size());
@@ -27,7 +27,7 @@ double arrStdErr(std::vector<T> x) {
  *  Based on "A handy approximation of the error function and its inverse"
  *  by Sergei Winitzki
  */
-inline float myErfInv(float x) {
+inline float erfInv(float x) {
   float tt1, tt2, lnx, sgn;
   sgn = (x < 0) ? -1.0f : 1.0f;
 
@@ -41,6 +41,6 @@ inline float myErfInv(float x) {
 }
 
 template <typename T>
-inline double myErfcinv(T x) {
-  return static_cast<double>(myErfInv(1 - static_cast<float>(x)));
+inline double erfcinv(T x) {
+  return static_cast<double>(erfInv(1 - static_cast<float>(x)));
 }

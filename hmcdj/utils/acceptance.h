@@ -73,7 +73,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     // Monitor the acceptance rate
     if (*Pars.tuning_mode == tuning_mode_t::complete) {
       if (traj % Pars.monitor_every == 0) {
-        double pacc = arrMean(*Pars.AcceptanceArray);
+        double pacc = mean(*Pars.AcceptanceArray);
         std::cout << Grid::GridLogMessage
                   << "Monitoring current acceptance rate: " << pacc
                   << std::endl;
