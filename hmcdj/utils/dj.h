@@ -270,7 +270,7 @@ void DJ<HMCWrapper>::Tune() {
               << " +/- " << pacc_err << std::endl;
 
     // Apply tuning if required
-    if (abs(pacc - AccPar.target_rate) < AccPar.target_rate_flex) {
+    if (fabs(pacc - AccPar.target_rate) < AccPar.target_rate_flex) {
       // Tuning complete
       *AccPar.tuning_mode = tuning_mode_t::complete;
       std::cout << Grid::GridLogMessage
