@@ -10,7 +10,7 @@ enum class tuning_mode_t { init, active, complete };
 struct AcceptanceObsParameters : Grid::Serializable {
   GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int,
                                   rethermalisation, int, num_tuning_samples,
-                                  double, target_rate, double, target_rate_flex,
+                                  double, target_rate, double, target_rate_tol,
                                   int, tuning_ctr, int, monitor_every);
 
   // Tuning mode
@@ -25,12 +25,12 @@ struct AcceptanceObsParameters : Grid::Serializable {
   AcceptanceObsParameters(int rethermalisation_ = 10,
                           int num_tuning_samples_ = 50,
                           double target_rate_ = 0.8,
-                          double target_rate_flex_ = 0.05, int tuning_ctr_ = 0,
+                          double target_rate_tol_ = 0.05, int tuning_ctr_ = 0,
                           int monitor_every_ = 100)
       : rethermalisation(rethermalisation_),
         num_tuning_samples(num_tuning_samples_),
         target_rate(target_rate_),
-        target_rate_flex(target_rate_flex_),
+        target_rate_tol(target_rate_tol_),
         tuning_ctr(tuning_ctr_),
         monitor_every(monitor_every_) {}
 };
@@ -79,7 +79,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
                   << "Monitoring current acceptance rate: " << pacc
                   << std::endl;
 
-        if (fabs(pacc - Pars.target_rate) >= Pars.target_rate_flex) {
+        if (fabs(pacc - Pars.target_rate) >= Pars.target_rate_tol) {
           std::cout << Grid::GridLogMessage
                     << "WARNING: Acceptance rate out of bounds";
         }

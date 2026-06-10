@@ -72,7 +72,7 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   AccPar.rethermalisation = 10;    // Number of parameters to skip from
   AccPar.num_tuning_samples = 50;  // Number of samples to tune for
   AccPar.target_rate = 0.8;        // Target acceptance rate
-  AccPar.target_rate_flex = 0.05;  // Flexibiility of acceptance rate
+  AccPar.target_rate_tol = 0.05;   // Acceptance rate tuning tolerance
   AccPar.monitor_every = 100;
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
   TheHMC.Resources.template AddObservable<AccObs>(AccPar);
@@ -219,7 +219,7 @@ void DJ<HMCWrapper>::Tune() {
               << " +/- " << pacc_err << std::endl;
 
     // Apply tuning if required
-    if (fabs(pacc - AccPar.target_rate) < AccPar.target_rate_flex) {
+    if (fabs(pacc - AccPar.target_rate) < AccPar.target_rate_tol) {
       // Tuning complete
       *AccPar.tuning_mode = tuning_mode_t::complete;
       std::cout << Grid::GridLogMessage
