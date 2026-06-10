@@ -41,6 +41,22 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName,
 
   /* GRID PURE GAUGE STARTS HERE */
 
+  // we can infer the gauge group from HMCWrapper,
+  // this lets hmcdj instantiate the correct IldgWriter.
+  std::string group;
+  if constexpr (std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup,
+                               Grid::Sp<Grid::Nc>>) {
+     std::cout << DJLogMessage
+               << "GaugeGroup is Grid::Sp - "
+               << "setting group to sp" << std::endl;
+     group = "sp";
+    } else {
+    std::cout << DJLogMessage
+               << "GaugeGroup is NOT Grid::Sp - "
+               << "setting group to su" << std::endl;
+    group = "su";
+    }
+
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename
   int gridArgc = argc + DJ_NUM_EXTRA_ARGS - 1;
@@ -58,7 +74,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName,
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
-  CPparams.group  = "sp";
+  CPparams.group  = group;
   CPparams.reduced_matrix  = reduce_group;
 
   if(CPparams.reduced_matrix) {
