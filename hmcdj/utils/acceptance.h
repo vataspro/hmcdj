@@ -8,10 +8,10 @@ enum class tuning_mode_t { init, active, complete };
 
 // Serializable class for Acceptance Rate Tuning
 struct AcceptanceObsParameters : Grid::Serializable {
-  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int, num_init_skip,
-                                  int, num_tuning_samples, double, target_rate,
-                                  double, target_rate_flex, int, tuning_ctr,
-                                  int, monitor_every);
+  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int,
+                                  rethermalisation, int, num_tuning_samples,
+                                  double, target_rate, double, target_rate_flex,
+                                  int, tuning_ctr, int, monitor_every);
 
   // Tuning mode
   tuning_mode_t *tuning_mode = new tuning_mode_t;
@@ -22,11 +22,12 @@ struct AcceptanceObsParameters : Grid::Serializable {
   // File to save acceptance
   std::string acceptance_filename = "acceptance.xml";
 
-  AcceptanceObsParameters(int num_init_skip_ = 10, int num_tuning_samples_ = 50,
+  AcceptanceObsParameters(int rethermalisation_ = 10,
+                          int num_tuning_samples_ = 50,
                           double target_rate_ = 0.8,
                           double target_rate_flex_ = 0.05, int tuning_ctr_ = 0,
                           int monitor_every_ = 100)
-      : num_init_skip(num_init_skip_),
+      : rethermalisation(rethermalisation_),
         num_tuning_samples(num_tuning_samples_),
         target_rate(target_rate_),
         target_rate_flex(target_rate_flex_),

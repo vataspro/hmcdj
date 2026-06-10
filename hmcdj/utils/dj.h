@@ -69,7 +69,7 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 
   // Acceptance rate & tuning
   // TODO: read from track
-  AccPar.num_init_skip = 10;       // Number of parameters to skip from
+  AccPar.rethermalisation = 10;    // Number of parameters to skip from
   AccPar.num_tuning_samples = 50;  // Number of samples to tune for
   AccPar.target_rate = 0.8;        // Target acceptance rate
   AccPar.target_rate_flex = 0.05;  // Flexibiility of acceptance rate
@@ -178,7 +178,7 @@ void DJ<HMCWrapper>::Tune() {
   if (*AccPar.tuning_mode == tuning_mode_t::init) {
     // Set number of trajectories
     TheHMC.Parameters.Trajectories =
-        reader.Thermalisations + AccPar.num_init_skip +
+        reader.Thermalisations + AccPar.rethermalisation +
         AccPar.num_tuning_samples -
         TheHMC.Parameters.StartTrajectory;  // if restarting
 
