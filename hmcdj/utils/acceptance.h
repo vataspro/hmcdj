@@ -59,7 +59,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     // Save the acceptance and trajectory index
     if (*Pars.tuning_mode != tuning_mode_t::init) {
       // Print acceptance
-      std::cout << Grid::GridLogMessage << "Acceptance: [ " << traj << " ] "
+      std::cout << Grid::GridLogDebug << "Step acceptance: [ " << traj << " ] "
                 << static_cast<int>(accept) << std::endl;
       Pars.AcceptanceArray->push_back(static_cast<int>(accept));
       Pars.TrajectoryArray->push_back(static_cast<int>(traj));
