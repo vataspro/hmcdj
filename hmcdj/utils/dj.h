@@ -6,7 +6,6 @@
 #include <filesystem>
 
 #include "acceptance.h"
-#include "observable_logging.h"
 
 /*
  *  TUNING HELPER FUNCS
