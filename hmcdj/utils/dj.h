@@ -121,10 +121,10 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 
   // Acceptance rate & tuning
   // TODO: read from track
-  AccPar.num_init_skip = 40;        // Number of parameters to skip from
-  AccPar.num_tuning_samples = 100;  // Number of samples to tune for
-  AccPar.target_rate = 0.8;         // Target acceptance rate
-  AccPar.target_rate_flex = 0.05;   // Flexibiility of acceptance rate
+  AccPar.num_init_skip = 10;       // Number of parameters to skip from
+  AccPar.num_tuning_samples = 50;  // Number of samples to tune for
+  AccPar.target_rate = 0.8;        // Target acceptance rate
+  AccPar.target_rate_flex = 0.05;  // Flexibiility of acceptance rate
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
   TheHMC.Resources.template AddObservable<AccObs>(AccPar);
 
@@ -151,6 +151,9 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
 /* Acceptance Rate tuning */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Tune() {
+  // Set number of trajectories to tuning steps
+  TheHMC.Parameters.Trajectories = AccPar.num_tuning_samples;
+
   // Define tuning and acceptance filenames
   std::string tuning_filename = "tuning.xml";
   std::string acceptance_filename = "acceptance.xml";
@@ -185,6 +188,8 @@ void DJ<HMCWrapper>::Tune() {
                                          delta_traj);
           AccPar.AcceptanceArray->resize(AccPar.AcceptanceArray->size() -
                                          delta_traj);
+          // Cut off extra steps
+          TheHMC.Parameters.Trajectories -= AccPar.AcceptanceArray->size();
         } else {
           // If something has gone wrong and some intermediate information is
           // missing restart the tuning step (by doing nothging)
@@ -221,27 +226,13 @@ void DJ<HMCWrapper>::Tune() {
     return;
   }
 
-  //  End tuning if HMC already tuned
-  // Using XmlReader to read an array
-  /*
-  Grid::XmlReader AccReader("bob.xml");
-  std::vector<int> traj;
-  AccReader.readDefault("traj", traj);
-
-  for (auto x : traj) {
-      std::cout << x << std::endl;}
-
-  std::cin.get();
-  */
-
-  // TODO: Run one more time if tuning successful, for good measure;
-
-  //  Set number of trajectories
-  if (*AccPar.tuning_mode ==
-      tuning_mode_t::init) {  // For the first time only, thermalise
-    TheHMC.Parameters.Trajectories = reader.Thermalisations +
-                                     AccPar.num_init_skip +
-                                     AccPar.num_tuning_samples;
+  // Initialisation mode
+  if (*AccPar.tuning_mode == tuning_mode_t::init) {
+    // Set number of trajectories
+    TheHMC.Parameters.Trajectories =
+        reader.Thermalisations + AccPar.num_init_skip +
+        AccPar.num_tuning_samples -
+        TheHMC.Parameters.StartTrajectory;  // if restarting
 
     // Play once to thermalise and initialise the tuning process
     Play();
@@ -253,10 +244,6 @@ void DJ<HMCWrapper>::Tune() {
     TheHMC.Parameters.NoMetropolisUntil = 0;  // Deactivate no metropolis
     TheHMC.Parameters.StartTrajectory =       // Update starting traj
         TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
-
-  } else {
-    // TODO: Safe loading
-    TheHMC.Parameters.Trajectories = AccPar.num_tuning_samples;
   }
 
   // Tuning loop
@@ -268,22 +255,10 @@ void DJ<HMCWrapper>::Tune() {
     TheHMC.Parameters.StartTrajectory =  // Update starting traj
         TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
 
-    // if (AccPar.tuning_ctr == 0) {  // Set trajectories
-    //   TheHMC.Parameters.Trajectories =
-    //       AccPar.num_init_skip + AccPar.num_tuning_samples;
-    //   TheHMC.Parameters.NoMetropolisUntil = 0;
-    // }
-
-    std::cout << Grid::GridLogMessage
-              << "Number of acc: " << AccPar.TrajectoryArray->size()
-              << std::endl;
-
+    // Increment tuning counter
     AccPar.tuning_ctr++;
 
-    Grid::XmlWriter AccWriter(acceptance_filename);
-    write(AccWriter, "acc", *AccPar.AcceptanceArray);
-    write(AccWriter, "traj", *AccPar.TrajectoryArray);
-
+    // Empty current trajectories
     AccPar.TrajectoryArray->clear();
 
     // Measure acceptance rate

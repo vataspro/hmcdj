@@ -13,11 +13,12 @@ struct AcceptanceObsParameters : Grid::Serializable {
 
   // Tuning mode
   tuning_mode_t *tuning_mode = new tuning_mode_t;
-
   // Acceptance array
   std::vector<int> *AcceptanceArray = new std::vector<int>;
   // Trajectory number array
   std::vector<int> *TrajectoryArray = new std::vector<int>;
+  // File to save acceptance
+  std::string acceptance_filename = "acceptance.xml";
 
   AcceptanceObsParameters(int num_init_skip_ = 10, int num_tuning_samples_ = 50,
                           double target_rate_ = 0.8,
@@ -54,10 +55,15 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     // Save the acceptance and trajectory index
     if (*Pars.tuning_mode != tuning_mode_t::init) {
       // Print acceptance
-      std::cout << Grid::GridLogMessage
-                << "Acceptance: " << static_cast<int>(accept) << std::endl;
+      std::cout << Grid::GridLogMessage << "Acceptance: [ " << traj << " ] "
+                << static_cast<int>(accept) << std::endl;
       Pars.AcceptanceArray->push_back(static_cast<int>(accept));
       Pars.TrajectoryArray->push_back(static_cast<int>(traj));
+
+      // Write acceptance and trajectory to file
+      Grid::XmlWriter AccWriter(Pars.acceptance_filename);
+      write(AccWriter, "acc", Pars.AcceptanceArray);
+      write(AccWriter, "traj", Pars.TrajectoryArray);
     }
   }
 
