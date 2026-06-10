@@ -169,7 +169,6 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridParallelRNG &pRNG) {
     std::string config, rng, smr;
     this->build_filenames(traj, Params, config, smr, rng);
-    //Grid::GridBase *grid = SmartConfig.get_U(false).Grid();
     uint32_t nersc_csum, scidac_csuma, scidac_csumb;
     Grid::BinaryIO::writeRNG(sRNG, pRNG, rng, 0, nersc_csum, scidac_csuma,
                              scidac_csumb);
