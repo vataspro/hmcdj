@@ -118,39 +118,40 @@ class ILDGTimingHmcCheckpointer
      template arguments to IldgWriter */
   void chooseIldgWriter( std::string format, std::string group, bool reduced_matrix,
                          std::string lat_obj, int traj,
-                         Grid::ConfigurationBase<GaugeField> &SmartConfig) {
+                         Grid::ConfigurationBase<GaugeField> &SmartConfig,
+                         bool smeared) {
 
-      Grid::GridBase *grid = SmartConfig.get_U(false).Grid();
+      Grid::GridBase *grid = SmartConfig.get_U(smeared).Grid();
 
       Grid::IldgWriter _IldgWriter(grid->IsBoss());
       _IldgWriter.open(lat_obj);
 
       if(format=="IEEE64BIG") {
         if(group=="su" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="su" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
       }
       else if (format=="IEEE32BIG") {
          if(group=="su" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="su" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(false), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
         }
       }
 
@@ -168,7 +169,7 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridParallelRNG &pRNG) {
     std::string config, rng, smr;
     this->build_filenames(traj, Params, config, smr, rng);
-    Grid::GridBase *grid = SmartConfig.get_U(false).Grid();
+    //Grid::GridBase *grid = SmartConfig.get_U(false).Grid();
     uint32_t nersc_csum, scidac_csuma, scidac_csumb;
     Grid::BinaryIO::writeRNG(sRNG, pRNG, rng, 0, nersc_csum, scidac_csuma,
                              scidac_csumb);
@@ -176,23 +177,17 @@ class ILDGTimingHmcCheckpointer
               << std::hex << nersc_csum << "/" << scidac_csuma << "/"
               << scidac_csumb << std::dec << std::endl;
 
-    std::cout << "DEBUG INFO:\n" << "Params.group: " << Params.group << std::endl;
-    std::cout << "Params.format: " << Params.format << std::endl;
-    std::cout << "Params.reduced_matrix: " << Params.reduced_matrix << std::endl;
-
     chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, config, traj,
-                      SmartConfig);
+                      SmartConfig, false);
 
     std::cout << DJLogMessage << "Written ILDG Configuration on " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
 
     if (Params.saveSmeared) {
-      Grid::IldgWriter _IldgWriter(grid->IsBoss());
-      _IldgWriter.open(smr);
-      _IldgWriter.writeConfiguration<GaugeStats>(SmartConfig.get_U(true), traj,
-                                                 smr, smr);
-      _IldgWriter.close();
+
+      chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, smr, traj,
+                      SmartConfig, true);
 
       std::cout << DJLogMessage << "Written ILDG Configuration on " << smr
                 << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
