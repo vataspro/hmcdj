@@ -73,6 +73,7 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
   AccPar.num_tuning_samples = 50;  // Number of samples to tune for
   AccPar.target_rate = 0.8;        // Target acceptance rate
   AccPar.target_rate_flex = 0.05;  // Flexibiility of acceptance rate
+  AccPar.monitor_every = 100;
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
   TheHMC.Resources.template AddObservable<AccObs>(AccPar);
 
