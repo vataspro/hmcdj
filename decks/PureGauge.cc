@@ -29,11 +29,6 @@ int main(int argc, char* argv[]) {
   hmcdj.TheHMC.TheAction.push_back(Level1);
 
   hmcdj.Tune();
-
-  // for (auto v : *hmcdj.AccPar.AcceptanceArray) {
-  //   std::cout << Grid::GridLogMessage << v << std::endl;
-  // }
-
   // hmcdj.Play();
 
   return 0;
