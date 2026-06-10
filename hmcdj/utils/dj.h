@@ -232,21 +232,11 @@ void DJ<HMCWrapper>::Tune() {
       write(AccWriter, "tuning_ctr", AccPar.tuning_ctr);
       write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
-    } else {  // Bad acceptance rate - tuning MD steps
-      // To get the new acceptance rate we use the numerical formula
-      // Δτ = 2 / λ * inverfc(pacc)
-      // TODO: Move this to a function
-      double DeltaTau = static_cast<double>(TheHMC.Parameters.MD.trajL) /
-                        TheHMC.Parameters.MD.MDsteps;
-      double lam = 2 * erfcinv(pacc) / (DeltaTau * DeltaTau);
+    } else {  // Bad acceptance rate - tune MD steps
 
-      double DeltaTau_target = sqrt(2 * erfcinv(AccPar.target_rate) / lam);
-
-      std::cout << Grid::GridLogMessage
-                << "Estimated target Dt: " << DeltaTau_target << std::endl;
-
-      int target_MD = static_cast<int>(std::round(
-          static_cast<double>(TheHMC.Parameters.MD.trajL) / DeltaTau_target));
+      int target_MD = get_target_MDsteps(TheHMC.Parameters.MD.trajL,
+                                         TheHMC.Parameters.MD.MDsteps, pacc,
+                                         AccPar.target_rate);
 
       std::cout << Grid::GridLogMessage
                 << "Best approximation for target MDsteps: " << target_MD

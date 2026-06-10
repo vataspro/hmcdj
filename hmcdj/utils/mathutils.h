@@ -44,3 +44,24 @@ template <typename T>
 inline double erfcinv(T x) {
   return static_cast<double>(erfInv(1 - static_cast<float>(x)));
 }
+
+/* Estimate the target number of MD steps
+ * using the formula:
+ *
+ *   Δτ = 2 / λ * inverfc(pacc)
+ *
+ */
+inline double get_target_MDsteps(double trajL, int MDsteps, double pacc,
+                                 double target_pacc) {
+  double dtau = trajL / MDsteps;
+  double lam = 2 * erfcinv(pacc) / (dtau * dtau);
+  double dtau_target = sqrt(2 * erfcinv(target_pacc) / lam);
+
+  std::cout << Grid::GridLogDebug << "Estimated target dtau: " << dtau_target
+            << std::endl;
+
+  int target_MD =
+      static_cast<int>(std::round(static_cast<double>(trajL) / dtau_target));
+
+  return target_MD;
+}
