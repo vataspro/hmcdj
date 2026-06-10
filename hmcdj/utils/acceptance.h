@@ -87,13 +87,6 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     }
   }
 
-  // SmartConfig version
-  void TrajectoryComplete(int traj, Grid::ConfigurationBase<Field> &SmartConfig,
-                          Grid::GridSerialRNG &sRNG,
-                          Grid::GridParallelRNG &pRNG, bool accept) override {
-    TrajectoryComplete(traj, SmartConfig.get_U(false), sRNG, pRNG, accept);
-  }
-
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) override {}
 };
