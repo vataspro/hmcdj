@@ -151,13 +151,10 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
 /* Acceptance Rate tuning */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Tune() {
+  // Define tuning and acceptance filenames
   std::string tuning_filename = "tuning.xml";
-  // bool tuning_complete, logging_active;
-  // int tuning_ctr;
-  //  TODO: Ensure that the tuning.xml is created and read from the ensemble
-  //  directory
-  //  TODO: Ensure that acceptance/traj are only saved if acc_logging is active
-  //         which occurs if the first run is over
+  std::string acceptance_filename = "acceptance.xml";
+
   if (std::filesystem::exists(tuning_filename)) {
     Grid::XmlReader reader(tuning_filename);
 
@@ -173,6 +170,38 @@ void DJ<HMCWrapper>::Tune() {
 
     // TODO: compare traj <> starting_traj and cut off traj
     // Compare new traj with num_tuning_steps and cut off trajectories
+    // If tuning is not init, then load the acceptance and traj
+    if ((*AccPar.tuning_mode != tuning_mode_t::init) &&
+        (std::filesystem::exists(acceptance_filename))) {
+      Grid::XmlReader AccReader(acceptance_filename);
+      AccReader.readDefault("acc", *AccPar.AcceptanceArray);
+      AccReader.readDefault("traj", *AccPar.TrajectoryArray);
+
+      int delta_traj =
+          AccPar.TrajectoryArray->back() - TheHMC.Parameters.StartTrajectory;
+      if (delta_traj > 0) {
+        if (AccPar.TrajectoryArray->size() > delta_traj) {
+          AccPar.TrajectoryArray->resize(AccPar.TrajectoryArray->size() -
+                                         delta_traj);
+          AccPar.AcceptanceArray->resize(AccPar.AcceptanceArray->size() -
+                                         delta_traj);
+        } else {
+          // If something has gone wrong and some intermediate information is
+          // missing restart the tuning step (by doing nothging)
+          std::cout << Grid::GridLogMessage
+                    << "Lacking acceptance information between trajectories "
+                    << TheHMC.Parameters.StartTrajectory << " and "
+                    << AccPar.TrajectoryArray->front()
+                    << " restarting tuning step." << std::endl;
+        }
+      } else if (delta_traj < 0) {
+        std::cout << Grid::GridLogMessage << "Starting from trajectory "
+                  << TheHMC.Parameters.StartTrajectory
+                  << " but have tuning information up to "
+                  << AccPar.TrajectoryArray->back()
+                  << " restarting tuning step." << std::endl;
+      }
+    }
 
   } else {
     // First run; initialise tuning
@@ -186,6 +215,9 @@ void DJ<HMCWrapper>::Tune() {
   }
 
   if (*AccPar.tuning_mode == tuning_mode_t::complete) {
+    std::cout << Grid::GridLogMessage
+              << "MDsteps has already been successfully tuned to: "
+              << TheHMC.Parameters.MD.MDsteps << std::endl;
     return;
   }
 
@@ -213,9 +245,17 @@ void DJ<HMCWrapper>::Tune() {
 
     // Play once to thermalise and initialise the tuning process
     Play();
+
+    // Activate tuning
     *AccPar.tuning_mode = tuning_mode_t::active;
 
+    // Update HMC parameters
+    TheHMC.Parameters.NoMetropolisUntil = 0;  // Deactivate no metropolis
+    TheHMC.Parameters.StartTrajectory =       // Update starting traj
+        TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
+
   } else {
+    // TODO: Safe loading
     TheHMC.Parameters.Trajectories = AccPar.num_tuning_samples;
   }
 
@@ -240,7 +280,7 @@ void DJ<HMCWrapper>::Tune() {
 
     AccPar.tuning_ctr++;
 
-    Grid::XmlWriter AccWriter("monitoring.xml");  // tuning_filename);
+    Grid::XmlWriter AccWriter(acceptance_filename);
     write(AccWriter, "acc", *AccPar.AcceptanceArray);
     write(AccWriter, "traj", *AccPar.TrajectoryArray);
 
