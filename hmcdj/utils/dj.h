@@ -3,6 +3,8 @@
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
+#include <filesystem>
+
 #include "acceptance.h"
 #include "observable_logging.h"
 
@@ -119,7 +121,7 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 
   // Acceptance rate & tuning
   // TODO: read from track
-  AccPar.num_init_skip = 10;        // Number of parameters to skip from
+  AccPar.num_init_skip = 40;        // Number of parameters to skip from
   AccPar.num_tuning_samples = 100;  // Number of samples to tune for
   AccPar.target_rate = 0.8;         // Target acceptance rate
   AccPar.target_rate_flex = 0.05;   // Flexibiility of acceptance rate
@@ -149,26 +151,76 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
 /* Acceptance Rate tuning */
 template <typename HMCWrapper>
 void DJ<HMCWrapper>::Tune() {
-  // TODO: Create tuning file (or read it if it already exists)
-  //
-  int tuning_ctr = 0;  // TODO: Read from tuning file, also MD steps
-                       //  End tuning if HMC already tuned
+  std::string tuning_filename = "tuning.xml";
+  // bool tuning_complete, logging_active;
+  // int tuning_ctr;
+  //  TODO: Ensure that the tuning.xml is created and read from the ensemble
+  //  directory
+  //  TODO: Ensure that acceptance/traj are only saved if acc_logging is active
+  //         which occurs if the first run is over
+  if (std::filesystem::exists(tuning_filename)) {
+    Grid::XmlReader reader(tuning_filename);
+
+    // Read current tuning mode
+    int tmp_buf;
+    reader.readDefault("mode", tmp_buf);
+    *AccPar.tuning_mode = static_cast<tuning_mode_t>(tmp_buf);
+
+    // Load current MDsteps value
+    reader.readDefault("MDsteps", TheHMC.Parameters.MD.MDsteps);
+    // Load tuning counter
+    reader.readDefault("tuning_ctr", AccPar.tuning_ctr);
+
+    // TODO: compare traj <> starting_traj and cut off traj
+    // Compare new traj with num_tuning_steps and cut off trajectories
+
+  } else {
+    // First run; initialise tuning
+    *AccPar.tuning_mode = tuning_mode_t::init;
+    AccPar.tuning_ctr = 0;
+
+    Grid::XmlWriter AccWriter(tuning_filename);
+    write(AccWriter, "mode", static_cast<int>(*AccPar.tuning_mode));
+    write(AccWriter, "tuning_ctr", 0);
+    write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
+  }
+
+  if (*AccPar.tuning_mode == tuning_mode_t::complete) {
+    return;
+  }
+
+  //  End tuning if HMC already tuned
+  // Using XmlReader to read an array
+  /*
+  Grid::XmlReader AccReader("bob.xml");
+  std::vector<int> traj;
+  AccReader.readDefault("traj", traj);
+
+  for (auto x : traj) {
+      std::cout << x << std::endl;}
+
+  std::cin.get();
+  */
 
   // TODO: Run one more time if tuning successful, for good measure;
 
-  // TODO: implement the skip in the obs
   //  Set number of trajectories
-  if (tuning_ctr == 0) {  // For the first time only, thermalise
+  if (*AccPar.tuning_mode ==
+      tuning_mode_t::init) {  // For the first time only, thermalise
     TheHMC.Parameters.Trajectories = reader.Thermalisations +
                                      AccPar.num_init_skip +
                                      AccPar.num_tuning_samples;
+
+    // Play once to thermalise and initialise the tuning process
+    Play();
+    *AccPar.tuning_mode = tuning_mode_t::active;
+
   } else {
-    TheHMC.Parameters.Trajectories =
-        AccPar.num_init_skip + AccPar.num_tuning_samples;
+    TheHMC.Parameters.Trajectories = AccPar.num_tuning_samples;
   }
 
   // Tuning loop
-  while (AccPar.tuning_active) {
+  while (*AccPar.tuning_mode != tuning_mode_t::complete) {
     // Run the HMC
     Play();
 
@@ -176,13 +228,23 @@ void DJ<HMCWrapper>::Tune() {
     TheHMC.Parameters.StartTrajectory =  // Update starting traj
         TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
 
-    if (tuning_ctr == 0) {  // Set trajectories
-      TheHMC.Parameters.Trajectories =
-          AccPar.num_init_skip + AccPar.num_tuning_samples;
-      TheHMC.Parameters.NoMetropolisUntil = 0;
-    }
+    // if (AccPar.tuning_ctr == 0) {  // Set trajectories
+    //   TheHMC.Parameters.Trajectories =
+    //       AccPar.num_init_skip + AccPar.num_tuning_samples;
+    //   TheHMC.Parameters.NoMetropolisUntil = 0;
+    // }
 
-    tuning_ctr++;
+    std::cout << Grid::GridLogMessage
+              << "Number of acc: " << AccPar.TrajectoryArray->size()
+              << std::endl;
+
+    AccPar.tuning_ctr++;
+
+    Grid::XmlWriter AccWriter("monitoring.xml");  // tuning_filename);
+    write(AccWriter, "acc", *AccPar.AcceptanceArray);
+    write(AccWriter, "traj", *AccPar.TrajectoryArray);
+
+    AccPar.TrajectoryArray->clear();
 
     // Measure acceptance rate
     double pacc = arrMean(*AccPar.AcceptanceArray);
@@ -196,10 +258,16 @@ void DJ<HMCWrapper>::Tune() {
     // Apply tuning if required
     if (abs(pacc - AccPar.target_rate) < AccPar.target_rate_flex) {
       // Tuning complete
-      AccPar.tuning_active = false;
+      *AccPar.tuning_mode = tuning_mode_t::complete;
       std::cout << Grid::GridLogMessage
                 << "Tuning successful, with final MD steps: "
                 << TheHMC.Parameters.MD.trajL << std::endl;
+
+      // Save tuning final state
+      Grid::XmlWriter AccWriter(tuning_filename);
+      write(AccWriter, "mode", static_cast<int>(tuning_mode_t::complete));
+      write(AccWriter, "tuning_ctr", AccPar.tuning_ctr);
+      write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
     } else {  // Bad acceptance rate - tuning MD steps
       // To get the new acceptance rate we use the numerical formula
@@ -224,6 +292,11 @@ void DJ<HMCWrapper>::Tune() {
                 << std::endl;
 
       TheHMC.Parameters.MD.MDsteps = target_MD;
+
+      Grid::XmlWriter AccWriter(tuning_filename);
+      write(AccWriter, "mode", static_cast<int>(*AccPar.tuning_mode));
+      write(AccWriter, "tuning_ctr", AccPar.tuning_ctr);
+      write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
     }
   }
 }
