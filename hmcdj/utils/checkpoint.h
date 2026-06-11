@@ -249,3 +249,27 @@ class ILDGTimingCPModule
  public:
   constexpr static const char *const Name = "hmcdj ILDG timing";
 };
+
+// we can infer the gauge group from HMCWrapper,
+// this lets hmcdj instantiate the correct IldgWriter.
+template <typename GaugeGroup>
+constexpr std::string getGaugeGroupString();
+
+template <typename GaugeGroup>
+constexpr std::string getGaugeGroupString() {
+  std::string group;
+  if constexpr (std::is_same_v<GaugeGroup, Grid::Sp<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::Sp - "
+              << "setting group to sp" << std::endl;
+    group = "sp";
+  } else if constexpr (std::is_same_v<GaugeGroup, Grid::SU<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::SU - "
+              << "setting group to su" << std::endl;
+    group = "su";
+  } else {
+    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
+              << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return group;
+}
