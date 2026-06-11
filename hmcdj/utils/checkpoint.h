@@ -111,9 +111,8 @@ class ILDGTimingHmcCheckpointer
     std::exit(DJSuccessfulExit);
   };
 
-  /* choose appropriate template instantiation here since the
-     non-const checkpointer parameters cannot be used directly as
-     template arguments to IldgWriter */
+  /* Chooses appropriate Grid::IldgWriter and writes
+     GaugeField to disk. Borrowed from Grid::ILDGHmcCheckpointer. */
   void writeIldgConfig(std::string format, std::string group,
                        bool reduced_matrix, std::string lat_obj, int traj,
                        GaugeField &Field) {
@@ -122,6 +121,9 @@ class ILDGTimingHmcCheckpointer
     Grid::IldgWriter _IldgWriter(grid->IsBoss());
     _IldgWriter.open(lat_obj);
 
+    /* choose appropriate template instantiation here since the
+       non-const checkpointer parameters cannot be used directly as
+       template arguments to Grid::IldgWriter */
     if (format == "IEEE64BIG") {
       if (group == "su" && reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU,
@@ -167,7 +169,6 @@ class ILDGTimingHmcCheckpointer
             Field, traj, lat_obj, lat_obj);
       }
     }
-
     _IldgWriter.close();
   }
 
@@ -249,11 +250,6 @@ class ILDGTimingCPModule
  public:
   constexpr static const char *const Name = "hmcdj ILDG timing";
 };
-
-// we can infer the gauge group from HMCWrapper,
-// this lets hmcdj instantiate the correct IldgWriter.
-template <typename GaugeGroup>
-constexpr std::string getGaugeGroupString();
 
 template <typename GaugeGroup>
 constexpr std::string getGaugeGroupString() {
