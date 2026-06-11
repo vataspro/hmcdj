@@ -145,8 +145,8 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
     : DJ(deckName, argc, argv, {}) {}
 
 /* Acceptance Rate tuning */
-template <typename HMCWrapper>
-void DJ<HMCWrapper>::Tune() {
+template <typename HMCWrapper, int DJSuccessfulExit>
+void DJ<HMCWrapper, DJSuccessfulExit>::Tune() {
   // Set number of trajectories to tuning steps
   TheHMC.Parameters.Trajectories = AccPar.num_tuning_samples;
 
