@@ -116,7 +116,7 @@ class ILDGTimingHmcCheckpointer
      template arguments to IldgWriter */
   void writeIldgConfig(std::string format, std::string group,
                        bool reduced_matrix, std::string lat_obj, int traj,
-                       Grid::GaugeField &Field) {
+                       GaugeField &Field) {
     Grid::GridBase *grid = Field.Grid();
 
     Grid::IldgWriter _IldgWriter(grid->IsBoss());
