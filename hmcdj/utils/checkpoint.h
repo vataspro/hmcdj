@@ -4,6 +4,8 @@
 #include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/timing.h>
 
+#include <hmcdj/utils/acceptance.h>
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -11,6 +13,13 @@
 #ifndef HAVE_LIME
 #error "LIME is required; please re-build Grid with LIME."
 #endif
+
+
+// Special struct to handle the hard things in life
+struct djCheckpointerParameters {
+    Grid::CheckpointerParameters CheckpointerParams;
+    AcceptanceObsParameters *AccParams = new AcceptanceObsParameters;
+};
 
 /* A checkpointer that also checks the time to trajectory completion,
    and can exit if it estimates insufficient time is available to complete
@@ -25,7 +34,8 @@ template <class Implementation, int DJSuccessfulExit>
 class ILDGTimingHmcCheckpointer
     : public Grid::BaseHmcCheckpointer<Implementation> {
  private:
-  Grid::CheckpointerParameters Params;
+//  Grid::CheckpointerParameters Params;
+  djCheckpointerParameters Params;
   std::unique_ptr<TrajectoryTimer> timer;
 
  public:
@@ -38,14 +48,14 @@ class ILDGTimingHmcCheckpointer
   };
 
   void initialize(const Grid::CheckpointerParameters &Params_) {
-    Params = Params_;
+    Params.CheckpointerParams = Params_;
 
     // check here that the format is valid
-    int ieee32big = (Params.format == std::string("IEEE32BIG"));
-    int ieee64big = (Params.format == std::string("IEEE64BIG"));
+    int ieee32big = (Params.CheckpointerParams.format == std::string("IEEE32BIG"));
+    int ieee64big = (Params.CheckpointerParams.format == std::string("IEEE64BIG"));
 
     if (!(ieee64big || ieee32big)) {
-      std::cout << DJLogError << "Unrecognized file format " << Params.format
+      std::cout << DJLogError << "Unrecognized file format " << Params.CheckpointerParams.format
                 << std::endl;
       std::cout << DJLogError
                 << "Allowed: IEEE32BIG | IEEE64BIG"
@@ -53,14 +63,14 @@ class ILDGTimingHmcCheckpointer
       exit(1);
     }
 
-    if ( !((Params.group == std::string("su")) || (Params.group == std::string("sp"))) ) {
+    if ( !((Params.CheckpointerParams.group == std::string("su")) || (Params.CheckpointerParams.group == std::string("sp"))) ) {
       std::cout << Grid::GridLogError << "Unrecognized gauge group "
-                                            << Params.group << std::endl;
+                                            << Params.CheckpointerParams.group << std::endl;
       std::cout << Grid::GridLogError << "Allowed: su | sp" << std::endl;
       exit(1);
     }
 
-    if ( Params.group == std::string("sp") && Grid::Nc%2!=0 ) {
+    if ( Params.CheckpointerParams.group == std::string("sp") && Grid::Nc%2!=0 ) {
       std::cout << Grid::GridLogError << "Nc=" << Grid::Nc;
       std::cout << ", Sp fields require even Nc" << std::endl;
       exit(1);
@@ -77,7 +87,7 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
     TimerStatus status = timer->updateTiming(traj);
-    if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
+    if ((traj % Params.CheckpointerParams.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, SmartConfig, sRNG, pRNG);
     }
 
@@ -85,6 +95,25 @@ class ILDGTimingHmcCheckpointer
       haltAsOutOfTime(status);
     }
   };
+
+  //overlad
+  //
+  // THIS IS THE ONE THAT'S CALLED
+  void TrajectoryComplete(int traj,
+                          Implementation::Field &U,
+                          Grid::GridSerialRNG &sRNG,
+                          Grid::GridParallelRNG &pRNG) {
+    TimerStatus status = timer->updateTiming(traj);
+    if ((traj % Params.CheckpointerParams.saveInterval == 0) || status != TimerStatus::OK) {
+      writeConfiguration(traj, U, sRNG, pRNG);
+      saveAcceptance();
+    }
+
+    if (status != TimerStatus::OK) {
+      haltAsOutOfTime(status);
+    }
+  };
+
 
  private:
   /* Tell the user why the process is exiting, and exit */
@@ -118,44 +147,54 @@ class ILDGTimingHmcCheckpointer
      template arguments to IldgWriter */
   void chooseIldgWriter( std::string format, std::string group, bool reduced_matrix,
                          std::string lat_obj, int traj,
-                         Grid::ConfigurationBase<GaugeField> &SmartConfig,
+                         //Grid::ConfigurationBase<GaugeField> &SmartConfig,
+                         Implementation::Field &U,
                          bool smeared) {
 
-      Grid::GridBase *grid = SmartConfig.get_U(smeared).Grid();
+      Grid::GridBase *grid = U.Grid();//SmartConfig.get_U(smeared).Grid();
+
 
       Grid::IldgWriter _IldgWriter(grid->IsBoss());
       _IldgWriter.open(lat_obj);
 
       if(format=="IEEE64BIG") {
         if(group=="su" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="su" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE64BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE64BIG>(U, traj, lat_obj, lat_obj);
         }
       }
       else if (format=="IEEE32BIG") {
          if(group=="su" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="su" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::REDUCED, Grid::FloatingPointFormat::IEEE32BIG>(U, traj, lat_obj, lat_obj);
         }
         else if (group=="sp" && !reduced_matrix) {
-          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(SmartConfig.get_U(smeared), traj, lat_obj, lat_obj);
+          _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp, Grid::MatrixFormat::FULL, Grid::FloatingPointFormat::IEEE32BIG>(U, traj, lat_obj, lat_obj);
         }
       }
 
       _IldgWriter.close();
+  }
+
+// Overload
+void chooseIldgWriter( std::string format, std::string group, bool reduced_matrix,
+                         std::string lat_obj, int traj,
+                         Grid::ConfigurationBase<GaugeField> &SmartConfig,
+                         bool smeared) {
+    chooseIldgWriter(format, group, reduced_matrix, lat_obj, traj, SmartConfig.get_U(smeared), smeared);
   }
 
 
@@ -168,7 +207,7 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
     std::string config, rng, smr;
-    this->build_filenames(traj, Params, config, smr, rng);
+    this->build_filenames(traj, Params.CheckpointerParams, config, smr, rng);
     uint32_t nersc_csum, scidac_csuma, scidac_csumb;
     Grid::BinaryIO::writeRNG(sRNG, pRNG, rng, 0, nersc_csum, scidac_csuma,
                              scidac_csumb);
@@ -176,16 +215,16 @@ class ILDGTimingHmcCheckpointer
               << std::hex << nersc_csum << "/" << scidac_csuma << "/"
               << scidac_csumb << std::dec << std::endl;
 
-    chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, config, traj,
+    chooseIldgWriter(Params.CheckpointerParams.format, Params.CheckpointerParams.group, Params.CheckpointerParams.reduced_matrix, config, traj,
                       SmartConfig, false);
 
     std::cout << DJLogMessage << "Written ILDG Configuration on " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
 
-    if (Params.saveSmeared) {
+    if (Params.CheckpointerParams.saveSmeared) {
 
-      chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, smr, traj,
+      chooseIldgWriter(Params.CheckpointerParams.format, Params.CheckpointerParams.group, Params.CheckpointerParams.reduced_matrix, smr, traj,
                       SmartConfig, true);
 
       std::cout << DJLogMessage << "Written ILDG Configuration on " << smr
@@ -194,10 +233,37 @@ class ILDGTimingHmcCheckpointer
     }
   };
 
+  // Field version
+  void writeConfiguration(int traj,
+                          Implementation::Field &U,
+                          Grid::GridSerialRNG &sRNG,
+                          Grid::GridParallelRNG &pRNG) {
+    std::string config, rng, smr;
+    this->build_filenames(traj, Params.CheckpointerParams, config, smr, rng);
+    uint32_t nersc_csum, scidac_csuma, scidac_csumb;
+    Grid::BinaryIO::writeRNG(sRNG, pRNG, rng, 0, nersc_csum, scidac_csuma,
+                             scidac_csumb);
+    std::cout << DJLogMessage << "Written BINARY RNG " << rng << " checksum "
+              << std::hex << nersc_csum << "/" << scidac_csuma << "/"
+              << scidac_csumb << std::dec << std::endl;
+
+    chooseIldgWriter(Params.CheckpointerParams.format, Params.CheckpointerParams.group, Params.CheckpointerParams.reduced_matrix, config, traj,
+                      U, false);
+
+    std::cout << DJLogMessage << "Written ILDG Configuration on " << config
+              << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
+              << "/" << scidac_csumb << std::dec << std::endl;
+
+    if (Params.CheckpointerParams.saveSmeared) {
+
+      std::cout << DJLogMessage << "CANNOT WRITE SMEARED CONFIG OF FIELD" << std::endl;
+    }
+  };
+
   void CheckpointRestore(int traj, GaugeField &U, Grid::GridSerialRNG &sRNG,
                          Grid::GridParallelRNG &pRNG) {
     std::string config, rng, smr;
-    this->build_filenames(traj, Params, config, smr, rng);
+    this->build_filenames(traj, Params.CheckpointerParams, config, smr, rng);
     this->check_filename(rng);
     this->check_filename(config);
 
@@ -215,7 +281,14 @@ class ILDGTimingHmcCheckpointer
     std::cout << DJLogMessage << "Read ILDG Configuration from " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
-  };
+  }
+
+ void saveAcceptance() {
+     std::cout << Grid::GridLogMessage
+              << "Saving acceptance with target rate " << Params.AccParams->target_rate << std::endl;
+ }
+
+
 };
 
 /* Wrap the ILDGTimingHmcCheckpointer in a CheckpointerModule
