@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
   Level1.push_back(&Waction);
   hmcdj.TheHMC.TheAction.push_back(Level1);
 
-  hmcdj.Play();
+  hmcdj.Tune();
+  // hmcdj.Play();
 
   return 0;
 }
