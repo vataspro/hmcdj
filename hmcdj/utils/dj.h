@@ -17,8 +17,8 @@ class DJ {
       ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
 
  public:
-  DJ(std::string deckName, int argc, char* argv[], 
-                           djParameterList Parameters, bool reduce_group=false);
+  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters,
+     bool useReducedStorage = false);
   DJ(std::string deckName, int argc, char* argv[]);
   EnsembleReader reader;
   HMCWrapper TheHMC;
@@ -26,38 +26,22 @@ class DJ {
   ~DJ();
 };
 
+// we can infer the gauge group from HMCWrapper,
+// this lets hmcdj instantiate the correct IldgWriter.
+template <typename GaugeGroup>
+constexpr std::string getGaugeGroup();
+
 const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
 
 template <typename HMCWrapper, int DJSuccessfulExit>
 DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[],
-				     djParameterList Parameters, bool reduce_group)
+				     djParameterList Parameters, bool useReducedStorage)
     : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters) {
   // Using the comma operator in the line above
   // (`(djGuard(argv, argv), argv[1])`)
   // allows guarding against incorrect usage (including calling without
   // arguments) while maintaining `const` attributes.
-
-  // we can infer the gauge group from HMCWrapper,
-  // this lets hmcdj instantiate the correct IldgWriter.
-  std::string group;
-  if constexpr (std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup,
-                               Grid::Sp<Grid::Nc>>) {
-    std::cout << DJLogMessage
-              << "GaugeGroup is Grid::Sp - "
-              << "setting group to sp" << std::endl;
-    group = "sp";
-  } else if constexpr(std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup
-                                    ,Grid::SU<Grid::Nc>>) {
-    std::cout << DJLogMessage
-              << "GaugeGroup is Grid::SU - "
-              << "setting group to su" << std::endl;
-    group = "su";
-  } else {
-    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
-                            << std::endl;
-    exit(1);
-  }
 
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename
@@ -76,16 +60,15 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
-  CPparams.group  = group;
-  CPparams.reduced_matrix  = reduce_group;
+  CPparams.group = getGaugeGroup<HMCWrapper::ImplPolicy::GaugeGroup>();
+  CPparams.reduced_matrix = useReducedStorage;
 
-  if(CPparams.reduced_matrix) {
+  if (CPparams.reduced_matrix) {
     std::cout << DJLogMessage << "Checkpointer using reduced format writer"
-                              << std::endl;
-  }
-  else {
-    std::cout << DJLogMessage << "Checkpointer not using reduced format writer"
-                              << std::endl;
+              << std::endl;
+  } else {
+    std::cout << DJLogMessage << "Checkpointer using full-matrix format writer"
+              << std::endl;
   }
 
   TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams);
@@ -115,6 +98,25 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[
 
   // Get the starting trajectory
   TheHMC.Parameters.StartTrajectory = reader.StartingTrajectory;
+}
+
+template <typename GaugeGroup>
+constexpr std::string getGaugeGroup() {
+  std::string group;
+  if constexpr (std::is_same_v<GaugeGroup, Grid::Sp<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::Sp - "
+              << "setting group to sp" << std::endl;
+    group = "sp";
+  } else if constexpr (std::is_same_v<GaugeGroup, Grid::SU<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::SU - "
+              << "setting group to su" << std::endl;
+    group = "su";
+  } else {
+    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
+              << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return group;
 }
 
 // Overload for passing no parameters
