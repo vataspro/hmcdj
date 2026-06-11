@@ -236,9 +236,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::Tune() {
     *AccPar.tuning_mode = tuning_mode_t::active;
 
     // Update HMC parameters
-    TheHMC.Parameters.NoMetropolisUntil = 0;  // Deactivate no metropolis
     TheHMC.Parameters.StartTrajectory =       // Update starting traj
-        TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories;
+        TheHMC.Parameters.StartTrajectory + TheHMC.Parameters.Trajectories + TheHMC.Parameters.NoMetropolisUntil;
+
+    TheHMC.Parameters.NoMetropolisUntil = 0;  // Deactivate no metropolis
   }
 
   // Tuning loop
