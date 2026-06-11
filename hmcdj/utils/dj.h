@@ -29,7 +29,7 @@ class DJ {
 // we can infer the gauge group from HMCWrapper,
 // this lets hmcdj instantiate the correct IldgWriter.
 template <typename GaugeGroup>
-constexpr std::string getGaugeGroup();
+constexpr std::string getGaugeGroupString();
 
 const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
@@ -60,7 +60,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
-  CPparams.group = getGaugeGroup<HMCWrapper::ImplPolicy::GaugeGroup>();
+  CPparams.group = getGaugeGroupString<HMCWrapper::ImplPolicy::GaugeGroup>();
   CPparams.reduced_matrix = useReducedStorage;
 
   if (CPparams.reduced_matrix) {
@@ -101,7 +101,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[
 }
 
 template <typename GaugeGroup>
-constexpr std::string getGaugeGroup() {
+constexpr std::string getGaugeGroupString() {
   std::string group;
   if constexpr (std::is_same_v<GaugeGroup, Grid::Sp<Grid::Nc>>) {
     std::cout << DJLogMessage << "GaugeGroup is Grid::Sp - "
