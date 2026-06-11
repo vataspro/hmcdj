@@ -20,12 +20,11 @@ char** getGridArgv(int argc, char* argv[], const char* grid);
 template <typename HMCWrapper>
 DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
                    djParameterList Parameters)
-    : reader(deckName, argc < 2 ? "(no filename specified)" : argv[1],
-             Parameters) {
-  // Ensure correct usage
-  djGuard(argc, argv);
-
-  /* GRID PURE GAUGE STARTS HERE */
+    : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters) {
+  // Using the comma operator in the line above
+  // (`(djGuard(argv, argv), argv[1])`)
+  // allows guarding against incorrect usage (including calling without
+  // arguments) while maintaining `const` attributes.
 
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename

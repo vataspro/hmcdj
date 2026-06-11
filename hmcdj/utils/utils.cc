@@ -19,6 +19,10 @@ void djGuard(int argc, char* argv[]) {
   std::ifstream file(argv[1]);  // opens a filestream of argv[1]
   if (!file) {
     std::cerr << "File " << argv[1] << " does not exist!\n";
+    if (static_cast<std::string>(argv[1]).substr(0, 2) == "--") {
+      std::cerr << "The first provided argument should be the track"
+                << std::endl;
+    }
     std::exit(EXIT_FAILURE);
   }
 }
