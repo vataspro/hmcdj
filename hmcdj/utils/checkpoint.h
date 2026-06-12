@@ -291,6 +291,8 @@ class ILDGTimingHmcCheckpointer
     std::cout << DJLogMessage << "Read ILDG Configuration from " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
+
+    loadAcceptance();
   }
 
   /*
@@ -310,6 +312,34 @@ class ILDGTimingHmcCheckpointer
     // Save acceptance array
     Grid::XmlWriter AccWriter(extraParams.AccPar->acceptance_filename);
     write(AccWriter, "acc", *extraParams.AccPar->AcceptanceArray);
+  }
+
+  void loadAcceptance() {
+    // if status is not init
+    // what if its empty? don't save it use try block
+    // load acc
+    // load tuning
+    // if (*extraParams.AccPar->tuning_mode != tuning_mode_t::init) {
+    // TODO: if the acceptance array is loaded it does not get cleared by dj.h
+    // line 267
+    try {
+      // Load tuning mode
+      Grid::XmlReader tuningReader(extraParams.AccPar->tuning_filename);
+      int tmp_buf;
+      tuningReader.readDefault("mode", tmp_buf);
+      *extraParams.AccPar->tuning_mode = static_cast<tuning_mode_t>(tmp_buf);
+      tuningReader.readDefault("MDsteps", *extraParams.AccPar->MDsteps);
+      tuningReader.readDefault("tuning_ctr", *extraParams.AccPar->tuning_ctr);
+
+      // Load acceptance
+      Grid::XmlReader accReader(extraParams.AccPar->acceptance_filename);
+      accReader.readDefault("acc", *extraParams.AccPar->AcceptanceArray);
+
+    } catch (...) {
+      // Ignore
+      std::cout << Grid::GridLogMessage << "SOMETHING BAD HAS HAPPENED"
+                << std::endl;
+    }
   }
 };
 
