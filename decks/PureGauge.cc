@@ -11,7 +11,8 @@ int main(int argc, char* argv[]) {
   auto beta = djParameter<double>("beta");
   djParameterList params = {beta};
 
-  DJ<HMCWrapper> hmcdj("PureGauge", argc, argv, params);
+  const bool reducedStorage = true;
+  DJ<HMCWrapper> hmcdj("PureGauge", argc, argv, params, reducedStorage);
 
   /* Observables */
   // Add the temporal Polyakov Loop observable

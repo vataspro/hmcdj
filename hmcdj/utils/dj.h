@@ -1,12 +1,24 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/checkpoint.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
-template <typename HMCWrapper>
+/* DJSuccessfulExit should always be zero in production code.
+   It should only be set to a non-zero value from a test harness,
+   to allow detection of unwanted exits. */
+template <typename HMCWrapper, int DJSuccessfulExit = 0>
 class DJ {
+  // Create a type alias such that the LoadCheckpointer template function called
+  // below will accept this type as a template parameter. The
+  // ImplementationPolicy parameter will be specified by that function.
+  template <typename ImplementationPolicy>
+  using theCPModule =
+      ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
+
  public:
-  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters);
+  DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters,
+     bool useReducedStorage = false);
   DJ(std::string deckName, int argc, char* argv[]);
   EnsembleReader reader;
   HMCWrapper TheHMC;
@@ -17,9 +29,9 @@ class DJ {
 const int DJ_NUM_EXTRA_ARGS = 2;
 char** getGridArgv(int argc, char* argv[], const char* grid);
 
-template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
-                   djParameterList Parameters)
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc, char* argv[],
+				     djParameterList Parameters, bool useReducedStorage)
     : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters) {
   // Using the comma operator in the line above
   // (`(djGuard(argv, argv), argv[1])`)
@@ -43,8 +55,19 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
+  CPparams.group =
+      getGaugeGroupString<typename HMCWrapper::ImplPolicy::GaugeGroup>();
+  CPparams.reduced_matrix = useReducedStorage;
 
-  TheHMC.Resources.LoadNerscCheckpointer(CPparams);
+  if (CPparams.reduced_matrix) {
+    std::cout << DJLogMessage << "Checkpointer using reduced format writer"
+              << std::endl;
+  } else {
+    std::cout << DJLogMessage << "Checkpointer using full-matrix format writer"
+              << std::endl;
+  }
+
+  TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams);
 
   /* Seeding the Grid RNG */
   RNGManager rng(argv[1]);  // Seed with a deterministic rng from the yaml file
@@ -74,18 +97,19 @@ DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[],
 }
 
 // Overload for passing no parameters
-template <typename HMCWrapper>
-DJ<HMCWrapper>::DJ(std::string deckName, int argc, char* argv[])
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
+                                     char* argv[])
     : DJ(deckName, argc, argv, {}) {}
 
 /* Play the track: Run the HMC */
-template <typename HMCWrapper>
-void DJ<HMCWrapper>::Play() {
+template <typename HMCWrapper, int DJSuccessfulExit>
+void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
   TheHMC.Run();
 }
 
 /* Destructor closes Grid */
-template <typename HMCWrapper>
-DJ<HMCWrapper>::~DJ() {
+template <typename HMCWrapper, int DJSuccessfulExit>
+DJ<HMCWrapper, DJSuccessfulExit>::~DJ() {
   Grid::Grid_finalize();
 }
