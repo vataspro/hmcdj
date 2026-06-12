@@ -255,7 +255,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
   }
 
   // Iterate acceptance tuning step counter
+  // TODO: this does not get incremented in tuning.xml
   *extraCPPars.AccPar->tuning_ctr++;
+  std::cout << Grid::GridLogDebug << "TUNING COUNTER "
+            << *extraCPPars.AccPar->tuning_ctr << std::endl;
 }
 
 template <typename HMCWrapper, int DJSuccessfulExit>
@@ -277,12 +280,11 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
               << "Tuning successful, with final MD steps: "
               << TheHMC.Parameters.MD.MDsteps << std::endl;
 
-    // Move to checkpointer
     // Save tuning final state
-    // Grid::XmlWriter AccWriter(extraCPPars.AccPar->tuning_filename);
-    // write(AccWriter, "mode", static_cast<int>(tuning_mode_t::complete));
-    // write(AccWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
-    // write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
+    Grid::XmlWriter AccWriter(extraCPPars.AccPar->tuning_filename);
+    write(AccWriter, "mode", static_cast<int>(tuning_mode_t::complete));
+    write(AccWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
+    write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
   } else {  // Bad acceptance rate - tune MD steps
 
