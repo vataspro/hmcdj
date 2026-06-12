@@ -39,7 +39,9 @@ int main(int argc, char *argv[]) {
   djParameterList params = {beta, mass, M5, pv_mass, b, c, Ls};
 
   // Initialise HMCDJ
-  DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params);
+  const bool reducedStorage = true;
+  DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params,
+                       reducedStorage);
 
   // Print the layout
   Grid::GridLogLayout();
