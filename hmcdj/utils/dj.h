@@ -122,15 +122,15 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
   TheHMC.Resources.template AddObservable<PlaqObs>();
 
   // Acceptance rate & tuning
-  // TODO: read from track
-  // TODO: ensure num init skips > no metropolis
   extraCPPars.AccPar->total_num_init_skips =
-      10;  // Number of parameters to skip from
-  extraCPPars.AccPar->num_tuning_samples = 20;  // Number of samples to tune for
-  extraCPPars.AccPar->target_rate = 0.8;        // Target acceptance rate
+      reader.total_num_init_skips;  // Number of parameters to skip from
+  extraCPPars.AccPar->num_tuning_samples =
+      reader.num_tuning_samples;  // Number of samples to tune for
+  extraCPPars.AccPar->target_rate =
+      reader.target_rate;  // Target acceptance rate
   extraCPPars.AccPar->target_rate_tol =
-      0.05;  // Acceptance rate tuning tolerance
-  extraCPPars.AccPar->monitor_every = 100;
+      reader.target_rate_tol;  // Acceptance rate tuning tolerance
+  extraCPPars.AccPar->monitor_every = reader.monitor_every;
   extraCPPars.AccPar->MDsteps =
       &TheHMC.Parameters.MD.MDsteps;  // required for saving mdsteps
 

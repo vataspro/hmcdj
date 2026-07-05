@@ -33,7 +33,7 @@ class RNGManager {
   RNGManager(std::string filename);
   void Seed(std::string filename);
   std::string GenerateGridRNGSeedString();
-  ~RNGManager(){};
+  ~RNGManager() {};
 };
 
 /* Ensemble Reader */
@@ -61,6 +61,14 @@ class EnsembleReader {
                                   // individually wrapped
                                   // in the Base class.
   std::string deckName;
+
+  /* Acceptance rate tuning parameters */
+  int num_tuning_samples;    // Number of trajectories per tuning step
+  int total_num_init_skips;  // NoMetropolisUntil + "thermalisation" steps
+  double target_rate;        // Target acceptance rate
+  double target_rate_tol;    // Target acceptance rate tolerance
+  double
+      monitor_every;  // After tuning check the acceptance rate this frequently
 
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string deckName, const std::string filename,
