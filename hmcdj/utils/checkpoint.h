@@ -310,9 +310,6 @@ class ILDGTimingHmcCheckpointer
     write(TuningWriter, "MDsteps", *extraParams.AccPar->MDsteps);
 
     // Save acceptance array
-    if (traj % extraParams.AccPar->num_tuning_samples == 0) {
-      extraParams.AccPar->AcceptanceArray->clear();
-    }
     Grid::XmlWriter AccWriter(extraParams.AccPar->acceptance_filename);
     write(AccWriter, "acc", *extraParams.AccPar->AcceptanceArray);
   }

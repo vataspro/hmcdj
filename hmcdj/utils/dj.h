@@ -186,15 +186,15 @@ template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::loadTuningState() {
   if (std::filesystem::exists(extraCPPars.AccPar->tuning_filename)) {
     // Tuning has already started
-    Grid::XmlReader reader(extraCPPars.AccPar->tuning_filename);
+    Grid::XmlReader TuningReader(extraCPPars.AccPar->tuning_filename);
     // Read current tuning mode
     int tmp_buf;
-    reader.readDefault("mode", tmp_buf);
+    TuningReader.readDefault("mode", tmp_buf);
     *extraCPPars.AccPar->tuning_mode = static_cast<tuning_mode_t>(tmp_buf);
     // Load current MDsteps value
-    reader.readDefault("MDsteps", TheHMC.Parameters.MD.MDsteps);
+    TuningReader.readDefault("MDsteps", TheHMC.Parameters.MD.MDsteps);
     // Load tuning counter
-    reader.readDefault("tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
+    TuningReader.readDefault("tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
 
   } else {
     // First run; initialise tuning
@@ -246,19 +246,29 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
 
   if (*extraCPPars.AccPar->tuning_mode ==
       tuning_mode_t::init) {  // activate tuning
+
     *extraCPPars.AccPar->tuning_mode = tuning_mode_t::active;  // on first pass
+
     // Remove NoMetropolis step on first pass
     TheHMC.Parameters.StartTrajectory += TheHMC.Parameters.NoMetropolisUntil;
     TheHMC.Parameters.NoMetropolisUntil = 0;
-  } else {
+    TheHMC.Parameters.StartingType = "CheckpointStart";
+  } else if (*extraCPPars.AccPar->tuning_mode == tuning_mode_t::active) {
     tuneAcceptance();  // tune acceptance rate
   }
 
   // Iterate acceptance tuning step counter
-  // TODO: this does not get incremented in tuning.xml
-  *extraCPPars.AccPar->tuning_ctr++;
-  std::cout << Grid::GridLogDebug << "TUNING COUNTER "
-            << *extraCPPars.AccPar->tuning_ctr << std::endl;
+  ++(*extraCPPars.AccPar->tuning_ctr);
+
+  // Save acceptance tuning state
+  Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuning_filename);
+  write(TuningWriter, "mode",
+        static_cast<int>(*extraCPPars.AccPar->tuning_mode));
+  write(TuningWriter, "tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
+  write(TuningWriter, "MDsteps", *extraCPPars.AccPar->MDsteps);
+
+  Grid::XmlWriter AccWriter(extraCPPars.AccPar->acceptance_filename);
+  write(AccWriter, "acc", *extraCPPars.AccPar->AcceptanceArray);
 }
 
 template <typename HMCWrapper, int DJSuccessfulExit>
