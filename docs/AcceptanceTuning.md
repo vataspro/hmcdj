@@ -14,7 +14,7 @@ trajectory length `trajL`, the code adapts the number
 of molecular dynamics steps `MDsteps`.
 
 Management of the acceptance rate takes place in three
-discrete phases:
+distinct phases:
 
 - Initialising
 - Tuning
@@ -30,7 +30,11 @@ The number of trajectories corresponding to this is given by the
 The acceptance rate is also not monitored for a short period after
 the accept/reject step is activated. This is to further thermalise the
 chain, using the provided `MDsteps` in the track as the initial guess.
-The number of trajectories in this period is given by `num_initial_skips`.
+The number of trajectories in this period is given by `total_num_initial_skips`.
+Note that `total_num_initial_skips` is the sum of the number of trajectories
+with no Metropolis step (`NoMetropolisUntil` or `Thermalisations`) plus any
+number of "thermalisation" steps, chosen by setting this variable, with the
+Metropolis active.
 
 ## Tuning Phase
 
@@ -38,8 +42,8 @@ In the tuning phase, the HMC is run repeatedly for `num_tuning_samples`
 trajectories. The acceptance of each step is saved and then used to estimate
 the acceptance rate.
 
-If the acceptance rate is not within `acceptance\_rate\_flexibility` of the
-`target\_accepatance\_rate` then `MDsteps` will be tuned.
+If the acceptance rate is not within `target\_rate\_tol` of the
+`target\_rate` then `MDsteps` will be tuned.
 
 In order to find the optimal number of `MDsteps`, the
 formula for the integration step
@@ -71,14 +75,20 @@ if the target acceptance rate is not reached by that time.
 ### File creation during tuning phase
 
 As it may take multiple runs to tune the acceptance rate, or tuning
-may be completed when restarting, `hmcdj` creates the `tuning\_status.xml` file
+may be completed when restarting, `hmcdj` creates the `tuning.xml` file
 to track the progress of the tuning.
 
-This file contains a flag on which phase of the tuning is active, the current
-trajectory number and the acceptance value (traj, acc).
+This file contains an integer defining the current tuning mode:
 
-In cases of the previous run not terminating on the final trajectory,
-the excess steps must be dropped from the file and recomputed.
+- 1 : `initialising`
+- 2 : `active`
+- 3 : `complete`
+
+as well as the current number of `MDsteps` and the current `tuning_step`.
+
+Another file, `acceptance.xml` is created, recording the current tuning
+steps acceptance/rejection of steps. This is dumped every time `MDsteps`
+is changed and saved by the checkpointer whenever a configuration is saved.
 
 ## Monitoring Phase
 
