@@ -105,7 +105,7 @@ class ILDGTimingHmcCheckpointer
 
     if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, U, sRNG, pRNG);
-      saveAcceptance();
+      saveAcceptance(traj);
     }
 
     if (status != TimerStatus::OK) {
@@ -298,7 +298,7 @@ class ILDGTimingHmcCheckpointer
   /*
      Save acceptance rate
    */
-  void saveAcceptance() {
+  void saveAcceptance(int traj) {
     std::cout << Grid::GridLogDebug << "Saving acceptance with target rate "
               << extraParams.AccPar->target_rate << std::endl;
 
@@ -310,6 +310,9 @@ class ILDGTimingHmcCheckpointer
     write(TuningWriter, "MDsteps", *extraParams.AccPar->MDsteps);
 
     // Save acceptance array
+    if (traj % extraParams.AccPar->num_tuning_samples == 0) {
+      extraParams.AccPar->AcceptanceArray->clear();
+    }
     Grid::XmlWriter AccWriter(extraParams.AccPar->acceptance_filename);
     write(AccWriter, "acc", *extraParams.AccPar->AcceptanceArray);
   }
