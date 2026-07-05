@@ -281,10 +281,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
               << TheHMC.Parameters.MD.MDsteps << std::endl;
 
     // Save tuning final state
-    Grid::XmlWriter AccWriter(extraCPPars.AccPar->tuning_filename);
-    write(AccWriter, "mode", static_cast<int>(tuning_mode_t::complete));
-    write(AccWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
-    write(AccWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
+    Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuning_filename);
+    write(TuningWriter, "mode", static_cast<int>(tuning_mode_t::complete));
+    write(TuningWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
+    write(TuningWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
   } else {  // Bad acceptance rate - tune MD steps
 
