@@ -63,5 +63,12 @@ inline double get_target_MDsteps(double trajL, int MDsteps, double pacc,
   int target_MD =
       static_cast<int>(std::round(static_cast<double>(trajL) / dtau_target));
 
+  // safety check
+  if ((target_MD == 0) || (isnan(target_MD))) {
+          std::cout << Grid::GridLogMessage
+                    << "MD steps best value is " << target_MD
+                    << ", terminating." << std::endl;
+  }
+
   return target_MD;
 }
