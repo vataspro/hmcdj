@@ -3,7 +3,6 @@
 #include <hmcdj/utils/mathutils.h>
 
 // enum class to define mode (phase) of tuning
-// TODO: implement one final mode, "verifying"
 enum class tuning_mode_t { init, active, complete };
 
 // Serializable class for Acceptance Rate Tuning

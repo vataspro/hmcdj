@@ -296,9 +296,8 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
     write(TuningWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
     write(TuningWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
-  } else {  // Bad acceptance rate - tune MD steps
+  } else {  // Acceptance rate not within tolerance range - tune MD steps
 
-    // TODO: Make safe for 0/inf
     int target_MD = get_target_MDsteps(TheHMC.Parameters.MD.trajL,
                                        TheHMC.Parameters.MD.MDsteps, pacc,
                                        extraCPPars.AccPar->target_rate);

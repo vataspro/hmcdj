@@ -315,13 +315,6 @@ class ILDGTimingHmcCheckpointer
   }
 
   void loadAcceptance() {
-    // if status is not init
-    // what if its empty? don't save it use try block
-    // load acc
-    // load tuning
-    // if (*extraParams.AccPar->tuning_mode != tuning_mode_t::init) {
-    // TODO: if the acceptance array is loaded it does not get cleared by dj.h
-    // line 267
     try {
       // Load tuning mode
       Grid::XmlReader tuningReader(extraParams.AccPar->tuning_filename);
@@ -337,7 +330,8 @@ class ILDGTimingHmcCheckpointer
 
     } catch (...) {
       // Ignore
-      std::cout << Grid::GridLogMessage << "SOMETHING BAD HAS HAPPENED"
+      std::cerr << "Error while loading tuning.xml and acceptance.xml"
+                   " during loadAcceptance, terminating."
                 << std::endl;
     }
   }
