@@ -42,10 +42,11 @@ class EnsembleReader {
   /* Lattice dimensions */
   int nt, nx, ny, nz;     // Lattice dims
   std::string dimString;  // Lattice dimensions string
-  typedef std::filesystem::path (*pathCallback)(EnsembleReader*,
-                                                djParameterList);
 
  public:
+  /* Callback function that can be used by EnsembleReader to obtain a path */
+  typedef std::filesystem::path (*pathCallback)(EnsembleReader*,
+                                                djParameterList);
   /* Checkpointing */
   int saveInterval;
   std::string config_prefix, rng_prefix, format;
@@ -83,4 +84,5 @@ class EnsembleReader {
   void setStart(int targetThermalisations);
 };
 
-typedef std::filesystem::path (*pathCallback)(EnsembleReader*, djParameterList);
+/* Expose pathCallback for ease of use in code needing to pass a callback */
+typedef EnsembleReader::pathCallback pathCallback;
