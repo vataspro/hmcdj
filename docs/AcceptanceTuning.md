@@ -23,6 +23,16 @@ distinct phases:
 Acceptance rate tuning is activated if the namespace
 `Global::AcceptanceRateTuning` is defined in the track.
 
+If acceptance rate tuning is active, `hmcdj::Play()` should
+only be called if tuning is complete, which is done by first
+calling `hmcdj::Tune()` in the deck. The following table
+describes the expected behaviour:
+
+| | `.Play()` | `.Tune()` |
+| - | - | - |
+| Tuning parameters defined | ERROR | Runs with tuning |
+| Tuning parameters undefined | Runs without tuning | ERR if tuning incomplete |
+
 ## Initialisation phase
 
 When the ensemble begins, a short period with no accept/reject
