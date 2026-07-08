@@ -166,28 +166,37 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
     EnsembleDirectory = global["HMCDJ"]["EnsembleDirectory"].as<std::string>();
 
     /* Acceptance rate tuning parameters */
-    num_tuning_samples =
-        global["AcceptanceRateTuning"]["num_tuning_samples"].as<int>();
-    total_num_init_skips =
-        global["AcceptanceRateTuning"]["total_num_init_skips"].as<int>();
-    target_rate = global["AcceptanceRateTuning"]["target_rate"].as<double>();
-    target_rate_tol =
-        global["AcceptanceRateTuning"]["target_rate_tol"].as<double>();
-    monitor_every = global["AcceptanceRateTuning"]["monitor_every"].as<int>();
+    if (global["AcceptanceRateTuning"]) {  // Acceptance rate tuning is
+                                           // activated if the
+                                           // Global::AcceptanceRateTuning
+      AcceptanceTuningActive = true;       // namespace is defined in the track
+
+      num_tuning_samples =
+          global["AcceptanceRateTuning"]["num_tuning_samples"].as<int>();
+      total_num_init_skips =
+          global["AcceptanceRateTuning"]["total_num_init_skips"].as<int>();
+      target_rate = global["AcceptanceRateTuning"]["target_rate"].as<double>();
+      target_rate_tol =
+          global["AcceptanceRateTuning"]["target_rate_tol"].as<double>();
+      monitor_every = global["AcceptanceRateTuning"]["monitor_every"].as<int>();
+
+      /* Check acc rate tuning inputs */
+      if (Thermalisations >= total_num_init_skips) {
+        std::cerr << "Acceptance rate tuning parameter 'total_num_init_skips' "
+                     "should be greater than the number of thermalisations"
+                  << std::endl;
+        std::exit(EXIT_FAILURE);
+      }
+
+    } else {
+      AcceptanceTuningActive = false;
+    }
 
     /* Checks */
     /* Check that the Starting Type is valid */
     if (not isValidStartingType(StartingType)) {
       std::cerr << "Please provide a valid starting type, 'HotStart',"
                    "'ColdStart' or 'TepidStart'"
-                << std::endl;
-      std::exit(EXIT_FAILURE);
-    }
-
-    /* Check acc rate tuning inputs */
-    if (Thermalisations >= total_num_init_skips) {
-      std::cerr << "Acceptance rate tuning parameter 'total_num_init_skips' "
-                   "should be greater than the number of thermalisations"
                 << std::endl;
       std::exit(EXIT_FAILURE);
     }

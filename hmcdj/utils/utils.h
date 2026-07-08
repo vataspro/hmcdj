@@ -63,10 +63,12 @@ class EnsembleReader {
   std::string deckName;
 
   /* Acceptance rate tuning parameters */
-  int num_tuning_samples;    // Number of trajectories per tuning step
-  int total_num_init_skips;  // NoMetropolisUntil + "thermalisation" steps
-  double target_rate;        // Target acceptance rate
-  double target_rate_tol;    // Target acceptance rate tolerance
+  bool AcceptanceTuningActive;  // Flag signaling whther acceptance rate tuning
+                                // is active
+  int num_tuning_samples;       // Number of trajectories per tuning step
+  int total_num_init_skips;     // NoMetropolisUntil + "thermalisation" steps
+  double target_rate;           // Target acceptance rate
+  double target_rate_tol;       // Target acceptance rate tolerance
   double
       monitor_every;  // After tuning check the acceptance rate this frequently
 

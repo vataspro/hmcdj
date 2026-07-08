@@ -20,6 +20,9 @@ distinct phases:
 - Tuning
 - Monitoring
 
+Acceptance rate tuning is activated if the namespace
+`Global::AcceptanceRateTuning` is defined in the track.
+
 ## Initialisation phase
 
 When the ensemble begins, a short period with no accept/reject
