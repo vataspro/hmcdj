@@ -67,8 +67,10 @@ teestdout::~teestdout() {
 
 void setUpLogging(std::filesystem::path baseDir, teestdout& tee) {
   Grid::GridLogLayout();
-  std::string filename = std::format("hmcdj_{0:%F}_{0:%H}{0:%M}{0:%S}.log",
-                                     std::chrono::system_clock::now());
+  std::string filename =
+      std::format("hmcdj_{0:%F}_{0:%H}{0:%M}{0:%S}.log",
+                  std::chrono::time_point_cast<std::chrono::seconds>(
+                      std::chrono::system_clock::now()));
   std::filesystem::path outputFile = baseDir / "logs" / filename;
   tee.setOutput(outputFile.string());
 }
