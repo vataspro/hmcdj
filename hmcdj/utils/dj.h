@@ -1,8 +1,12 @@
 #pragma once
 #include <Grid/Grid.h>
 #include <hmcdj/utils/checkpoint.h>
+#include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
+
+#include <chrono>
+#include <format>
 
 /* DJSuccessfulExit should always be zero in production code.
    It should only be set to a non-zero value from a test harness,
@@ -15,6 +19,7 @@ class DJ {
   template <typename ImplementationPolicy>
   using theCPModule =
       ILDGTimingCPModule<ImplementationPolicy, DJSuccessfulExit>;
+  teestdout tee;
 
  public:
   DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters,
@@ -49,7 +54,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
   int gridArgc = argc + DJ_NUM_EXTRA_ARGS - 1;
   char** gridArgv = getGridArgv(argc, argv, reader.GetDimStringPointer());
   Grid::Grid_init(&gridArgc, &gridArgv);
-  Grid::GridLogLayout();
+  setUpLogging(reader.EnsembleDirectory, tee);
 
   // Add gauge field
   TheHMC.Resources.AddFourDimGrid("gauge");

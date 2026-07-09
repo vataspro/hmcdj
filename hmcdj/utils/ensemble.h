@@ -29,6 +29,7 @@ static std::filesystem::path getEnsembleDirectoryPath(EnsembleReader* ensemble,
 static void createEnsembleDirectories(std::filesystem::path baseDir) {
   std::filesystem::create_directories(baseDir / "cnfg");
   std::filesystem::create_directory(baseDir / "rand");
+  std::filesystem::create_directory(baseDir / "logs");
 }
 
 std::filesystem::path getEnsembleDirectory(

@@ -1,3 +1,5 @@
+#include <gmock/gmock.h>
+
 #include "run_test_helpers.h"
 
 /* Check that a directory is correctly created when the base directory is
@@ -17,6 +19,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   // Target directories created
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg"));
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand"));
+  EXPECT_TRUE(std::filesystem::exists(ensemblePath / "logs"));
 
   testRun.play();
 
@@ -25,6 +28,27 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
                                        "ckpoint_lat.5"));
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg" / "ckpoint_lat.5"));
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand" / "ckpoint_rng.5"));
+
+  // Check logs are created correctly
+  int logCount = 0;
+  for (auto& entry :
+       std::filesystem::directory_iterator(ensemblePath / "logs")) {
+    if (entry.is_regular_file()) {
+      logCount++;
+
+      std::ifstream rereadFile;
+      rereadFile.open(entry.path());
+      std::ostringstream rereadStream;
+      rereadStream << rereadFile.rdbuf();
+
+      // We don't see the "Grid Finalize" block as this occurs after the tee
+      // goes out of scope
+      EXPECT_THAT(rereadStream.str().c_str(),
+                  ::testing::EndsWith(
+                      " : :::::::::::::::::::::::::::::::::::::::::::\n"));
+    }
+  }
+  EXPECT_EQ(logCount, 1);
 }
 
 int main(int argc, char** argv) {
