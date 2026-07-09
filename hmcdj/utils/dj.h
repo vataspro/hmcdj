@@ -5,9 +5,6 @@
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
-#include <chrono>
-#include <format>
-
 /* DJSuccessfulExit should always be zero in production code.
    It should only be set to a non-zero value from a test harness,
    to allow detection of unwanted exits. */
