@@ -1,3 +1,5 @@
-#include <hmcdj/utils/parameter.h>
+/*#include <hmcdj/utils/parameter.h>*/
 
-ParameterBase::ParameterBase(std::string nm) : name(nm) {}
+/*template class djParameter<double>;
+template class djParameter<int>;
+*/

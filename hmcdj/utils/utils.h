@@ -1,5 +1,6 @@
 #pragma once
 
+#include <hmcdj/utils/ensemble.h>
 #include <hmcdj/utils/parameter.h>
 #include <openssl/evp.h>
 #include <openssl/md5.h>
@@ -9,17 +10,11 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <map>
-#include <regex>
 #include <string>
 
 /* Guard function called on initialisation */
 void djGuard(int argc, char* argv[]);
-
-/* Checks that a string is a valid Grid starting type */
-bool isValidStartingType(const std::string& startingType);
 
 /* Functions for seeding pseudoRandom Number Generators */
 uint32_t md5FileToInt(const std::string& filename);
@@ -35,54 +30,3 @@ class RNGManager {
   std::string GenerateGridRNGSeedString();
   ~RNGManager() {};
 };
-
-/* Ensemble Reader */
-class EnsembleReader {
- private:
-  /* Lattice dimensions */
-  int nt, nx, ny, nz;     // Lattice dims
-  std::string dimString;  // Lattice dimensions string
-
- public:
-  /* Callback function that can be used by EnsembleReader to obtain a path */
-  typedef std::filesystem::path (*pathCallback)(EnsembleReader*,
-                                                djParameterList);
-  /* Checkpointing */
-  int saveInterval;
-  std::string config_prefix, rng_prefix, format;
-  /* Action parameters */
-  double beta;
-  /* HMC parameters */
-  double trajL;
-  int MDsteps, Thermalisations, Trajectories;
-  std::string StartingType;
-  /* Dynamic Trajectory Initialisation */
-  int StartingTrajectory;
-  /* HMCDJ metadata */
-  std::filesystem::path EnsembleDirectory;  // The ensemble/chain home directory
-  djParameterList Parameters;               // Vector of parameters,
-                                            // individually wrapped
-                                            // in the Base class.
-  std::string deckName;
-
-  // Constructor - reads and loads the parameters from the yaml file
-  EnsembleReader(const std::string deckName, const std::string filename,
-                 djParameterList Parameters,
-                 pathCallback ensembleDirectoryPathOverride);
-
-  /* Methods */
-  // Gets the dimension string
-  const std::string GetDimString();
-
-  // Gets a char pointer to the dimension string
-  const char* GetDimStringPointer();
-
-  // Reads the parameters in track["HMCDJ"]["Parameters"]
-  void getParams(const YAML::Node track);
-
-  // Chooses the correct starting type and starting trajectory
-  void setStart(int targetThermalisations);
-};
-
-/* Expose pathCallback for ease of use in code needing to pass a callback */
-typedef EnsembleReader::pathCallback pathCallback;

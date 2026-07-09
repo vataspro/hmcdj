@@ -41,8 +41,11 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
       std::ostringstream rereadStream;
       rereadStream << rereadFile.rdbuf();
 
-      // We don't see the "Grid Finalize" block as this occurs after the tee
-      // goes out of scope
+      // We don't see the "Grid Finalize" block in this test
+      // as this won't get printed until testRun goes out of scope,
+      // but at that point the temporary directory holding the logs will be
+      // deleted. As a result, we expect to see the footer of the configuration
+      // save block. Standard decks will see a Grid Finalize block.
       EXPECT_THAT(rereadStream.str().c_str(),
                   ::testing::EndsWith(
                       " : :::::::::::::::::::::::::::::::::::::::::::\n"));
