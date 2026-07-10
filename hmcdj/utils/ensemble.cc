@@ -160,7 +160,7 @@ const std::string EnsembleReader::GetDimString() {
     Returns the lattice 4-volume as a C string such that Grid will read it.
 */
 const char* EnsembleReader::GetDimStringPointer() {
-  std::string dimString = GetDimString();
+  dimString = GetDimString();
   return dimString.c_str();
 }
 
