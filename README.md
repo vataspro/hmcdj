@@ -72,6 +72,15 @@ one may add the following flag to their job script:
 The delay after the signal should be slightly greater than
 the anticipated time to generate one trajectory.
 
+## Output
+
+HMCDJ creates ensembles in a fixed directory structure,
+which by default sits under `${HOME}/hmcdj_ensembles`.
+This may be overriden
+(for example,
+to use a project shared directory on a cluster)
+by setting the `HMCDJ_BASE_PATH` environment variable.
+
 ## Testing
 
 Tests have been written in

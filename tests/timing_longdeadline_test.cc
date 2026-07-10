@@ -1,4 +1,4 @@
-#include "timing_tests.h"
+#include "run_test_helpers.h"
 
 /* Set a deadline far in the future, and check that a run completes */
 TEST(TimerTest, TestCompleteWithLongDeadline) {
@@ -12,21 +12,20 @@ TEST(TimerTest, TestCompleteWithLongDeadline) {
 
   DJRun testRun("hmcdj_long_deadline");
   testRun.play();
+
+  std::filesystem::path cnfgPath =
+      getSubDir(testRun.getDirectoryPath()) / "cnfg";
+
   // saveInterval is 5, so don't expect 1 or 2
-  EXPECT_FALSE(
-      std::filesystem::exists(testRun.getDirectoryPath() / "cfg_ckpoint.1"));
-  EXPECT_FALSE(
-      std::filesystem::exists(testRun.getDirectoryPath() / "cfg_ckpoint.2"));
+  EXPECT_FALSE(std::filesystem::exists(cnfgPath / "ckpoint_lat.1"));
+  EXPECT_FALSE(std::filesystem::exists(cnfgPath / "ckpoint_lat.2"));
 
   // Do expect multiples of saveInterval
-  EXPECT_TRUE(
-      std::filesystem::exists(testRun.getDirectoryPath() / "cfg_ckpoint.5"));
-  EXPECT_TRUE(
-      std::filesystem::exists(testRun.getDirectoryPath() / "cfg_ckpoint.10"));
+  EXPECT_TRUE(std::filesystem::exists(cnfgPath / "ckpoint_lat.5"));
+  EXPECT_TRUE(std::filesystem::exists(cnfgPath / "ckpoint_lat.10"));
 
   // Trajectories is 10, so don't expect anything beyond this
-  EXPECT_FALSE(
-      std::filesystem::exists(testRun.getDirectoryPath() / "cfg_ckpoint.15"));
+  EXPECT_FALSE(std::filesystem::exists(cnfgPath / "ckpoint_lat.15"));
 }
 
 int main(int argc, char** argv) {

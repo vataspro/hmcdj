@@ -1,6 +1,7 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 
+#include <format>
 #include <functional>
 #include <iostream>
 #include <string>
@@ -16,11 +17,10 @@
 class ParameterBase {
  public:
   std::string name;
-
   ParameterBase(std::string nm) : name(nm) {}
   virtual ~ParameterBase() = default;
-
   virtual void readFromYAML(const YAML::Node& node) = 0;
+  virtual std::string toString() = 0;
 };
 
 /* HMCDJ Parameter */
@@ -42,6 +42,8 @@ class djParameter : public ParameterBase {
     }
   }
   operator T() const { return value; };
+
+  std::string toString() { return std::format("{}{}", name, value); }
 };
 
 // Custom type definition for djParameterList

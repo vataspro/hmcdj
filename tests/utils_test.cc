@@ -3,6 +3,8 @@
 
 #include <algorithm>  // needed for count
 
+#include "run_test_helpers.h"
+
 // The file used to test the RNG seed
 #define TESTSEEDFILE \
   std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml"
@@ -27,9 +29,20 @@ bool StrIsDigits(const std::string str) {
 
 // Check that the ensemble reader loads the correct lattice dimensions string
 TEST(UtilTest, EnsembleReaderTest) {
+  TemporaryDirectory tmpDir("hmcdj_utiltest");
+
+  // Ensure that we go down the home directory code path by suppressing any base
+  // path from the environment
+  TemporaryEnvironmentSuppress baseDir("HMCDJ_BASE_PATH");
+
+  // Ensure that we don't litter the user's home directory by creating a
+  // temporary fake home directory
+  TemporaryEnvironmentOverride homeDir("HOME",
+                                       tmpDir.getDirectoryPath().string());
+
   // Load the test "track.yaml" file
   std::string filename = TESTSEEDFILE;
-  EnsembleReader reader("NoParams", filename, {});
+  EnsembleReader reader("NoParams", filename, {}, nullptr);
 
   // Check that the reader loads the correct values
   const char* dimStr = reader.GetDimStringPointer();
@@ -38,8 +51,6 @@ TEST(UtilTest, EnsembleReaderTest) {
   // Check that the correct checkpointing parameters are loaded
   EXPECT_EQ(reader.saveInterval, 5);
   EXPECT_STREQ(reader.format.c_str(), "IEEE64BIG");
-  EXPECT_STREQ(reader.config_prefix.c_str(), "cfg_ckpoint");
-  EXPECT_STREQ(reader.rng_prefix.c_str(), "rng_ckpoint");
 
   // Check that the correct HMC parameters are loaded
   EXPECT_STREQ(reader.StartingType.c_str(), "HotStart");
