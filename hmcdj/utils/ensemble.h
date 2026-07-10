@@ -21,8 +21,6 @@ class EnsembleReader {
   /* Checkpointing */
   int saveInterval;
   std::string config_prefix, rng_prefix, format;
-  /* Action parameters */
-  double beta;
   /* HMC parameters */
   double trajL;
   int MDsteps, Thermalisations, Trajectories;
