@@ -204,7 +204,9 @@ void EnsembleReader::setStart(int targetThermalisations) {
   StartingTrajectory = 0;
 
   // This regular expression matches the grid output configuration file names
-  std::regex pattern("^" + config_prefix + R"(\.(\d+)$)");
+  std::string config_prefix_basename =
+      std::filesystem::path(config_prefix).filename();
+  std::regex pattern("^" + config_prefix_basename + R"(\.(\d+)$)");
 
   /* Loop over the ensemble directory contents
       match any configuration files
