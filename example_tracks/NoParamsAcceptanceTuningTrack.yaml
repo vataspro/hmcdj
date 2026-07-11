@@ -1,0 +1,42 @@
+Global:
+  name: "Ensemble"
+
+  volume:
+    nx: 8
+    ny: 8
+    nz: 8
+    nt: 8
+
+
+  checkpoint:
+    saveInterval: 5
+    format: "IEEE64BIG"
+
+    configurations:
+      prefix: "cfg_ckpoint"
+
+    rng:
+      prefix: "rng_ckpoint"
+
+  HMC:
+    MD:
+      MDsteps: 10
+      trajL: 2.0
+
+    Thermalisations: 0
+
+    Trajectories: 10
+
+    StartingType: "HotStart"
+
+  AcceptanceRateTuning:
+    num_tuning_samples: 10
+    total_num_init_skips: 15
+    target_rate: 0.85
+    target_rate_tol: 0.05
+    monitor_every: 100
+
+  HMCDJ:
+    EnsembleDirectory: "."
+
+NoParams:

@@ -81,20 +81,27 @@ class DJRun {
   std::unique_ptr<TemporaryDirectory> tmpDir;
 
  public:
-  DJRun(const std::string name = "hmcdj") {
+  DJRun(const std::string name = "hmcdj", bool tuning = false) {
     tmpDir = std::unique_ptr<TemporaryDirectory>(new TemporaryDirectory(name));
-    initialiseRun();
+    initialiseRun(tuning);
   }
 
   ~DJRun() {}
 
   /* Create a basic, no-parameter HMCDJ deck.
      Borrowed from decks/NoParams.cc */
-  void initialiseRun() {
+  void initialiseRun(bool tuning = false) {
     const static double beta = 7.2;
     int argc = 2;
-    std::string testTrackName =
-        std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml";
+
+    std::string testTrackName;
+    if (!tuning) {
+        testTrackName =
+         std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml";
+    } else {
+        testTrackName =
+         std::string(TOP_SRCDIR) + "/example_tracks/NoParamsAcceptanceTuningTrack.yaml";
+    }
     const char* argv[] = {"hmcdj_test", testTrackName.c_str()};
     hmcdj = std::unique_ptr<DJ<HMCWrapper, DJSuccessfulExit> >(
         new DJ<HMCWrapper, DJSuccessfulExit>("NoParams", argc, (char**)argv));
