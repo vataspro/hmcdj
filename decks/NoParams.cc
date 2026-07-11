@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 
   // Instantiate DJ
   const bool reducedStorage = true;
-  DJ<HMCWrapper> hmcdj("NoParams", argc, argv, {}, reducedStorage);
+  DJ<HMCWrapper> hmcdj("NoParams", argc, argv, reducedStorage);
 
   /* Observables */
   // Add the temporal Polyakov Loop observable
