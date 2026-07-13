@@ -30,9 +30,6 @@ class DJ {
   void Tune();
   void Play();
 
-  // Acceptance rate tuning flag
-  bool AcceptanceTuningActive;
-
   // AcceptanceObsParameters AccPar;  // Acceptance rate tuning parameters
   CheckpointerExtraParams extraCPPars;
 
@@ -128,9 +125,10 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
   TheHMC.Resources.template AddObservable<PlaqObs>();
 
   // Acceptance rate & tuning
-  AcceptanceTuningActive = reader.AcceptanceTuningActive;
+  *extraCPPars.AccPar->AcceptanceTuningActive = reader.AcceptanceTuningActive;
 
-  if (AcceptanceTuningActive) {
+  if (*(extraCPPars.AccPar->AcceptanceTuningActive)) {
+    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::init;
     extraCPPars.AccPar->total_num_init_skips =
         reader.total_num_init_skips;  // Number of parameters to skip from
     extraCPPars.AccPar->num_tuning_samples =
@@ -142,6 +140,8 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
     extraCPPars.AccPar->monitor_every = reader.monitor_every;
     extraCPPars.AccPar->MDsteps =
         &TheHMC.Parameters.MD.MDsteps;  // required for saving mdsteps
+  } else {
+    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::complete;
   }
 
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
@@ -177,7 +177,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 /* Acceptance Rate Tuning */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::Tune() {
-  if (!AcceptanceTuningActive) {
+  if (!*(extraCPPars.AccPar->AcceptanceTuningActive)) {
     std::cerr
         << "Called Tune() while acceptance rate tuning is deactivated. "
         << "to activate acceptance rate tuning include the relevant namespace "
@@ -334,7 +334,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::finaliseTuning() {
-  AcceptanceTuningActive = false;
+  // AcceptanceTuningActive = false;
   TheHMC.Parameters.Trajectories = reader.Trajectories;
   std::cout << Grid::GridLogMessage << "Acceptance rate tuning complete."
             << std::endl;
@@ -343,13 +343,15 @@ void DJ<HMCWrapper, DJSuccessfulExit>::finaliseTuning() {
 /* Play the track: Run the HMC */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
-  if (!AcceptanceTuningActive) {
-    TheHMC.Run();
-  } else {
+  // Exit if Play is called before tuning complete
+  if ((*(extraCPPars.AccPar->AcceptanceTuningActive)) &&
+      (*(extraCPPars.AccPar->tuning_mode) != tuning_mode_t::complete)) {
     std::cerr << "Called Play() while acceptance rate is active "
               << "to deactivate tuning remove the relevant namespace "
               << "from the track. " << std::endl;
     exit(EXIT_FAILURE);
+  } else {
+    TheHMC.Run();
   }
 }
 

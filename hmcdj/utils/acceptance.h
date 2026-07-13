@@ -24,6 +24,8 @@ struct AcceptanceObsParameters : Grid::Serializable {
   int *tuning_ctr = new int;
   // Pointer to MDsteps
   unsigned int *MDsteps;
+  // Flag for tuning
+  bool *AcceptanceTuningActive = new bool;
 
   AcceptanceObsParameters(int total_num_init_skips_ = 10,
                           int num_tuning_samples_ = 50,

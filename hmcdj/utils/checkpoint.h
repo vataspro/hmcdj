@@ -88,6 +88,9 @@ class ILDGTimingHmcCheckpointer
     TimerStatus status = timer->updateTiming(traj);
     if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, SmartConfig, sRNG, pRNG);
+      if (*extraParams.AccPar->AcceptanceTuningActive) {
+        saveAcceptance(traj);
+      }
     }
 
     if (status != TimerStatus::OK) {
@@ -95,9 +98,7 @@ class ILDGTimingHmcCheckpointer
     }
   };
 
-  // overlad
-  //
-  //  THIS IS THE ONE THAT'S CALLED
+  // Field version overlad
   void TrajectoryComplete(int traj, Implementation::Field &U,
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
@@ -105,7 +106,9 @@ class ILDGTimingHmcCheckpointer
 
     if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, U, sRNG, pRNG);
-      saveAcceptance(traj);
+      if (*extraParams.AccPar->AcceptanceTuningActive) {
+        saveAcceptance(traj);
+      }
     }
 
     if (status != TimerStatus::OK) {
@@ -292,7 +295,9 @@ class ILDGTimingHmcCheckpointer
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
 
-    loadAcceptance();
+    if (*extraParams.AccPar->AcceptanceTuningActive) {
+      loadAcceptance();
+    }
   }
 
   /*
