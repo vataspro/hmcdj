@@ -96,11 +96,11 @@ class DJRun {
 
     std::string testTrackName;
     if (!tuning) {
-        testTrackName =
-         std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml";
+      testTrackName =
+          std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml";
     } else {
-        testTrackName =
-         std::string(TOP_SRCDIR) + "/example_tracks/NoParamsAcceptanceTuningTrack.yaml";
+      testTrackName = std::string(TOP_SRCDIR) +
+                      "/example_tracks/NoParamsAcceptanceTuningTrack.yaml";
     }
     const char* argv[] = {"hmcdj_test", testTrackName.c_str()};
     hmcdj = std::unique_ptr<DJ<HMCWrapper, DJSuccessfulExit> >(
@@ -116,6 +116,15 @@ class DJRun {
     std::filesystem::current_path(tmpDir->getDirectoryPath());
 
     hmcdj->Play();
+
+    std::filesystem::current_path(initialPath);
+  };
+
+  void tune() {
+    std::filesystem::path initialPath = std::filesystem::current_path();
+    std::filesystem::current_path(tmpDir->getDirectoryPath());
+
+    hmcdj->Tune();
 
     std::filesystem::current_path(initialPath);
   };
