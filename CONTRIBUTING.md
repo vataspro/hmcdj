@@ -29,11 +29,11 @@ The repository follows a standard GitHub-based workflow:
 7. Another hmcdj developer will review the request,,
    and may request a small number of changes,
    either to make the implementation align better with the planned direction of development,
-   or to correct a possibly oversight.
+   or to correct a possible oversight.
 8. Make any requested changes,
    push them to your branch,
    and add a reply to the pull request once all requested changes have been made.
-9. Steps 4 and 5 may repeat a couple of times until development converges.
+9. Steps 7 and 8 may repeat a couple of times until development converges.
 10. Once agreement is reached,
     an hmcdj developer will merge the pull request.
 
