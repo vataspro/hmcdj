@@ -5,6 +5,7 @@
 #include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/timing.h>
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -102,18 +103,10 @@ class ILDGTimingHmcCheckpointer
   void TrajectoryComplete(int traj, Implementation::Field &U,
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
-    TimerStatus status = timer->updateTiming(traj);
-
-    if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
-      writeConfiguration(traj, U, sRNG, pRNG);
-      if (*extraParams.AccPar->AcceptanceTuningActive) {
-        saveAcceptance(traj);
-      }
-    }
-
-    if (status != TimerStatus::OK) {
-      haltAsOutOfTime(status);
-    }
+    Grid::NoSmearing<Implementation> SmartConfig;
+    SmartConfig.set_Field(U);
+    assert(!Params.saveSmeared);
+    TrajectoryComplete(traj, SmartConfig, sRNG, pRNG);
   };
 
  private:
