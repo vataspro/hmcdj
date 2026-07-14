@@ -26,7 +26,7 @@ The repository follows a standard GitHub-based workflow:
 6. When you have finished development,
    open a pull request,
    filling out the pull request template.
-7. Another hmcdj developer will review the request,,
+7. Another hmcdj developer will review the request,
    and may request a small number of changes,
    either to make the implementation align better with the planned direction of development,
    or to correct a possible oversight.
