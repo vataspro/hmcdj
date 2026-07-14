@@ -77,7 +77,7 @@ responses to code review that are obviously copy-pasted from a chatbot
 are not welcome.
 Repeated submission of such contributions will result in
 you being blocked from the repository,
-in accordance with the [Code of Conduct][coc].
+following the escalation pathway described in the [Code of Conduct][coc].
 
 [coc]: <CODE_OF_CONDUCT.md>
 [fair]: <https://www.go-fair.org/fair-principles/>
