@@ -7,13 +7,16 @@ cat <<EOF > Makefile.am
 # Build gtest from ./external/
 gtest_dir = \$(top_srcdir)/external/googletest/googletest
 gtest_build = \$(top_srcdir)/tests/gtest
+gmock_dir = \$(top_srcdir)/external/googletest/googlemock
+gmock_build = \$(top_srcdir)/tests/gmock
 
 # Build the gtest library
-noinst_LIBRARIES = libgtest.a
+noinst_LIBRARIES = libgtest.a libgmock.a
 libgtest_a_SOURCES = \$(gtest_dir)/src/gtest-all.cc
+libgmock_a_SOURCES = \$(gmock_dir)/src/gmock-all.cc
 
 # Include gtest when compiling tests
-AM_CPPFLAGS = -I\$(gtest_dir) -I\$(gtest_dir)/include
+AM_CPPFLAGS = -I\$(gtest_dir) -I\$(gtest_dir)/include -I\$(gmock_dir) -I\$(gmock_dir)/include
 AM_CPPFLAGS += -I\$(top_srcdir)
 
 AM_CPPFLAGS += -DTOP_SRCDIR=\"\$(top_srcdir)\"

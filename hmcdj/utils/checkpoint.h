@@ -59,21 +59,21 @@ class ILDGTimingHmcCheckpointer
       std::cout << DJLogError << "Unrecognized file format " << Params.format
                 << std::endl;
       std::cout << DJLogError << "Allowed: IEEE32BIG | IEEE64BIG" << std::endl;
-      exit(1);
+      exit(EXIT_FAILURE);
     }
 
     if (!((Params.group == std::string("su")) ||
           (Params.group == std::string("sp")))) {
-      std::cout << Grid::GridLogError << "Unrecognized gauge group "
-                << Params.group << std::endl;
-      std::cout << Grid::GridLogError << "Allowed: su | sp" << std::endl;
-      exit(1);
+      std::cout << DJLogError << "Unrecognized gauge group " << Params.group
+                << std::endl;
+      std::cout << DJLogError << "Allowed: su | sp" << std::endl;
+      exit(EXIT_FAILURE);
     }
 
     if (Params.group == std::string("sp") && Grid::Nc % 2 != 0) {
-      std::cout << Grid::GridLogError << "Nc=" << Grid::Nc;
+      std::cout << DJLogError << "Nc=" << Grid::Nc;
       std::cout << ", Sp fields require even Nc" << std::endl;
-      exit(1);
+      exit(EXIT_FAILURE);
     }
   }
 
@@ -143,74 +143,65 @@ class ILDGTimingHmcCheckpointer
     std::exit(DJSuccessfulExit);
   };
 
-  /* choose appropriate template instantiation here since the
-     non-const checkpointer parameters cannot be used directly as
-     template arguments to IldgWriter */
-  void chooseIldgWriter(std::string format, std::string group,
-                        bool reduced_matrix, std::string lat_obj, int traj,
-                        // Grid::ConfigurationBase<GaugeField> &SmartConfig,
-                        Implementation::Field &U, bool smeared) {
-    Grid::GridBase *grid = U.Grid();  // SmartConfig.get_U(smeared).Grid();
+  /* Chooses appropriate Grid::IldgWriter and writes
+     GaugeField to disk. Borrowed from Grid::ILDGHmcCheckpointer. */
+  void writeIldgConfig(std::string format, std::string group,
+                       bool reduced_matrix, std::string lat_obj, int traj,
+                       GaugeField &Field) {
+    Grid::GridBase *grid = Field.Grid();
 
     Grid::IldgWriter _IldgWriter(grid->IsBoss());
     _IldgWriter.open(lat_obj);
 
+    /* choose appropriate template instantiation here since the
+       non-const checkpointer parameters cannot be used directly as
+       template arguments to Grid::IldgWriter */
     if (format == "IEEE64BIG") {
       if (group == "su" && reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU,
                                        Grid::MatrixFormat::REDUCED,
                                        Grid::FloatingPointFormat::IEEE64BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "su" && !reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU,
                                        Grid::MatrixFormat::FULL,
                                        Grid::FloatingPointFormat::IEEE64BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "sp" && reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp,
                                        Grid::MatrixFormat::REDUCED,
                                        Grid::FloatingPointFormat::IEEE64BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "sp" && !reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp,
                                        Grid::MatrixFormat::FULL,
                                        Grid::FloatingPointFormat::IEEE64BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       }
     } else if (format == "IEEE32BIG") {
       if (group == "su" && reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU,
                                        Grid::MatrixFormat::REDUCED,
                                        Grid::FloatingPointFormat::IEEE32BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "su" && !reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::SU,
                                        Grid::MatrixFormat::FULL,
                                        Grid::FloatingPointFormat::IEEE32BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "sp" && reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp,
                                        Grid::MatrixFormat::REDUCED,
                                        Grid::FloatingPointFormat::IEEE32BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       } else if (group == "sp" && !reduced_matrix) {
         _IldgWriter.writeConfiguration<GaugeStats, Grid::GroupName::Sp,
                                        Grid::MatrixFormat::FULL,
                                        Grid::FloatingPointFormat::IEEE32BIG>(
-            U, traj, lat_obj, lat_obj);
+            Field, traj, lat_obj, lat_obj);
       }
     }
-
     _IldgWriter.close();
-  }
-
-  // Overload
-  void chooseIldgWriter(std::string format, std::string group,
-                        bool reduced_matrix, std::string lat_obj, int traj,
-                        Grid::ConfigurationBase<GaugeField> &SmartConfig,
-                        bool smeared) {
-    chooseIldgWriter(format, group, reduced_matrix, lat_obj, traj,
-                     SmartConfig.get_U(smeared), smeared);
   }
 
   /* Write the given configuration to disk,
@@ -230,46 +221,20 @@ class ILDGTimingHmcCheckpointer
               << std::hex << nersc_csum << "/" << scidac_csuma << "/"
               << scidac_csumb << std::dec << std::endl;
 
-    chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, config,
-                     traj, SmartConfig, false);
+    writeIldgConfig(Params.format, Params.group, Params.reduced_matrix, config,
+                    traj, SmartConfig.get_U(false));
 
     std::cout << DJLogMessage << "Written ILDG Configuration on " << config
               << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
               << "/" << scidac_csumb << std::dec << std::endl;
 
     if (Params.saveSmeared) {
-      chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, smr,
-                       traj, SmartConfig, true);
+      writeIldgConfig(Params.format, Params.group, Params.reduced_matrix, smr,
+                      traj, SmartConfig.get_U(true));
 
       std::cout << DJLogMessage << "Written ILDG Configuration on " << smr
                 << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
                 << "/" << scidac_csumb << std::dec << std::endl;
-    }
-  };
-
-  // Field version
-  void writeConfiguration(int traj, Implementation::Field &U,
-                          Grid::GridSerialRNG &sRNG,
-                          Grid::GridParallelRNG &pRNG) {
-    std::string config, rng, smr;
-    this->build_filenames(traj, Params, config, smr, rng);
-    uint32_t nersc_csum, scidac_csuma, scidac_csumb;
-    Grid::BinaryIO::writeRNG(sRNG, pRNG, rng, 0, nersc_csum, scidac_csuma,
-                             scidac_csumb);
-    std::cout << DJLogMessage << "Written BINARY RNG " << rng << " checksum "
-              << std::hex << nersc_csum << "/" << scidac_csuma << "/"
-              << scidac_csumb << std::dec << std::endl;
-
-    chooseIldgWriter(Params.format, Params.group, Params.reduced_matrix, config,
-                     traj, U, false);
-
-    std::cout << DJLogMessage << "Written ILDG Configuration on " << config
-              << " checksum " << std::hex << nersc_csum << "/" << scidac_csuma
-              << "/" << scidac_csumb << std::dec << std::endl;
-
-    if (Params.saveSmeared) {
-      std::cout << DJLogMessage << "CANNOT WRITE SMEARED CONFIG OF FIELD"
-                << std::endl;
     }
   };
 
@@ -372,3 +337,22 @@ class ILDGTimingCPModule
  public:
   constexpr static const char *const Name = "hmcdj ILDG timing";
 };
+
+template <typename GaugeGroup>
+constexpr std::string getGaugeGroupString() {
+  std::string group;
+  if constexpr (std::is_same_v<GaugeGroup, Grid::Sp<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::Sp - "
+              << "setting group to sp" << std::endl;
+    group = "sp";
+  } else if constexpr (std::is_same_v<GaugeGroup, Grid::SU<Grid::Nc>>) {
+    std::cout << DJLogMessage << "GaugeGroup is Grid::SU - "
+              << "setting group to su" << std::endl;
+    group = "su";
+  } else {
+    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
+              << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return group;
+}

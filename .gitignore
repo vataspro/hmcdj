@@ -100,6 +100,7 @@ Makefile
 
 # Generated automatically
 /decks/Makefile.am
+/tests/Makefile.am
 
 # Builds
 /build*/

@@ -1,0 +1,34 @@
+site_name: hmcdj
+site_description: "documentation for hmcdj"
+repo_url: "https://github.com/telos-collaboration/hmcdj"
+repo_name: "telos-collaboration/hmcdj"
+edit_uri: edit/main/docs/
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+plugins:
+  - search
+  - literate-nav
+
+nav:
+  - Introduction: intro.md
+  - Installing: installing.md
+  - Running: running.md
+  - Writing new decks: newdecks.md
+
+theme: readthedocs
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js

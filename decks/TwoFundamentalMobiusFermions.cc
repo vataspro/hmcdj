@@ -39,7 +39,9 @@ int main(int argc, char *argv[]) {
   djParameterList params = {beta, mass, M5, pv_mass, b, c, Ls};
 
   // Initialise HMCDJ
-  DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params);
+  const bool reducedStorage = true;
+  DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params,
+                       reducedStorage);
 
   // Print the layout
   Grid::GridLogLayout();
@@ -57,9 +59,6 @@ int main(int argc, char *argv[]) {
   Grid::SpFundamentalRepresentation::LatticeField U(GridPtr);
 
   /* Observables */
-  // Add the Plaquette observable -- already present in DWF implementation
-  // typedef Grid::PlaquetteMod<HMCWrapper::ImplPolicy> PlaqObs;
-  // hmcdj.TheHMC.Resources.AddObservable<PlaqObs>();
   // Add the temporal Polyakov Loop observable
   typedef Grid::PolyakovMod<HMCWrapper::ImplPolicy> PolyakovObs;
   hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();

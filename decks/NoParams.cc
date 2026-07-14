@@ -21,12 +21,10 @@ int main(int argc, char* argv[]) {
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
 
   // Instantiate DJ
-  DJ<HMCWrapper> hmcdj("NoParams", argc, argv);
+  const bool reducedStorage = true;
+  DJ<HMCWrapper> hmcdj("NoParams", argc, argv, reducedStorage);
 
   /* Observables */
-  // Add the Plaquette observable
-  typedef Grid::PlaquetteMod<HMCWrapper::ImplPolicy> PlaqObs;
-  hmcdj.TheHMC.Resources.AddObservable<PlaqObs>();
   // Add the temporal Polyakov Loop observable
   typedef Grid::PolyakovMod<HMCWrapper::ImplPolicy> PolyakovObs;
   hmcdj.TheHMC.Resources.AddObservable<PolyakovObs>();

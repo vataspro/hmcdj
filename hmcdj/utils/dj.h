@@ -1,13 +1,13 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/acceptance.h>
 #include <hmcdj/utils/checkpoint.h>
+#include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/mathutils.h>
 #include <hmcdj/utils/parameter.h>
 #include <hmcdj/utils/utils.h>
 
 #include <filesystem>
-
-#include "acceptance.h"
 
 /* DJSuccessfulExit should always be zero in production code.
    It should only be set to a non-zero value from a test harness,
@@ -20,11 +20,15 @@ class DJ {
   template <typename ImplementationPolicy, typename ExtraCPParams>
   using theCPModule =
       ILDGTimingCPModule<ImplementationPolicy, ExtraCPParams, DJSuccessfulExit>;
+  teestdout tee;
 
  public:
   DJ(std::string deckName, int argc, char* argv[], djParameterList Parameters,
-     bool reduce_group = false);
-  DJ(std::string deckName, int argc, char* argv[]);
+     bool useReducedStorage = false,
+     pathCallback ensembleDirectoryPathOverride = nullptr);
+  DJ(std::string deckName, int argc, char* argv[],
+     bool useReducedStorage = false,
+     pathCallback ensembleDirectoryPathOverride = nullptr);
   EnsembleReader reader;
   HMCWrapper TheHMC;
   void Tune();
@@ -54,38 +58,21 @@ char** getGridArgv(int argc, char* argv[], const char* grid);
 template <typename HMCWrapper, int DJSuccessfulExit>
 DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
                                      char* argv[], djParameterList Parameters,
-                                     bool reduce_group)
-    : reader(deckName, argc < 2 ? "(no filename specified)" : argv[1],
-             Parameters) {
-  // Ensure correct usage
-  djGuard(argc, argv);
-
-  // we can infer the gauge group from HMCWrapper,
-  // this lets hmcdj instantiate the correct IldgWriter.
-  std::string group;
-  if constexpr (std::is_same_v<typename HMCWrapper::ImplPolicy::GaugeGroup,
-                               Grid::Sp<Grid::Nc>>) {
-    std::cout << DJLogMessage << "GaugeGroup is Grid::Sp - "
-              << "setting group to sp" << std::endl;
-    group = "sp";
-  } else if constexpr (std::is_same_v<
-                           typename HMCWrapper::ImplPolicy::GaugeGroup,
-                           Grid::SU<Grid::Nc>>) {
-    std::cout << DJLogMessage << "GaugeGroup is Grid::SU - "
-              << "setting group to su" << std::endl;
-    group = "su";
-  } else {
-    std::cout << DJLogError << "Can't infer gauge group from HMC Runner"
-              << std::endl;
-    exit(1);
-  }
+                                     bool useReducedStorage,
+                                     pathCallback ensembleDirectoryPathOverride)
+    : reader(deckName, (djGuard(argc, argv), argv[1]), Parameters,
+             ensembleDirectoryPathOverride) {
+  // Using the comma operator in the line above
+  // (`(djGuard(argv, argv), argv[1])`)
+  // allows guarding against incorrect usage (including calling without
+  // arguments) while maintaining `const` attributes.
 
   // Initialise Grid and print the layout
   // Subtract one as we remove the track filename
   int gridArgc = argc + DJ_NUM_EXTRA_ARGS - 1;
   char** gridArgv = getGridArgv(argc, argv, reader.GetDimStringPointer());
   Grid::Grid_init(&gridArgc, &gridArgv);
-  Grid::GridLogLayout();
+  setUpLogging(reader.EnsembleDirectory, tee);
 
   // Add gauge field
   TheHMC.Resources.AddFourDimGrid("gauge");
@@ -97,19 +84,17 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
       reader.rng_prefix;  // perhaps saving the rng should be optional?
   CPparams.saveInterval = reader.saveInterval;
   CPparams.format = reader.format;
-  CPparams.group = group;
-  CPparams.reduced_matrix = reduce_group;
+  CPparams.group =
+      getGaugeGroupString<typename HMCWrapper::ImplPolicy::GaugeGroup>();
+  CPparams.reduced_matrix = useReducedStorage;
 
   if (CPparams.reduced_matrix) {
     std::cout << DJLogMessage << "Checkpointer using reduced format writer"
               << std::endl;
   } else {
-    std::cout << DJLogMessage << "Checkpointer not using reduced format writer"
+    std::cout << DJLogMessage << "Checkpointer using full-matrix format writer"
               << std::endl;
   }
-
-  // TheHMC.Resources.CP.Params.AccParams = &AccPar;
-  // TheHMC.Resources.CP->setAccParams(&AccPar);
 
   /* Seeding the Grid RNG */
   RNGManager rng(argv[1]);  // Seed with a deterministic rng from the yaml file
@@ -171,8 +156,10 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 // Overload for passing no parameters
 template <typename HMCWrapper, int DJSuccessfulExit>
 DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
-                                     char* argv[])
-    : DJ(deckName, argc, argv, {}) {}
+                                     char* argv[], bool useReducedStorage,
+                                     pathCallback ensembleDirectoryPathOverride)
+    : DJ(deckName, argc, argv, {}, useReducedStorage,
+         ensembleDirectoryPathOverride) {}
 
 /* Acceptance Rate Tuning */
 template <typename HMCWrapper, int DJSuccessfulExit>
