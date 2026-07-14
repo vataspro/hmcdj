@@ -104,3 +104,4 @@ Makefile
 
 # Builds
 /build*/
+/docs/_repo/

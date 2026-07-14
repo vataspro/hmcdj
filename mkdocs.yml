@@ -12,12 +12,20 @@ validation:
 plugins:
   - search
   - literate-nav
+  - repo-docs:
+      root_files:
+        - CONTRIBUTING.md
+        - CODE_OF_CONDUCT.md
 
 nav:
   - Introduction: intro.md
-  - Installing: installing.md
-  - Running: running.md
-  - Writing new decks: newdecks.md
+  - Usage:
+    - Installing: installing.md
+    - Running: running.md
+  - Development:
+    - Writing new decks: newdecks.md
+    - Guide to contributing: _repo/CONTRIBUTING.md
+    - Code of conduct: _repo/CODE_OF_CONDUCT.md
 
 theme: readthedocs
 
