@@ -111,6 +111,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 
   // Acceptance rate & tuning
   *extraCPPars.AccPar->AcceptanceTuningActive = reader.AcceptanceTuningActive;
+  extraCPPars.AccPar->setOutputDirectory(reader.EnsembleDirectory);
 
   if (*(extraCPPars.AccPar->AcceptanceTuningActive)) {
     *extraCPPars.AccPar->tuning_mode = tuning_mode_t::init;
@@ -188,9 +189,9 @@ void DJ<HMCWrapper, DJSuccessfulExit>::Tune() {
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::loadTuningState() {
-  if (std::filesystem::exists(extraCPPars.AccPar->tuning_filename)) {
+  if (std::filesystem::exists(extraCPPars.AccPar->tuningFilename)) {
     // Tuning has already started
-    Grid::XmlReader TuningReader(extraCPPars.AccPar->tuning_filename);
+    Grid::XmlReader TuningReader(extraCPPars.AccPar->tuningFilename);
     // Read current tuning mode
     int tmp_buf;
     TuningReader.readDefault("mode", tmp_buf);
@@ -265,13 +266,13 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
   ++(*extraCPPars.AccPar->tuning_ctr);
 
   // Save acceptance tuning state
-  Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuning_filename);
+  Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuningFilename);
   write(TuningWriter, "mode",
         static_cast<int>(*extraCPPars.AccPar->tuning_mode));
   write(TuningWriter, "tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
   write(TuningWriter, "MDsteps", *extraCPPars.AccPar->MDsteps);
 
-  Grid::XmlWriter AccWriter(extraCPPars.AccPar->acceptance_filename);
+  Grid::XmlWriter AccWriter(extraCPPars.AccPar->acceptanceFilename);
   write(AccWriter, "acc", *extraCPPars.AccPar->AcceptanceArray);
 }
 
@@ -297,7 +298,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
               << TheHMC.Parameters.MD.MDsteps << std::endl;
 
     // Save tuning final state
-    Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuning_filename);
+    Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuningFilename);
     write(TuningWriter, "mode", static_cast<int>(tuning_mode_t::complete));
     write(TuningWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
     write(TuningWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);

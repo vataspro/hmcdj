@@ -266,21 +266,21 @@ class ILDGTimingHmcCheckpointer
               << extraParams.AccPar->target_rate << std::endl;
 
     // Save acceptance tuning state
-    Grid::XmlWriter TuningWriter(extraParams.AccPar->tuning_filename);
+    Grid::XmlWriter TuningWriter(extraParams.AccPar->tuningFilename);
     write(TuningWriter, "mode",
           static_cast<int>(*extraParams.AccPar->tuning_mode));
     write(TuningWriter, "tuning_ctr", *extraParams.AccPar->tuning_ctr);
     write(TuningWriter, "MDsteps", *extraParams.AccPar->MDsteps);
 
     // Save acceptance array
-    Grid::XmlWriter AccWriter(extraParams.AccPar->acceptance_filename);
+    Grid::XmlWriter AccWriter(extraParams.AccPar->acceptanceFilename);
     write(AccWriter, "acc", *extraParams.AccPar->AcceptanceArray);
   }
 
   void loadAcceptance() {
     try {
       // Load tuning mode
-      Grid::XmlReader tuningReader(extraParams.AccPar->tuning_filename);
+      Grid::XmlReader tuningReader(extraParams.AccPar->tuningFilename);
       int tmp_buf;
       tuningReader.readDefault("mode", tmp_buf);
       *extraParams.AccPar->tuning_mode = static_cast<tuning_mode_t>(tmp_buf);
@@ -288,7 +288,7 @@ class ILDGTimingHmcCheckpointer
       tuningReader.readDefault("tuning_ctr", *extraParams.AccPar->tuning_ctr);
 
       // Load acceptance
-      Grid::XmlReader accReader(extraParams.AccPar->acceptance_filename);
+      Grid::XmlReader accReader(extraParams.AccPar->acceptanceFilename);
       accReader.readDefault("acc", *extraParams.AccPar->AcceptanceArray);
 
     } catch (...) {

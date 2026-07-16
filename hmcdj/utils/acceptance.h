@@ -17,9 +17,9 @@ struct AcceptanceObsParameters : Grid::Serializable {
   // Acceptance array
   std::vector<int> *AcceptanceArray = new std::vector<int>;
   // File to save acceptance
-  std::string acceptance_filename = "acceptance.xml";
+  std::string acceptanceFilename = "/dev/null";
   // File to save tuning state
-  std::string tuning_filename = "tuning.xml";
+  std::string tuningFilename = "/dev/null";
   // Tuning counter
   int *tuning_ctr = new int;
   // Pointer to MDsteps
@@ -37,6 +37,11 @@ struct AcceptanceObsParameters : Grid::Serializable {
         target_rate(target_rate_),
         target_rate_tol(target_rate_tol_),
         monitor_every(monitor_every_) {}
+
+  void setOutputDirectory(std::filesystem::path directory) {
+    acceptanceFilename = (directory / "acceptance.xml").string();
+    tuningFilename = (directory / "tuning.xml").string();
+  }
 };
 
 // Acceptance Rate Observable logger
