@@ -10,16 +10,38 @@ double mean(std::vector<T> x) {
   return static_cast<double>(sum) / x.size();
 }
 
+// Estimate probability from a finite sample:
+template <typename T>
+double clampedMean(std::vector<T> x) {
+  const double mean_ = mean(x);
+  if (mean_ == 0) {
+    return 1.0 / x.size();
+  }
+  if (mean_ == 1) {
+    return 1 - 1.0 / x.size();
+  }
+  return mean_;
+}
+
 // Standard deviation
 template <typename T>
 double stdErr(std::vector<T> x) {
-  double mean_ = mean(x);
+  const double mean_ = mean(x);
   double sum = 0;
   for (T el : x) {
     sum += pow(el - mean_, 2);
   }
-
   return sqrt(sum / (x.size() - 1) / x.size());
+}
+
+// Uncertainty in estimate of mean of binary process from limited samples
+template <typename T>
+double stdErrProb(std::vector<T> x) {
+  double mean_ = clampedMean(x);
+  if (mean_ > 0.5) {
+    mean_ = 1 - mean_;
+  }
+  return sqrt(mean_) * pow(x.size(), -0.5);
 }
 
 /*

@@ -278,8 +278,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
   // Measure acceptance rate
-  double pacc = mean(*extraCPPars.AccPar->AcceptanceArray);
-  double pacc_err = stdErr(*extraCPPars.AccPar->AcceptanceArray);
+  const double pacc = mean(*extraCPPars.AccPar->AcceptanceArray);
+  const double pacc_err = stdErrProb(*extraCPPars.AccPar->AcceptanceArray);
+  const double paccClamped = clampedMean(*extraCPPars.AccPar->AcceptanceArray);
+
   // Empty the acceptance array
   extraCPPars.AccPar->AcceptanceArray->clear();
 
@@ -302,9 +304,9 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
 
   } else {  // Acceptance rate not within tolerance range - tune MD steps
 
-    int target_MD = get_target_MDsteps(TheHMC.Parameters.MD.trajL,
-                                       TheHMC.Parameters.MD.MDsteps, pacc,
-                                       extraCPPars.AccPar->target_rate);
+    int target_MD = get_target_MDsteps(
+        TheHMC.Parameters.MD.trajL, TheHMC.Parameters.MD.MDsteps, paccClamped,
+        extraCPPars.AccPar->target_rate);
 
     std::cout << Grid::GridLogMessage
               << "Best approximation for target MDsteps: " << target_MD
