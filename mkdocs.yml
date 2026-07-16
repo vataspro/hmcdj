@@ -18,7 +18,7 @@ plugins:
         - CODE_OF_CONDUCT.md
 
 nav:
-  - Introduction: intro.md
+  - Introduction: index.md
   - Usage:
     - Installing: installing.md
     - Running: running.md
