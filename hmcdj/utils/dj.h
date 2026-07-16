@@ -288,8 +288,8 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
   std::cout << Grid::GridLogMessage << "Current acceptance rate is: " << pacc
             << " +/- " << pacc_err << std::endl;
 
-  if (fabs(pacc - extraCPPars.AccPar->target_rate) <
-      extraCPPars.AccPar->target_rate_tol) {
+  if (withinTolerance(pacc, pacc_err, extraCPPars.AccPar->target_rate,
+                      extraCPPars.AccPar->target_rate_tol)) {
     // Tuning complete
     *extraCPPars.AccPar->tuning_mode = tuning_mode_t::complete;
     std::cout << Grid::GridLogMessage

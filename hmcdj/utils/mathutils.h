@@ -62,6 +62,17 @@ inline float erfInv(float x) {
   return (sgn * sqrtf(-tt1 + sqrtf(tt1 * tt1 - tt2)));
 }
 
+// Are two numbers, each with attached uncertainties, compatible?
+template <typename T>
+bool withinTolerance(const T value1, const T error1, const T value2,
+                     const T error2) {
+  const T ub1 = value1 + error1;
+  const T ub2 = value2 + error2;
+  const T lb1 = value1 - error1;
+  const T lb2 = value2 - error2;
+  return ub1 > lb2 && lb1 < ub2;
+}
+
 template <typename T>
 inline double erfcinv(T x) {
   return static_cast<double>(erfInv(1 - static_cast<float>(x)));
