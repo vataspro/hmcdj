@@ -64,6 +64,14 @@ Global:
   HMCDJ:
     EnsembleDirectory: "."
 
+  AcceptanceRateTuning:
+    num_tuning_samples: 10
+    total_num_init_skips: 15
+    target_rate: 0.85
+    target_rate_tol: 0.05
+    monitor_every: 100
+    max_tuning_steps: 250
+
 PureGauge:
     beta: 6.9
 ```
@@ -82,6 +90,11 @@ The most important aspects of this:
 - `Trajectories` sets the target number of trajectories to generate.
 - `StartingType` may be `HotStart`, `ColdStart`, or `TepidStart`;
   this sets the initial entropy of the lattice at the start of the Markov chain.
+- The `AcceptanceRateTuning` block controls how hmcdj automatically tries
+  to control the molecular dynamics step size
+  to obtain a good value for the Metropolis acceptance rate.
+  For more details,
+  see [Acceptance rate tuning](acceptance.md).
 
 In addition,
 each track has a second block named after the deck it is designed for.
@@ -126,8 +139,13 @@ Global:
 
     StartingType: "HotStart"
 
-  HMCDJ:
-    EnsembleDirectory: "."
+  AcceptanceRateTuning:
+    num_tuning_samples: 10
+    total_num_init_skips: 15
+    target_rate: 0.85
+    target_rate_tol: 0.05
+    monitor_every: 100
+    max_tuning_steps: 250
 
 PureGauge:
     beta: 7.2

@@ -22,6 +22,7 @@ nav:
   - Usage:
     - Installing: installing.md
     - Running: running.md
+    - Acceptance rate tuning: acceptance.md
   - Development:
     - Writing new decks: newdecks.md
     - Guide to contributing: _repo/CONTRIBUTING.md

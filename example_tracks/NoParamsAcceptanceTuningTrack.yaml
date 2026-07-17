@@ -37,7 +37,4 @@ Global:
     monitor_every: 100
     max_tuning_steps: 250
 
-  HMCDJ:
-    EnsembleDirectory: "."
-
 NoParams:
