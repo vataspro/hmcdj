@@ -35,6 +35,7 @@ Global:
     target_rate: 0.85
     target_rate_tol: 0.05
     monitor_every: 100
+    max_tuning_steps: 250
 
   HMCDJ:
     EnsembleDirectory: "."

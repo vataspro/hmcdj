@@ -87,6 +87,10 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
     TimerStatus status = timer->updateTiming(traj);
+    if (*extraParams.AccPar->tuning_mode == tuning_mode_t::failed) {
+      status = TimerStatus::TUNING_FAILED;
+    }
+
     if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK) {
       writeConfiguration(traj, SmartConfig, sRNG, pRNG);
       if (*extraParams.AccPar->AcceptanceTuningActive) {
@@ -127,6 +131,13 @@ class ILDGTimingHmcCheckpointer
                      "trajectory."
                   << std::endl;
         break;
+      case TimerStatus::TUNING_FAILED:
+        std::cout
+            << DJLogError
+            << "Failed to tune acceptance within given timeframe. Giving up."
+            << std::endl;
+        Grid::Grid_finalize();
+        std::exit(EXIT_FAILURE);
       default:
         std::cout << DJLogTiming << "Reason: Unknown (" << as_integer(status)
                   << ")." << std::endl;

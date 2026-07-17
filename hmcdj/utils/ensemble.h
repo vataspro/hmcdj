@@ -43,6 +43,7 @@ class EnsembleReader {
   double target_rate_tol;       // Target acceptance rate tolerance
   double
       monitor_every;  // After tuning check the acceptance rate this frequently
+  int max_tuning_steps;
 
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string deckName, const std::string filename,

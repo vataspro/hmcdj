@@ -124,6 +124,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
     extraCPPars.AccPar->target_rate_tol =
         reader.target_rate_tol;  // Acceptance rate tuning tolerance
     extraCPPars.AccPar->monitor_every = reader.monitor_every;
+    extraCPPars.AccPar->max_tuning_steps = reader.max_tuning_steps;
     extraCPPars.AccPar->MDsteps =
         &TheHMC.Parameters.MD.MDsteps;  // required for saving mdsteps
   } else {
@@ -304,7 +305,6 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
     write(TuningWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
 
   } else {  // Acceptance rate not within tolerance range - tune MD steps
-
     int target_MD = get_target_MDsteps(
         TheHMC.Parameters.MD.trajL, TheHMC.Parameters.MD.MDsteps, paccClamped,
         extraCPPars.AccPar->target_rate);

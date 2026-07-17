@@ -10,7 +10,7 @@
 #include <map>
 #include <tuple>
 
-enum class TimerStatus { OK, PREEMPTED, OUT_OF_TIME };
+enum class TimerStatus { OK, PREEMPTED, OUT_OF_TIME, TUNING_FAILED };
 
 typedef std::chrono::high_resolution_clock hrclock;
 typedef std::chrono::system_clock sysclock;

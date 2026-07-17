@@ -128,6 +128,8 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
       target_rate_tol =
           global["AcceptanceRateTuning"]["target_rate_tol"].as<double>();
       monitor_every = global["AcceptanceRateTuning"]["monitor_every"].as<int>();
+      max_tuning_steps =
+          global["AcceptanceRateTuning"]["max_tuning_steps"].as<int>();
 
       /* Check acc rate tuning inputs */
       if (Thermalisations >= total_num_init_skips) {

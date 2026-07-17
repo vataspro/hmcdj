@@ -1,16 +1,17 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/mathutils.h>
 
 // enum class to define mode (phase) of tuning
-enum class tuning_mode_t { init, active, complete };
+enum class tuning_mode_t { init, active, complete, failed };
 
 // Serializable class for Acceptance Rate Tuning
 struct AcceptanceObsParameters : Grid::Serializable {
   GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int,
                                   total_num_init_skips, int, num_tuning_samples,
                                   double, target_rate, double, target_rate_tol,
-                                  int, monitor_every);
+                                  int, monitor_every, int, max_tuning_steps);
 
   // Tuning mode
   tuning_mode_t *tuning_mode = new tuning_mode_t;
@@ -31,12 +32,13 @@ struct AcceptanceObsParameters : Grid::Serializable {
                           int num_tuning_samples_ = 50,
                           double target_rate_ = 0.8,
                           double target_rate_tol_ = 0.05, int tuning_ctr_ = 0,
-                          int monitor_every_ = 100)
+                          int monitor_every_ = 100, int max_tuning_steps_ = 500)
       : total_num_init_skips(total_num_init_skips_),
         num_tuning_samples(num_tuning_samples_),
         target_rate(target_rate_),
         target_rate_tol(target_rate_tol_),
-        monitor_every(monitor_every_) {}
+        monitor_every(monitor_every_),
+        max_tuning_steps(max_tuning_steps_) {}
 
   void setOutputDirectory(std::filesystem::path directory) {
     acceptanceFilename = (directory / "acceptance.xml").string();
@@ -66,31 +68,36 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
   // Get the acceptance of the step
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG, bool accept) override {
-    std::cout << Grid::GridLogDebug
+    std::cout << DJLogDebug
               << "Tuning mode: " << static_cast<int>(*Pars.tuning_mode)
               << std::endl;
 
     // Save the acceptance and trajectory index
     if (*Pars.tuning_mode != tuning_mode_t::init) {
       // Print acceptance
-      std::cout << Grid::GridLogDebug << "Step acceptance: [ " << traj << " ] "
+      std::cout << DJLogDebug << "Step acceptance: [ " << traj << " ] "
                 << static_cast<int>(accept) << std::endl;
 
       // Append the acceptance values
       Pars.AcceptanceArray->push_back(static_cast<int>(accept));
     }
 
+    // Check we aren't overrunning
+    if ((*Pars.tuning_mode != tuning_mode_t::complete) &&
+        (traj > Pars.max_tuning_steps)) {
+      *Pars.tuning_mode = tuning_mode_t::failed;
+    }
+
     // Monitor the acceptance rate
     if (*Pars.tuning_mode == tuning_mode_t::complete) {
       if (traj % Pars.monitor_every == 0) {
         double pacc = mean(*Pars.AcceptanceArray);
-        std::cout << Grid::GridLogMessage
+        std::cout << DJLogMessage
                   << "Monitoring current acceptance rate: " << pacc
                   << std::endl;
 
         if (fabs(pacc - Pars.target_rate) >= Pars.target_rate_tol) {
-          std::cout << Grid::GridLogMessage
-                    << "WARNING: Acceptance rate out of bounds";
+          std::cout << DJLogMessage << "WARNING: Acceptance rate out of bounds";
         }
       }
     }
