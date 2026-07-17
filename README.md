@@ -3,6 +3,9 @@
 **HMCDJ is a library that automates running Grid jobs
  through the use of `yaml` files.**
 
+- [Documentation][docs]
+- [Contribution guidelines](CONTRIBUTING.md)
+
 ## Requirements
 
 HMCDJ requires the [Grid](https://github.com/telos-collaboration/Grid)
@@ -120,3 +123,5 @@ to contain any dynamically linked libraries
 Please note that for a chosen deck the only valid
 top level namespaces in the track are either `Global` or
 the `deckName`.
+
+[docs]: <https://telos-collaboration.github.io/hmcdj/>
