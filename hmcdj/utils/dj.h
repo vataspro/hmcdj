@@ -31,25 +31,19 @@ class DJ {
      pathCallback ensembleDirectoryPathOverride = nullptr);
   EnsembleReader reader;
   HMCWrapper TheHMC;
-  void Tune();
   void Play();
 
   // AcceptanceObsParameters AccPar;  // Acceptance rate tuning parameters
   CheckpointerExtraParams extraCPPars;
 
   // Tuning functions
-  void loadTuningState();
   void setupTuningStep();
   void endTuningStep();
-  void tuneAcceptance();
+  void tuneAcceptance(bool adjust = true);
   void setTuningTrajectories();
-  void finaliseTuning();
 
   // Destructor
   ~DJ();
-
- private:
-  void _TuningPlay();
 };
 
 const int DJ_NUM_EXTRA_ARGS = 2;
@@ -110,43 +104,20 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
   TheHMC.Resources.template AddObservable<PlaqObs>();
 
   // Acceptance rate & tuning
-  *extraCPPars.AccPar->AcceptanceTuningActive = reader.AcceptanceTuningActive;
-  extraCPPars.AccPar->setOutputDirectory(reader.EnsembleDirectory);
-
-  if (*(extraCPPars.AccPar->AcceptanceTuningActive)) {
-    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::init;
-    extraCPPars.AccPar->total_num_init_skips =
-        reader.total_num_init_skips;  // Number of parameters to skip from
-    extraCPPars.AccPar->num_tuning_samples =
-        reader.num_tuning_samples;  // Number of samples to tune for
-    extraCPPars.AccPar->target_rate =
-        reader.target_rate;  // Target acceptance rate
-    extraCPPars.AccPar->target_rate_tol =
-        reader.target_rate_tol;  // Acceptance rate tuning tolerance
-    extraCPPars.AccPar->monitor_every = reader.monitor_every;
-    extraCPPars.AccPar->max_tuning_steps = reader.max_tuning_steps;
-    extraCPPars.AccPar->MDsteps =
-        &TheHMC.Parameters.MD.MDsteps;  // required for saving mdsteps
-  } else {
-    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::complete;
-  }
+  extraCPPars.AccPar =
+      new AcceptanceObsParameters(reader, &TheHMC.Parameters.MD);
 
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
   TheHMC.Resources.template AddObservable<AccObs>(*extraCPPars.AccPar);
 
-  extraCPPars.AccPar = extraCPPars.AccPar;
+  // TODO remove once it becomes clear what this was doing
+  // extraCPPars.AccPar = extraCPPars.AccPar;
 
   // Add Checkpointer as last observable
   TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams,
                                                           extraCPPars);
-
   // HMC parameters MD parameters
-  TheHMC.Parameters.MD.MDsteps = reader.MDsteps;
   TheHMC.Parameters.MD.trajL = reader.trajL;
-
-  // Trajectories & Thermalisations (no reject)
-  TheHMC.Parameters.NoMetropolisUntil = reader.Thermalisations;
-  TheHMC.Parameters.Trajectories = reader.Trajectories;
 
   // Set the starting type and starting trajectory
   TheHMC.Parameters.StartingType = reader.StartingType;
@@ -165,47 +136,11 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 
 /* Acceptance Rate Tuning */
 template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::Tune() {
-  if (!*(extraCPPars.AccPar->AcceptanceTuningActive)) {
-    std::cerr
-        << "Called Tune() while acceptance rate tuning is deactivated. "
-        << "to activate acceptance rate tuning include the relevant namespace "
-        << "in the track." << std::endl;
-    exit(EXIT_FAILURE);
-  }
-  loadTuningState();  // Load or initialise the tuning
-  while (*extraCPPars.AccPar->tuning_mode != tuning_mode_t::complete) {
+void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
+  while (extraCPPars.AccPar->tuningMode() != tuning_mode_t::complete) {
     setupTuningStep();  // Set trajectory number
-    _TuningPlay();  // Will run up to exactly after next tuning step is reached
+    TheHMC.Run();  // Will run up to exactly after next tuning step is reached
     endTuningStep();
-  }
-  // Ensure that correct values are loaded for trajectories when going to Play()
-  finaliseTuning();
-}
-
-/*
-   Load or initialise the tuning state
-   Checks for a tuning file; if there is one, load its state.
-   If none is present, tuning is definitely still initialising.
- */
-template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::loadTuningState() {
-  if (std::filesystem::exists(extraCPPars.AccPar->tuningFilename)) {
-    // Tuning has already started
-    Grid::XmlReader TuningReader(extraCPPars.AccPar->tuningFilename);
-    // Read current tuning mode
-    int tmp_buf;
-    TuningReader.readDefault("mode", tmp_buf);
-    *extraCPPars.AccPar->tuning_mode = static_cast<tuning_mode_t>(tmp_buf);
-    // Load current MDsteps value
-    TuningReader.readDefault("MDsteps", TheHMC.Parameters.MD.MDsteps);
-    // Load tuning counter
-    TuningReader.readDefault("tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
-
-  } else {
-    // First run; initialise tuning
-    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::init;
-    *extraCPPars.AccPar->tuning_ctr = 0;
   }
 }
 
@@ -220,135 +155,81 @@ void DJ<HMCWrapper, DJSuccessfulExit>::setupTuningStep() {
 /*
   Set the number of trajectories required for tuning
   up to the next tuning step.
-  This function will only be reached if the tuning is
-  not complete.
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::setTuningTrajectories() {
-  // Initialisation mode
-  if (*extraCPPars.AccPar->tuning_mode == tuning_mode_t::init) {
-    TheHMC.Parameters.Trajectories = +extraCPPars.AccPar->total_num_init_skips -
-                                     TheHMC.Parameters.StartTrajectory;
-
-  } else {  // This should only be reached if tuning mode is == active
-    int num_valid_traj = TheHMC.Parameters.StartTrajectory -
-                         extraCPPars.AccPar->total_num_init_skips;
-    TheHMC.Parameters.Trajectories =
-        extraCPPars.AccPar->num_tuning_samples -
-        (num_valid_traj % extraCPPars.AccPar->num_tuning_samples);
+  const int currentTrajectory = extraCPPars.AccPar->acceptHistory->size();
+  const int thermalisationTrajectories =
+      extraCPPars.AccPar->thermalisationTrajectories;
+  TheHMC.Parameters.Trajectories = extraCPPars.AccPar->trajectoriesToNextTune();
+  if (currentTrajectory < thermalisationTrajectories) {
+    TheHMC.Parameters.NoMetropolisUntil =
+        thermalisationTrajectories - currentTrajectory;
+  } else {
+    TheHMC.Parameters.NoMetropolisUntil = 0;
   }
 }
 
 /*
     Set the trajectories for the next tuning step.
     Run the acceptance tuning.
-    This function will only be reached once the tuning
-    is active.
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
   // Increment trajectories
-  TheHMC.Parameters.StartTrajectory += TheHMC.Parameters.Trajectories;
+  TheHMC.Parameters.StartTrajectory = extraCPPars.AccPar->currentTrajectory();
 
-  if (*extraCPPars.AccPar->tuning_mode ==
-      tuning_mode_t::init) {  // activate tuning
-
-    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::active;  // on first pass
-
-    // Remove NoMetropolis step on first pass
-    TheHMC.Parameters.StartTrajectory += TheHMC.Parameters.NoMetropolisUntil;
-    TheHMC.Parameters.NoMetropolisUntil = 0;
-    TheHMC.Parameters.StartingType = "CheckpointStart";
-  } else if (*extraCPPars.AccPar->tuning_mode == tuning_mode_t::active) {
-    tuneAcceptance();  // tune acceptance rate
+  const tuning_mode_t tuningMode = extraCPPars.AccPar->tuningMode();
+  switch (tuningMode) {
+    case tuning_mode_t::monitoring:
+      tuneAcceptance(false);
+      break;
+    case tuning_mode_t::active:
+      tuneAcceptance();
+      break;
+    default:
+      std::cout << DJLogDebug << "Tuning is "
+                << tuningModeDescription[tuningMode] << ", taking no action."
+                << std::endl;
   }
-
-  // Iterate acceptance tuning step counter
-  ++(*extraCPPars.AccPar->tuning_ctr);
-
-  // Save acceptance tuning state
-  Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuningFilename);
-  write(TuningWriter, "mode",
-        static_cast<int>(*extraCPPars.AccPar->tuning_mode));
-  write(TuningWriter, "tuning_ctr", *extraCPPars.AccPar->tuning_ctr);
-  write(TuningWriter, "MDsteps", *extraCPPars.AccPar->MDsteps);
-
-  Grid::XmlWriter AccWriter(extraCPPars.AccPar->acceptanceFilename);
-  write(AccWriter, "acc", *extraCPPars.AccPar->AcceptanceArray);
 }
 
 template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance() {
+void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance(bool adjust) {
   // Measure acceptance rate
-  const double pacc = mean(*extraCPPars.AccPar->AcceptanceArray);
-  const double pacc_err = stdErrProb(*extraCPPars.AccPar->AcceptanceArray);
-  const double paccClamped = clampedMean(*extraCPPars.AccPar->AcceptanceArray);
+  const NumberWithError<double> pacc = extraCPPars.AccPar->avgAcceptance();
+  const NumberWithError<double> paccClamped =
+      extraCPPars.AccPar->avgAcceptance(true);
 
-  // Empty the acceptance array
-  extraCPPars.AccPar->AcceptanceArray->clear();
+  std::cout << DJLogMessage << "Current acceptance rate is: " << pacc.value
+            << " +/- " << paccClamped.error << std::endl;
 
-  std::cout << Grid::GridLogMessage << "Current acceptance rate is: " << pacc
-            << " +/- " << pacc_err << std::endl;
-
-  if (withinTolerance(pacc, pacc_err, extraCPPars.AccPar->target_rate,
-                      extraCPPars.AccPar->target_rate_tol)) {
-    // Tuning complete
-    *extraCPPars.AccPar->tuning_mode = tuning_mode_t::complete;
-    std::cout << Grid::GridLogMessage
-              << "Tuning successful, with final MD steps: "
-              << TheHMC.Parameters.MD.MDsteps << std::endl;
-
-    // Save tuning final state
-    Grid::XmlWriter TuningWriter(extraCPPars.AccPar->tuningFilename);
-    write(TuningWriter, "mode", static_cast<int>(tuning_mode_t::complete));
-    write(TuningWriter, "tuning_ctr", extraCPPars.AccPar->tuning_ctr);
-    write(TuningWriter, "MDsteps", TheHMC.Parameters.MD.MDsteps);
-
-  } else {  // Acceptance rate not within tolerance range - tune MD steps
-    int target_MD = get_target_MDsteps(
-        TheHMC.Parameters.MD.trajL, TheHMC.Parameters.MD.MDsteps, paccClamped,
-        extraCPPars.AccPar->target_rate);
-
-    std::cout << Grid::GridLogMessage
-              << "Best approximation for target MDsteps: " << target_MD
-              << " with Dt: "
-              << static_cast<double>(TheHMC.Parameters.MD.trajL) / target_MD
+  if (pacc.isClose(extraCPPars.AccPar->targetAcceptance,
+                   extraCPPars.AccPar->deltaTargetAcceptance)) {
+    std::cout << DJLogMessage
+              << "Acceptance within desired range; taking no action."
               << std::endl;
-
-    TheHMC.Parameters.MD.MDsteps = target_MD;
-  }
-}
-
-/*
-    Do any final things after the tuning.
- */
-template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::finaliseTuning() {
-  // AcceptanceTuningActive = false;
-  TheHMC.Parameters.Trajectories = reader.Trajectories;
-  std::cout << Grid::GridLogMessage << "Acceptance rate tuning complete."
-            << std::endl;
-}
-
-/* Play the track: Run the HMC */
-template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
-  // Exit if Play is called before tuning complete
-  if ((*(extraCPPars.AccPar->AcceptanceTuningActive)) &&
-      (*(extraCPPars.AccPar->tuning_mode) != tuning_mode_t::complete)) {
-    std::cerr << "Called Play() while acceptance rate is active "
-              << "to deactivate tuning remove the relevant namespace "
-              << "from the track. " << std::endl;
-    exit(EXIT_FAILURE);
   } else {
-    TheHMC.Run();
-  }
-}
+    // Acceptance rate not within tolerance range
+    if (adjust) {
+      // tune MD steps
+      const int nextMDsteps = get_target_MDsteps(
+          TheHMC.Parameters.MD.trajL, TheHMC.Parameters.MD.MDsteps,
+          paccClamped.value, extraCPPars.AccPar->targetAcceptance);
 
-/* Play the track: Run the HMC */
-template <typename HMCWrapper, int DJSuccessfulExit>
-void DJ<HMCWrapper, DJSuccessfulExit>::_TuningPlay() {
-  TheHMC.Run();
+      std::cout << DJLogMessage
+                << "Best approximation for target MDsteps: " << nextMDsteps
+                << " with Dt: "
+                << static_cast<double>(TheHMC.Parameters.MD.trajL) / nextMDsteps
+                << std::endl;
+
+      extraCPPars.AccPar->MDsteps(nextMDsteps);
+    } else {
+      std::cout << DJLogError
+                << "Acceptance outside prescribed limits in production!"
+                << std::endl;
+    }
+  }
 }
 
 /* Destructor closes Grid */

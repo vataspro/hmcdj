@@ -23,7 +23,7 @@ class EnsembleReader {
   std::string config_prefix, rng_prefix, format;
   /* HMC parameters */
   double trajL;
-  int MDsteps, Thermalisations, Trajectories;
+  int initialMDsteps, Thermalisations, Trajectories;
   std::string StartingType;
   /* Dynamic Trajectory Initialisation */
   int StartingTrajectory;
@@ -35,15 +35,14 @@ class EnsembleReader {
   std::string deckName;
 
   /* Acceptance rate tuning parameters */
-  bool AcceptanceTuningActive;  // Flag signaling whther acceptance rate tuning
-                                // is active
-  int num_tuning_samples;       // Number of trajectories per tuning step
-  int total_num_init_skips;     // NoMetropolisUntil + "thermalisation" steps
-  double target_rate;           // Target acceptance rate
-  double target_rate_tol;       // Target acceptance rate tolerance
-  double
-      monitor_every;  // After tuning check the acceptance rate this frequently
-  int max_tuning_steps;
+  int tuningCycleTrajectories;         // Number of trajectories per tuning step
+  int rethermalisationTrajectories;    // Steps discarded after each change in
+                                       // MDsteps
+  double targetAcceptance;             // Target acceptance rate
+  double deltaTargetAcceptance;        // Target acceptance rate tolerance
+  double monitoringCycleTrajectories;  // After tuning check the acceptance rate
+                                       // this frequently
+  int maxTuningTrajectories;           //
 
   // Constructor - reads and loads the parameters from the yaml file
   EnsembleReader(const std::string deckName, const std::string filename,

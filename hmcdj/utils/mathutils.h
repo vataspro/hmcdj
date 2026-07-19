@@ -10,19 +10,6 @@ double mean(std::vector<T> x) {
   return static_cast<double>(sum) / x.size();
 }
 
-// Estimate probability from a finite sample:
-template <typename T>
-double clampedMean(std::vector<T> x) {
-  const double mean_ = mean(x);
-  if (mean_ == 0) {
-    return 1.0 / x.size();
-  }
-  if (mean_ == 1) {
-    return 1 - 1.0 / x.size();
-  }
-  return mean_;
-}
-
 // Standard deviation
 template <typename T>
 double stdErr(std::vector<T> x) {
@@ -32,16 +19,6 @@ double stdErr(std::vector<T> x) {
     sum += pow(el - mean_, 2);
   }
   return sqrt(sum / (x.size() - 1) / x.size());
-}
-
-// Uncertainty in estimate of mean of binary process from limited samples
-template <typename T>
-double stdErrProb(std::vector<T> x) {
-  double mean_ = clampedMean(x);
-  if (mean_ > 0.5) {
-    mean_ = 1 - mean_;
-  }
-  return sqrt(mean_) * pow(x.size(), -0.5);
 }
 
 /*
@@ -62,16 +39,27 @@ inline float erfInv(float x) {
   return (sgn * sqrtf(-tt1 + sqrtf(tt1 * tt1 - tt2)));
 }
 
-// Are two numbers, each with attached uncertainties, compatible?
 template <typename T>
-bool withinTolerance(const T value1, const T error1, const T value2,
-                     const T error2) {
-  const T ub1 = value1 + error1;
-  const T ub2 = value2 + error2;
-  const T lb1 = value1 - error1;
-  const T lb2 = value2 - error2;
-  return ub1 > lb2 && lb1 < ub2;
-}
+class NumberWithError {
+ public:
+  T value;
+  T error;
+
+  NumberWithError(const T value, const T error) : value(value), error(error) {}
+
+  // Are two numbers, each with attached uncertainties, compatible?
+  bool isClose(const NumberWithError<T> other) const {
+    return isClose(other.value, other.error);
+  }
+
+  bool isClose(const T otherValue, const T otherError) const {
+    const T ub1 = value + error;
+    const T ub2 = otherValue + otherError;
+    const T lb1 = value - error;
+    const T lb2 = otherValue - otherError;
+    return ub1 > lb2 && lb1 < ub2;
+  }
+};
 
 template <typename T>
 inline double erfcinv(T x) {

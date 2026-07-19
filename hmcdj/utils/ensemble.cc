@@ -108,40 +108,26 @@ EnsembleReader::EnsembleReader(const std::string deckNm,
 
     /* HMC Parameters */
     trajL = global["HMC"]["MD"]["trajL"].as<double>();
-    MDsteps = global["HMC"]["MD"]["MDsteps"].as<int>();
+    initialMDsteps = global["HMC"]["MD"]["initialMDsteps"].as<int>();
 
     Thermalisations = global["HMC"]["Thermalisations"].as<int>();
     Trajectories = global["HMC"]["Trajectories"].as<int>();
     StartingType = global["HMC"]["StartingType"].as<std::string>();
 
     /* Acceptance rate tuning parameters */
-    if (global["AcceptanceRateTuning"]) {  // Acceptance rate tuning is
-                                           // activated if the
-                                           // Global::AcceptanceRateTuning
-      AcceptanceTuningActive = true;       // namespace is defined in the track
-
-      num_tuning_samples =
-          global["AcceptanceRateTuning"]["num_tuning_samples"].as<int>();
-      total_num_init_skips =
-          global["AcceptanceRateTuning"]["total_num_init_skips"].as<int>();
-      target_rate = global["AcceptanceRateTuning"]["target_rate"].as<double>();
-      target_rate_tol =
-          global["AcceptanceRateTuning"]["target_rate_tol"].as<double>();
-      monitor_every = global["AcceptanceRateTuning"]["monitor_every"].as<int>();
-      max_tuning_steps =
-          global["AcceptanceRateTuning"]["max_tuning_steps"].as<int>();
-
-      /* Check acc rate tuning inputs */
-      if (Thermalisations >= total_num_init_skips) {
-        std::cerr << "Acceptance rate tuning parameter 'total_num_init_skips' "
-                     "should be greater than the number of thermalisations"
-                  << std::endl;
-        std::exit(EXIT_FAILURE);
-      }
-
-    } else {
-      AcceptanceTuningActive = false;
-    }
+    tuningCycleTrajectories =
+        global["AcceptanceRateTuning"]["tuningCycleTrajectories"].as<int>();
+    rethermalisationTrajectories =
+        global["AcceptanceRateTuning"]["rethermalisationTrajectories"]
+            .as<int>();
+    targetAcceptance =
+        global["AcceptanceRateTuning"]["targetAcceptance"].as<double>();
+    deltaTargetAcceptance =
+        global["AcceptanceRateTuning"]["deltaTargetAcceptance"].as<double>();
+    monitoringCycleTrajectories =
+        global["AcceptanceRateTuning"]["monitoringCycleTrajectories"].as<int>();
+    maxTuningTrajectories =
+        global["AcceptanceRateTuning"]["maxTuningTrajectories"].as<int>();
 
     /* Checks */
     /* Check that the Starting Type is valid */

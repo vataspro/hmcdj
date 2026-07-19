@@ -1,22 +1,46 @@
 #pragma once
 #include <Grid/Grid.h>
+#include <hmcdj/utils/ensemble.h>
 #include <hmcdj/utils/logging.h>
 #include <hmcdj/utils/mathutils.h>
 
 // enum class to define mode (phase) of tuning
-enum class tuning_mode_t { init, active, complete, failed };
+enum class tuning_mode_t { init = 0, active, monitoring, failed, complete };
+extern std::map<tuning_mode_t, std::string> tuningModeDescription;
+
+class StepPoint {
+ public:
+  // The index of the trajectory from which the step count is used
+  const int trajectoryIndex;
+
+  // The step count used in this interval
+  const int stepCount;
+
+  StepPoint(const int trajectoryIndex, const int stepCount)
+      : trajectoryIndex(trajectoryIndex), stepCount(stepCount) {}
+
+  std::pair<int, int> toPair() {
+    return std::pair<int, int>(trajectoryIndex, stepCount);
+  }
+};
 
 // Serializable class for Acceptance Rate Tuning
 struct AcceptanceObsParameters : Grid::Serializable {
-  GRID_SERIALIZABLE_CLASS_MEMBERS(AcceptanceObsParameters, int,
-                                  total_num_init_skips, int, num_tuning_samples,
-                                  double, target_rate, double, target_rate_tol,
-                                  int, monitor_every, int, max_tuning_steps);
+  GRID_SERIALIZABLE_CLASS_MEMBERS(
+      AcceptanceObsParameters, int, rethermalisationTrajectories, int,
+      tuningCycleTrajectories, double, targetAcceptance, double,
+      deltaTargetAcceptance, int, monitoringCycleTrajectories, int,
+      maxTuningTrajectories, int, thermalisationTrajectories);
 
   // Tuning mode
-  tuning_mode_t *tuning_mode = new tuning_mode_t;
+  tuning_mode_t tuningMode() const;
+  int trajectoriesToNextTune() const;
   // Acceptance array
-  std::vector<int> *AcceptanceArray = new std::vector<int>;
+  std::vector<int> *acceptHistory = new std::vector<int>;
+  int currentTrajectory() const;
+  // History of step size changes
+  std::vector<StepPoint> *stepSizeHistory = new std::vector<StepPoint>;
+  int lastTuneIndex() const;
   // File to save acceptance
   std::string acceptanceFilename = "/dev/null";
   // File to save tuning state
@@ -24,26 +48,50 @@ struct AcceptanceObsParameters : Grid::Serializable {
   // Tuning counter
   int *tuning_ctr = new int;
   // Pointer to MDsteps
-  unsigned int *MDsteps;
-  // Flag for tuning
-  bool *AcceptanceTuningActive = new bool;
+  int MDsteps() const;
+  void MDsteps(const int trajectoryIndex, const int numSteps);
+  void MDsteps(const int numSteps);
 
-  AcceptanceObsParameters(int total_num_init_skips_ = 10,
-                          int num_tuning_samples_ = 50,
-                          double target_rate_ = 0.8,
-                          double target_rate_tol_ = 0.05, int tuning_ctr_ = 0,
-                          int monitor_every_ = 100, int max_tuning_steps_ = 500)
-      : total_num_init_skips(total_num_init_skips_),
-        num_tuning_samples(num_tuning_samples_),
-        target_rate(target_rate_),
-        target_rate_tol(target_rate_tol_),
-        monitor_every(monitor_every_),
-        max_tuning_steps(max_tuning_steps_) {}
+  // Pointer to integrator to be able to control MDsteps
+  Grid::IntegratorParameters *MD;
 
-  void setOutputDirectory(std::filesystem::path directory) {
-    acceptanceFilename = (directory / "acceptance.xml").string();
-    tuningFilename = (directory / "tuning.xml").string();
+  AcceptanceObsParameters(int thermalisationTrajectories = 0,
+                          int rethermalisationTrajectories = 10,
+                          int tuningCycleTrajectories = 50,
+                          double targetAcceptance = 0.8,
+                          double deltaTargetAcceptance = 0.05,
+                          int monitoringCycleTrajectories = 100,
+                          int maxTuningTrajectories = 500,
+                          Grid::IntegratorParameters *MD = nullptr)
+      : thermalisationTrajectories(thermalisationTrajectories),
+        rethermalisationTrajectories(rethermalisationTrajectories),
+        tuningCycleTrajectories(tuningCycleTrajectories),
+        targetAcceptance(targetAcceptance),
+        deltaTargetAcceptance(deltaTargetAcceptance),
+        monitoringCycleTrajectories(monitoringCycleTrajectories),
+        maxTuningTrajectories(maxTuningTrajectories),
+        MD(MD) {}
+
+  AcceptanceObsParameters(EnsembleReader reader,
+                          Grid::IntegratorParameters *MD = nullptr)
+      : AcceptanceObsParameters(
+            reader.Thermalisations, reader.rethermalisationTrajectories,
+            reader.tuningCycleTrajectories, reader.targetAcceptance,
+            reader.deltaTargetAcceptance, reader.monitoringCycleTrajectories,
+            reader.maxTuningTrajectories, MD) {
+    setOutputDirectory(reader.EnsembleDirectory);
+    MDsteps(0, reader.initialMDsteps);
+    if (reader.StartingTrajectory > 0) {
+      loadHistory();
+    }
   }
+
+  // Serialisation
+  void saveHistory();
+  void loadHistory();
+
+  NumberWithError<double> avgAcceptance(const bool clamp = false) const;
+  void setOutputDirectory(std::filesystem::path directory);
 };
 
 // Acceptance Rate Observable logger
@@ -69,38 +117,18 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG, bool accept) override {
     std::cout << DJLogDebug
-              << "Tuning mode: " << static_cast<int>(*Pars.tuning_mode)
+              << "Tuning mode: " << tuningModeDescription[Pars.tuningMode()]
               << std::endl;
 
     // Save the acceptance and trajectory index
-    if (*Pars.tuning_mode != tuning_mode_t::init) {
+    if (Pars.tuningMode() != tuning_mode_t::init) {
       // Print acceptance
       std::cout << DJLogDebug << "Step acceptance: [ " << traj << " ] "
                 << static_cast<int>(accept) << std::endl;
-
-      // Append the acceptance values
-      Pars.AcceptanceArray->push_back(static_cast<int>(accept));
     }
-
-    // Check we aren't overrunning
-    if ((*Pars.tuning_mode != tuning_mode_t::complete) &&
-        (traj > Pars.max_tuning_steps)) {
-      *Pars.tuning_mode = tuning_mode_t::failed;
-    }
-
-    // Monitor the acceptance rate
-    if (*Pars.tuning_mode == tuning_mode_t::complete) {
-      if (traj % Pars.monitor_every == 0) {
-        double pacc = mean(*Pars.AcceptanceArray);
-        std::cout << DJLogMessage
-                  << "Monitoring current acceptance rate: " << pacc
-                  << std::endl;
-
-        if (fabs(pacc - Pars.target_rate) >= Pars.target_rate_tol) {
-          std::cout << DJLogMessage << "WARNING: Acceptance rate out of bounds";
-        }
-      }
-    }
+    // Append the acceptance values
+    Pars.acceptHistory->push_back(static_cast<int>(accept));
+    assert(traj == Pars.acceptHistory->size());
   }
 
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
