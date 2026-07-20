@@ -40,21 +40,20 @@ NumberWithError<double> AcceptanceObsParameters::avgAcceptance(
     return NumberWithError<double>(NAN, NAN);
   }
 
-  double acceptance = mean(std::vector(acceptHistory->begin() + startTrajectory,
-                                       acceptHistory->end()));
-  if (clamp) {
-    if (acceptance == 0.0) {
-      acceptance = 1.0 / trajectoryCount;
-    }
-    if (acceptance == 1.0) {
-      acceptance = 1 - 1.0 / trajectoryCount;
-    }
+  const double acceptance = mean(std::vector(
+      acceptHistory->begin() + startTrajectory, acceptHistory->end()));
+  double clampedAcceptance = acceptance;
+  if (acceptance == 0.0) {
+    clampedAcceptance = 1.0 / (2 * trajectoryCount);
+  }
+  if (acceptance == 1.0) {
+    clampedAcceptance = 1 - 1.0 / (2 * trajectoryCount);
   }
 
-  const double error =
-      sqrt(std::min(acceptance, 1 - acceptance) * pow(trajectoryCount, -0.5));
+  const double error = sqrt(std::min(clampedAcceptance, 1 - clampedAcceptance) *
+                            pow(trajectoryCount, -0.5));
 
-  return NumberWithError<double>(acceptance, error);
+  return NumberWithError<double>(clamp ? clampedAcceptance : acceptance, error);
 }
 
 tuning_mode_t AcceptanceObsParameters::tuningMode() const {
@@ -64,10 +63,12 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
   // Verify that time has not gone backwards
   assert(currentTrajectory() >= lastTuneIndex());
 
-  if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories) {
+  if (currentTrajectory() <
+      (lastTuneIndex() > 0 ? lastTuneIndex() : thermalisationTrajectories) +
+          rethermalisationTrajectories) {
     return tuning_mode_t::init;
   }
-  return tuning_mode_t::monitoring;
+  return tuning_mode_t::active;
 }
 
 int AcceptanceObsParameters::trajectoriesToNextTune() const {
@@ -143,6 +144,7 @@ void Grid::XmlReader::readDefault(const std::string &s,
     read("trajectoryIndex", trajectoryIndex);
     read("stepCount", stepCount);
     output.push_back(StepPoint(trajectoryIndex, stepCount));
+    node_.set_name("elem-done");
     pop();
   }
   pop();

@@ -158,7 +158,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::setupTuningStep() {
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::setTuningTrajectories() {
-  const int currentTrajectory = extraCPPars.AccPar->acceptHistory->size();
+  const int currentTrajectory = extraCPPars.AccPar->currentTrajectory();
   const int thermalisationTrajectories =
       extraCPPars.AccPar->thermalisationTrajectories;
   TheHMC.Parameters.Trajectories = extraCPPars.AccPar->trajectoriesToNextTune();
@@ -168,6 +168,11 @@ void DJ<HMCWrapper, DJSuccessfulExit>::setTuningTrajectories() {
   } else {
     TheHMC.Parameters.NoMetropolisUntil = 0;
   }
+  std::cout << DJLogDebug
+            << "Next tuning/monitoring cycle starting; Trajectories: "
+            << TheHMC.Parameters.Trajectories
+            << "; Thermalisations: " << TheHMC.Parameters.NoMetropolisUntil
+            << std::endl;
 }
 
 /*
@@ -202,7 +207,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance(bool adjust) {
       extraCPPars.AccPar->avgAcceptance(true);
 
   std::cout << DJLogMessage << "Current acceptance rate is: " << pacc.value
-            << " +/- " << paccClamped.error << std::endl;
+            << " +/- " << pacc.error << std::endl;
 
   if (pacc.isClose(extraCPPars.AccPar->targetAcceptance,
                    extraCPPars.AccPar->deltaTargetAcceptance)) {

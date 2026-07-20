@@ -23,17 +23,17 @@ Global:
       initialMDsteps: 10
       trajL: 2.0
 
-    Thermalisations: 10
+    Thermalisations: 5
 
     Trajectories: 1000
 
     StartingType: "HotStart"
 
   AcceptanceRateTuning:
-    rethermalisationTrajectories: 10
-    tuningCycleTrajectories: 15
+    rethermalisationTrajectories: 6
+    tuningCycleTrajectories: 7
     targetAcceptance: 0.85
-    deltaTargetAcceptance: 0.14
+    deltaTargetAcceptance: 0.1
     monitoringCycleTrajectories: 100
     maxTuningTrajectories: 250
 
