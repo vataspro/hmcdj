@@ -44,10 +44,10 @@ NumberWithError<double> AcceptanceObsParameters::avgAcceptance(
       acceptHistory->begin() + startTrajectory, acceptHistory->end()));
   double clampedAcceptance = acceptance;
   if (acceptance == 0.0) {
-    clampedAcceptance = 1.0 / (2 * trajectoryCount);
+    clampedAcceptance = 1.0 / trajectoryCount;
   }
   if (acceptance == 1.0) {
-    clampedAcceptance = 1 - 1.0 / (2 * trajectoryCount);
+    clampedAcceptance = 1 - 1.0 / trajectoryCount;
   }
 
   const double error = sqrt(std::min(clampedAcceptance, 1 - clampedAcceptance) *
