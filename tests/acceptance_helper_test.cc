@@ -61,9 +61,9 @@ TEST(AcceptanceObsTest, MDStepsTest) {
   }
   params.MDsteps(2);
   EXPECT_EQ(params.MDsteps(), 2);
-  EXPECT_EQ(params.stepSizeHistory->size(), 3);
-  EXPECT_EQ(params.stepSizeHistory->back().trajectoryIndex, 20);
-  EXPECT_EQ(params.stepSizeHistory->back().stepCount, 2);
+  EXPECT_EQ(params.stepCountHistory->size(), 3);
+  EXPECT_EQ(params.stepCountHistory->back().trajectoryIndex, 20);
+  EXPECT_EQ(params.stepCountHistory->back().stepCount, 2);
 }
 
 TEST(AcceptanceObsTest, TuningModeTest) {
@@ -276,16 +276,17 @@ TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
   loaderParams.setOutputDirectory(tmpDir.getDirectoryPath());
   loaderParams.loadHistory();
   ASSERT_EQ(loaderParams.acceptHistory->size(), 300);
-  ASSERT_EQ(loaderParams.stepSizeHistory->size(), 4);
+  ASSERT_EQ(loaderParams.stepCountHistory->size(), 4);
   for (int trajectory = 0; trajectory < 300; trajectory++) {
     EXPECT_EQ((*loaderParams.acceptHistory)[trajectory],
               (trajectory % 3 && trajectory % 5));
   }
-  EXPECT_EQ(loaderParams.stepSizeHistory->front().stepCount, MDsteps);
-  EXPECT_EQ(loaderParams.stepSizeHistory->front().trajectoryIndex, 0);
+  EXPECT_EQ(loaderParams.stepCountHistory->front().stepCount, MDsteps);
+  EXPECT_EQ(loaderParams.stepCountHistory->front().trajectoryIndex, 0);
   for (int tune = 1; tune < 4; tune++) {
-    EXPECT_EQ((*loaderParams.stepSizeHistory)[tune].stepCount, tune * tune);
-    EXPECT_EQ((*loaderParams.stepSizeHistory)[tune].trajectoryIndex, tune * 50);
+    EXPECT_EQ((*loaderParams.stepCountHistory)[tune].stepCount, tune * tune);
+    EXPECT_EQ((*loaderParams.stepCountHistory)[tune].trajectoryIndex,
+              tune * 50);
   }
 }
 

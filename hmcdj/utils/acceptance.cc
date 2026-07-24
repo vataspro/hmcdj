@@ -10,12 +10,12 @@ std::map<tuning_mode_t, std::string> tuningModeDescription{
     {tuning_mode_t::complete, "Run complete"}};
 
 int AcceptanceObsParameters::MDsteps() const {
-  return stepSizeHistory->back().stepCount;
+  return stepCountHistory->back().stepCount;
 }
 
 void AcceptanceObsParameters::MDsteps(const int trajectoryIndex,
                                       const int stepCount) {
-  stepSizeHistory->push_back(StepPoint(trajectoryIndex, stepCount));
+  stepCountHistory->push_back(StepPoint(trajectoryIndex, stepCount));
   MD->MDsteps = stepCount;
 }
 
@@ -75,7 +75,7 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
 
 int AcceptanceObsParameters::trajectoriesToNextTune() const {
   int correctedLastTuneIndex = lastTuneIndex();
-  if (stepSizeHistory->size() == 1 &&
+  if (stepCountHistory->size() == 1 &&
       currentTrajectory() >= thermalisationTrajectories) {
     // Until we tune for the first time,
     // the initial thermalisation period messes up our counting
@@ -108,7 +108,7 @@ int AcceptanceObsParameters::currentTrajectory() const {
 }
 
 int AcceptanceObsParameters::lastTuneIndex() const {
-  return stepSizeHistory->back().trajectoryIndex;
+  return stepCountHistory->back().trajectoryIndex;
 }
 
 template <>
@@ -153,12 +153,12 @@ void AcceptanceObsParameters::saveHistory() {
 
   Grid::XmlWriter accWriter(acceptanceFilename);
   accWriter.writeDefault("acceptHistory", *acceptHistory);
-  accWriter.writeDefault("stepSizeHistory", *stepSizeHistory);
+  accWriter.writeDefault("stepCountHistory", *stepSizeHistory);
 }
 
 void AcceptanceObsParameters::loadHistory() {
   // Load acceptance
   Grid::XmlReader accReader(acceptanceFilename);
   accReader.readDefault("acceptHistory", *acceptHistory);
-  accReader.readDefault("stepSizeHistory", *stepSizeHistory);
+  accReader.readDefault("stepCountHistory", *stepSizeHistory);
 }

@@ -38,7 +38,7 @@ struct AcceptanceObsParameters : Grid::Serializable {
       std::make_shared<std::vector<int>>();
   int currentTrajectory() const;
   // History of step size changes
-  std::shared_ptr<std::vector<StepPoint>> stepSizeHistory =
+  std::shared_ptr<std::vector<StepPoint>> stepCountHistory =
       std::make_shared<std::vector<StepPoint>>();
   int lastTuneIndex() const;
   // File to save acceptance
