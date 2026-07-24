@@ -40,6 +40,11 @@ inline float erfInv(float x) {
 }
 
 template <typename T>
+inline double erfcinv(T x) {
+  return static_cast<double>(erfInv(1 - static_cast<float>(x)));
+}
+
+template <typename T>
 class NumberWithError {
  public:
   T value;
@@ -60,11 +65,6 @@ class NumberWithError {
     return ub1 > lb2 && lb1 < ub2;
   }
 };
-
-template <typename T>
-inline double erfcinv(T x) {
-  return static_cast<double>(erfInv(1 - static_cast<float>(x)));
-}
 
 /* Estimate the target number of MD steps
  * using the formula:
