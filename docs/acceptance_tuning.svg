@@ -1,0 +1,690 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="228.22504mm"
+   height="159.82544mm"
+   viewBox="0 0 228.22504 159.82544"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3 (0e150ed, 2023-07-21)"
+   sodipodi:docname="acceptance_tuning.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.0132336"
+     inkscape:cx="487.0545"
+     inkscape:cy="166.29926"
+     inkscape:window-width="1512"
+     inkscape:window-height="862"
+     inkscape:window-x="0"
+     inkscape:window-y="34"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="ConcaveTriangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Concave triangle arrow"
+       markerWidth="2"
+       markerHeight="2"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path7" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(24.399846,-26.573046)">
+    <rect
+       style="fill:#ff8080;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke;fill-opacity:1"
+       id="rect1"
+       width="65.028999"
+       height="8.1038361"
+       x="43.723026"
+       y="34.1115" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="M 32.174042,26.573046 V 180.09849"
+       id="path1"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:8.46667px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:end;text-anchor:end;stroke-width:0.651751"
+       x="130.28482"
+       y="-23.237593"
+       id="text1"
+       transform="rotate(90)"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:8.46667px;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';stroke-width:0.651751"
+         x="130.28482"
+         y="-23.237593">Trajectory index</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#550000;stroke-width:0.651751"
+       x="166.8584"
+       y="40.434017"
+       id="text2"><tspan
+         sodipodi:role="line"
+         id="tspan2"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#550000;stroke-width:0.651751"
+         x="166.8584"
+         y="40.434017">Thermalisation</tspan></text>
+    <rect
+       style="fill:#ff8080;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect2"
+       width="65.028999"
+       height="2.4400849"
+       x="43.723026"
+       y="44.009907" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect3"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="47.297276" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="40.434017"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="40.434017">MDsteps = 20</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="49.067234"
+       id="text4"
+       inkscape:transform-center-y="-8.7788143"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="49.067234">MDsteps = 14</tspan></text>
+    <rect
+       style="fill:#ff8080;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect4"
+       width="65.028999"
+       height="2.4400849"
+       x="43.723026"
+       y="53.514248" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect5"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="56.801617" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="58.568577"
+       id="text5"
+       inkscape:transform-center-y="-8.7788143"><tspan
+         sodipodi:role="line"
+         id="tspan5"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="58.568577">MDsteps = 28</tspan></text>
+    <rect
+       style="fill:#ff8080;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect6"
+       width="65.028999"
+       height="2.4400849"
+       x="43.723026"
+       y="63.018589" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect7"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="66.305962" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="73.342598"
+       id="text7"
+       inkscape:transform-center-y="-8.7788143"><tspan
+         sodipodi:role="line"
+         id="tspan7"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="73.342598">MDsteps = 30</tspan></text>
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect8"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="71.575645" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect9"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="76.845329" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:0.5, 1;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 42.434088,43.112621 H 187.4223"
+       id="path9"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:0.5, 1;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 35.594393,112.74809 H 187.4223"
+       id="path10"
+       sodipodi:nodetypes="cc" />
+    <rect
+       style="fill:#ff8080;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect10"
+       width="65.028999"
+       height="2.4400849"
+       x="43.723026"
+       y="83.062294" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect11"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="86.34967" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect12"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="91.619354" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect13"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="96.889038" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="98.655998"
+       id="text13"
+       inkscape:transform-center-y="-8.7788143"><tspan
+         sodipodi:role="line"
+         id="tspan13"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="98.655998">MDsteps = 31</tspan></text>
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect14"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="102.15872" />
+    <rect
+       style="fill:#ffb380;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect15"
+       width="65.028999"
+       height="4.422399"
+       x="43.723026"
+       y="107.42841" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:0.5, 1.5;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 42.434088,82.165012 H 139.89313"
+       id="path15"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:0.5, 1.5;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 42.434088,62.121302 H 139.89313"
+       id="path16"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:0.5, 1.5;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 42.434088,52.616962 H 139.89313"
+       id="path17"
+       sodipodi:nodetypes="cc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#aa4400;stroke-width:0.651751"
+       x="166.8584"
+       y="79.45665"
+       id="text17"><tspan
+         sodipodi:role="line"
+         id="tspan17"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#aa4400;stroke-width:0.651751"
+         x="166.8584"
+         y="79.45665">Tuning</tspan></text>
+    <rect
+       style="fill:#c6e9af;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect17"
+       width="65.028999"
+       height="11.155226"
+       x="43.723026"
+       y="113.6707" />
+    <rect
+       style="fill:#c6e9af;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect18"
+       width="65.028999"
+       height="11.155226"
+       x="43.723026"
+       y="125.69853" />
+    <rect
+       style="fill:#c6e9af;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect19"
+       width="65.028999"
+       height="11.155226"
+       x="43.723026"
+       y="137.72636" />
+    <rect
+       style="fill:#c6e9af;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:8.69291;paint-order:markers fill stroke"
+       id="rect20"
+       width="65.028999"
+       height="11.155226"
+       x="43.723026"
+       y="149.7542" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#2d5016;stroke-width:0.651751"
+       x="166.8584"
+       y="139.38908"
+       id="text20"><tspan
+         sodipodi:role="line"
+         id="tspan20"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;fill:#2d5016;stroke-width:0.651751"
+         x="166.8584"
+         y="139.38908">Production</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:5.99722px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:start;text-anchor:start;stroke-width:0.651751"
+       x="119.28289"
+       y="138.4895"
+       id="text21"
+       inkscape:transform-center-y="-8.7788143"><tspan
+         sodipodi:role="line"
+         id="tspan21"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.99722px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:start;text-anchor:start;stroke-width:0.651751"
+         x="119.28289"
+         y="138.4895">MDsteps = 31</tspan></text>
+    <g
+       id="g22"
+       transform="translate(0.05572319,0.53435115)">
+      <circle
+         style="fill:#000000;stroke:none;stroke-width:0.499999;stroke-linejoin:round;stroke-dasharray:0.499999, 1.5;stroke-dashoffset:0;paint-order:markers fill stroke"
+         id="path21"
+         cx="64.303818"
+         cy="164.46259"
+         r="0.470229" />
+      <circle
+         style="fill:#000000;stroke:none;stroke-width:0.499999;stroke-linejoin:round;stroke-dasharray:0.499999, 1.5;stroke-dashoffset:0;paint-order:markers fill stroke"
+         id="circle21"
+         cx="64.303818"
+         cy="167.94479"
+         r="0.470229" />
+      <circle
+         style="fill:#000000;stroke:none;stroke-width:0.499999;stroke-linejoin:round;stroke-dasharray:0.499999, 1.5;stroke-dashoffset:0;paint-order:markers fill stroke"
+         id="circle22"
+         cx="64.303818"
+         cy="171.42702"
+         r="0.470229" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.322189"
+       y="39.328243"
+       id="text23"><tspan
+         sodipodi:role="line"
+         id="tspan23"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.322189"
+         y="39.328243">Thermalisations</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.285507"
+       y="45.964043"
+       id="text24"><tspan
+         sodipodi:role="line"
+         id="tspan24"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.285507"
+         y="45.964043">rethermalisationTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="50.048931"
+       id="text25"><tspan
+         sodipodi:role="line"
+         id="tspan25"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="50.048931">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.285507"
+       y="55.502872"
+       id="text26"><tspan
+         sodipodi:role="line"
+         id="tspan26"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.285507"
+         y="55.502872">rethermalisationTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="59.587761"
+       id="text27"><tspan
+         sodipodi:role="line"
+         id="tspan27"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="59.587761">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.285507"
+       y="65.041702"
+       id="text28"><tspan
+         sodipodi:role="line"
+         id="tspan28"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.285507"
+         y="65.041702">rethermalisationTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="69.057617"
+       id="text29"><tspan
+         sodipodi:role="line"
+         id="tspan29"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="69.057617">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="74.327301"
+       id="text30"><tspan
+         sodipodi:role="line"
+         id="tspan30"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="74.327301">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="79.596985"
+       id="text31"><tspan
+         sodipodi:role="line"
+         id="tspan31"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="79.596985">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.285507"
+       y="85.090912"
+       id="text32"><tspan
+         sodipodi:role="line"
+         id="tspan32"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.285507"
+         y="85.090912">rethermalisationTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="89.106827"
+       id="text33"><tspan
+         sodipodi:role="line"
+         id="tspan33"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="89.106827">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="94.376511"
+       id="text34"><tspan
+         sodipodi:role="line"
+         id="tspan34"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="94.376511">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="99.646194"
+       id="text35"><tspan
+         sodipodi:role="line"
+         id="tspan35"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="99.646194">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="104.98971"
+       id="text36"><tspan
+         sodipodi:role="line"
+         id="tspan36"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="104.98971">tuningCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.29538"
+       y="110.22635"
+       id="text37"><tspan
+         sodipodi:role="line"
+         id="tspan37"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.29538"
+         y="110.22635">tuningCycleTrajectories</tspan></text>
+    <path
+       id="rect37"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="M 42.414657,111.33847 H 40.604275 V 34.054114 h 1.810382"
+       sodipodi:nodetypes="cccc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="-72.548126"
+       y="38.496037"
+       id="text38"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan38"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="-72.548126"
+         y="38.496037">max_tuning_steps</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.385689"
+       y="120.06111"
+       id="text39"><tspan
+         sodipodi:role="line"
+         id="tspan39"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.385689"
+         y="120.06111">monitoringCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.385689"
+       y="132.08894"
+       id="text40"><tspan
+         sodipodi:role="line"
+         id="tspan40"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.385689"
+         y="132.08894">monitoringCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.385689"
+       y="144.11678"
+       id="text41"><tspan
+         sodipodi:role="line"
+         id="tspan41"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.385689"
+         y="144.11678">monitoringCycleTrajectories</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="76.385689"
+       y="156.14461"
+       id="text42"><tspan
+         sodipodi:role="line"
+         id="tspan42"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="76.385689"
+         y="156.14461">monitoringCycleTrajectories</tspan></text>
+    <path
+       id="rect42"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,47.285454 h 1.80187 v 4.446042 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path42"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,56.555667 h 1.80187 v 4.446042 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path43"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,66.555818 h 1.80187 v 4.446042 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path44"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 110.40733,66.555818 h 1.80187 v 9.336627 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path45"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 111.31976,66.555818 h 1.80186 v 14.519187 h -1.80186"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path46"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,86.364763 h 1.80187 v 4.446042 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path47"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 110.60701,86.364763 h 1.80187 v 9.336627 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path49"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 111.71911,86.364763 h 1.80186 V 101.1483 h -1.80186"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path50"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 112.83121,86.364763 h 1.80186 v 20.185077 h -1.80186"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path51"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 113.94331,86.364763 h 1.80186 v 25.294647 h -1.80186"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path52"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,113.68818 h 1.80187 v 11.12026 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path53"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,125.71601 h 1.80187 v 11.12026 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path54"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,137.74385 h 1.80187 v 11.12026 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <path
+       id="path55"
+       style="fill:none;stroke:#000000;stroke-width:0.4;stroke-linejoin:round;paint-order:markers fill stroke"
+       d="m 109.49491,149.77168 h 1.80187 v 11.12026 h -1.80187"
+       sodipodi:nodetypes="cccc" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:8.46667px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:end;text-anchor:end;stroke-width:0.651751"
+       x="28.720003"
+       y="36.907387"
+       id="text6"><tspan
+         sodipodi:role="line"
+         id="tspan6"
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:8.46667px;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';stroke-width:0.651751"
+         x="28.720003"
+         y="36.907387">0</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       d="M 32.141524,33.912031 H 30.951419"
+       id="path6" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linejoin:round;stroke-miterlimit:3.9;stroke-dasharray:none"
+       d="M 32.141524,174.81053 H 30.951419"
+       id="path8" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:8.46667px;line-height:1.25;font-family:'Helvetica Neue';-inkscape-font-specification:'Helvetica Neue Light';text-align:end;text-anchor:end;stroke-width:0.651751"
+       x="28.720003"
+       y="177.27191"
+       id="text8"><tspan
+         sodipodi:role="line"
+         id="tspan8"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.46667px;font-family:'CMU Typewriter Text', monospace;-inkscape-font-specification:'CMU Typewriter Text', monospace;stroke-width:0.651751"
+         x="28.720005"
+         y="177.27191">Trajectories</tspan></text>
+  </g>
+</svg>
