@@ -1,5 +1,5 @@
 #pragma once
-#include <Grid/Grid.h>
+#include <hmcdj/utils/logging.h>
 
 template <typename T>
 double mean(std::vector<T> x) {
@@ -78,7 +78,7 @@ inline double get_target_MDsteps(double trajL, int MDsteps, double pacc,
   double lam = 2 * erfcinv(pacc) / (dtau * dtau);
   double dtau_target = sqrt(2 * erfcinv(target_pacc) / lam);
 
-  std::cout << Grid::GridLogDebug << "Estimated target dtau: " << dtau_target
+  std::cout << DJLogDebug << "Estimated target dtau: " << dtau_target
             << std::endl;
 
   int target_MD =
@@ -86,7 +86,7 @@ inline double get_target_MDsteps(double trajL, int MDsteps, double pacc,
 
   // safety check
   if ((target_MD == 0) || (isnan(target_MD)) || (isinf(target_MD))) {
-    std::cout << Grid::GridLogMessage << "MD steps best value is " << target_MD
+    std::cout << DJLogMessage << "MD steps best value is " << target_MD
               << ", terminating." << std::endl;
     exit(EXIT_FAILURE);
   }
