@@ -18,10 +18,6 @@ class StepPoint {
 
   StepPoint(const int trajectoryIndex, const int stepCount)
       : trajectoryIndex(trajectoryIndex), stepCount(stepCount) {}
-
-  std::pair<int, int> toPair() {
-    return std::pair<int, int>(trajectoryIndex, stepCount);
-  }
 };
 
 // Serializable class for Acceptance Rate Tuning
@@ -36,17 +32,17 @@ struct AcceptanceObsParameters : Grid::Serializable {
   tuning_mode_t tuningMode() const;
   int trajectoriesToNextTune() const;
   // Acceptance array
-  std::vector<int> *acceptHistory = new std::vector<int>;
+  // Since Grid creates a copy instance when constructing the HMC,
+  // we must use shared_ptrs rather than unique_ptrs here
+  std::shared_ptr<std::vector<int>> acceptHistory =
+      std::make_shared<std::vector<int>>();
   int currentTrajectory() const;
   // History of step size changes
-  std::vector<StepPoint> *stepSizeHistory = new std::vector<StepPoint>;
+  std::shared_ptr<std::vector<StepPoint>> stepSizeHistory =
+      std::make_shared<std::vector<StepPoint>>();
   int lastTuneIndex() const;
   // File to save acceptance
   std::string acceptanceFilename = "/dev/null";
-  // File to save tuning state
-  std::string tuningFilename = "/dev/null";
-  // Tuning counter
-  int *tuning_ctr = new int;
   // Pointer to MDsteps
   int MDsteps() const;
   void MDsteps(const int trajectoryIndex, const int numSteps);
@@ -70,7 +66,11 @@ struct AcceptanceObsParameters : Grid::Serializable {
         deltaTargetAcceptance(deltaTargetAcceptance),
         monitoringCycleTrajectories(monitoringCycleTrajectories),
         maxTuningTrajectories(maxTuningTrajectories),
-        MD(MD) {}
+        MD(MD) {
+    if (MD != nullptr) {
+      MDsteps(0, MD->MDsteps);
+    }
+  }
 
   AcceptanceObsParameters(EnsembleReader reader,
                           Grid::IntegratorParameters *MD = nullptr)

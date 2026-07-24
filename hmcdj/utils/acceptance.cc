@@ -26,12 +26,14 @@ void AcceptanceObsParameters::MDsteps(const int stepCount) {
 void AcceptanceObsParameters::setOutputDirectory(
     std::filesystem::path directory) {
   acceptanceFilename = (directory / "acceptance.xml").string();
-  tuningFilename = (directory / "tuning.xml").string();
 }
 
 NumberWithError<double> AcceptanceObsParameters::avgAcceptance(
     const bool clamp) const {
   int startTrajectory = lastTuneIndex() + rethermalisationTrajectories;
+  if (lastTuneIndex() < thermalisationTrajectories) {
+    startTrajectory += thermalisationTrajectories;
+  }
   if (currentTrajectory() > maxTuningTrajectories) {
     startTrajectory = maxTuningTrajectories;
   }
@@ -57,7 +59,7 @@ NumberWithError<double> AcceptanceObsParameters::avgAcceptance(
 }
 
 tuning_mode_t AcceptanceObsParameters::tuningMode() const {
-  if (currentTrajectory() > maxTuningTrajectories) {
+  if (currentTrajectory() >= maxTuningTrajectories) {
     return tuning_mode_t::monitoring;
   }
   // Verify that time has not gone backwards
@@ -74,20 +76,14 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
 int AcceptanceObsParameters::trajectoriesToNextTune() const {
   int correctedLastTuneIndex = lastTuneIndex();
   if (stepSizeHistory->size() == 1 &&
-      currentTrajectory() > thermalisationTrajectories) {
+      currentTrajectory() >= thermalisationTrajectories) {
     // Until we tune for the first time,
     // the initial thermalisation period messes up our counting
     correctedLastTuneIndex += thermalisationTrajectories;
   }
   if (tuningMode() == tuning_mode_t::monitoring) {
-    const int tuningEndTrajectory =
-        ((maxTuningTrajectories - correctedLastTuneIndex -
-          rethermalisationTrajectories) /
-         tuningCycleTrajectories) *
-            tuningCycleTrajectories +
-        correctedLastTuneIndex + rethermalisationTrajectories;
     return monitoringCycleTrajectories -
-           (currentTrajectory() - tuningEndTrajectory) %
+           (currentTrajectory() - maxTuningTrajectories) %
                monitoringCycleTrajectories;
   }
   if (currentTrajectory() < thermalisationTrajectories) {
@@ -101,9 +97,10 @@ int AcceptanceObsParameters::trajectoriesToNextTune() const {
            tuningCycleTrajectories - currentTrajectory();
   }
   // We are mid-cycle
-  return tuningCycleTrajectories - (currentTrajectory() - lastTuneIndex() -
-                                    rethermalisationTrajectories) %
-                                       tuningCycleTrajectories;
+  return tuningCycleTrajectories -
+         (currentTrajectory() - correctedLastTuneIndex -
+          rethermalisationTrajectories) %
+             tuningCycleTrajectories;
 }
 
 int AcceptanceObsParameters::currentTrajectory() const {
