@@ -82,9 +82,15 @@ int AcceptanceObsParameters::trajectoriesToNextTune() const {
     correctedLastTuneIndex += thermalisationTrajectories;
   }
   if (tuningMode() == tuning_mode_t::monitoring) {
-    return monitoringCycleTrajectories -
-           (currentTrajectory() - maxTuningTrajectories) %
-               monitoringCycleTrajectories;
+    const int targetTrajectories =
+        monitoringCycleTrajectories -
+        (currentTrajectory() - maxTuningTrajectories) %
+            monitoringCycleTrajectories;
+    if (targetTrajectories + currentTrajectory() <= totalTrajectories) {
+      return targetTrajectories;
+    } else {
+      return std::max(totalTrajectories - currentTrajectory(), 0);
+    }
   }
   if (currentTrajectory() < thermalisationTrajectories) {
     // We will do the remaining thermalisations plus a single cycle
@@ -153,12 +159,12 @@ void AcceptanceObsParameters::saveHistory() {
 
   Grid::XmlWriter accWriter(acceptanceFilename);
   accWriter.writeDefault("acceptHistory", *acceptHistory);
-  accWriter.writeDefault("stepCountHistory", *stepSizeHistory);
+  accWriter.writeDefault("stepCountHistory", *stepCountHistory);
 }
 
 void AcceptanceObsParameters::loadHistory() {
   // Load acceptance
   Grid::XmlReader accReader(acceptanceFilename);
   accReader.readDefault("acceptHistory", *acceptHistory);
-  accReader.readDefault("stepCountHistory", *stepSizeHistory);
+  accReader.readDefault("stepCountHistory", *stepCountHistory);
 }

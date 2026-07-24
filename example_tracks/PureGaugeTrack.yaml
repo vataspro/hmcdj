@@ -17,11 +17,19 @@ Global:
       MDsteps: 10
       trajL: 1.0
 
-    Thermalisations: 0
+    Thermalisations: 20
 
-    Trajectories: 10
+    Trajectories: 1000
 
     StartingType: "HotStart"
+
+  AcceptanceRateTuning:
+    rethermalisationTrajectories: 10
+    tuningCycleTrajectories: 40
+    targetAcceptance: 0.85
+    deltaTargetAcceptance: 0.07
+    monitoringCycleTrajectories: 100
+    maxTuningTrajectories: 400
 
 PureGauge:
     beta: 6.9
