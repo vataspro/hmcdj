@@ -33,7 +33,7 @@ class DJ {
   HMCWrapper TheHMC;
   void Play();
 
-  // AcceptanceObsParameters AccPar;  // Acceptance rate tuning parameters
+  // Any extra parameters needed at checkpoint time
   CheckpointerExtraParams extraCPPars;
 
   // Tuning functions
@@ -104,14 +104,11 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
   TheHMC.Resources.template AddObservable<PlaqObs>();
 
   // Acceptance rate & tuning
-  extraCPPars.AccPar =
-      new AcceptanceObsParameters(reader, &TheHMC.Parameters.MD);
+  extraCPPars.acceptance =
+      std::make_shared<AcceptanceObsParameters>(reader, &TheHMC.Parameters.MD);
 
   typedef AcceptanceMod<typename HMCWrapper::ImplPolicy> AccObs;
-  TheHMC.Resources.template AddObservable<AccObs>(*extraCPPars.AccPar);
-
-  // TODO remove once it becomes clear what this was doing
-  // extraCPPars.AccPar = extraCPPars.AccPar;
+  TheHMC.Resources.template AddObservable<AccObs>(*extraCPPars.acceptance);
 
   // Add Checkpointer as last observable
   TheHMC.Resources.template LoadCheckpointer<theCPModule>(CPparams,
@@ -137,7 +134,7 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 /* Acceptance Rate Tuning */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
-  while (extraCPPars.AccPar->tuningMode() != tuning_mode_t::complete) {
+  while (extraCPPars.acceptance->tuningMode() != tuning_mode_t::complete) {
     setupTuningStep();  // Set trajectory number
     TheHMC.Run();  // Will run up to exactly after next tuning step is reached
     endTuningStep();
@@ -158,10 +155,11 @@ void DJ<HMCWrapper, DJSuccessfulExit>::setupTuningStep() {
  */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::setTuningTrajectories() {
-  const int currentTrajectory = extraCPPars.AccPar->currentTrajectory();
+  const int currentTrajectory = extraCPPars.acceptance->currentTrajectory();
   const int thermalisationTrajectories =
-      extraCPPars.AccPar->thermalisationTrajectories;
-  TheHMC.Parameters.Trajectories = extraCPPars.AccPar->trajectoriesToNextTune();
+      extraCPPars.acceptance->thermalisationTrajectories;
+  TheHMC.Parameters.Trajectories =
+      extraCPPars.acceptance->trajectoriesToNextTune();
   if (currentTrajectory < thermalisationTrajectories) {
     TheHMC.Parameters.NoMetropolisUntil =
         thermalisationTrajectories - currentTrajectory;
@@ -182,9 +180,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::setTuningTrajectories() {
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
   // Increment trajectories
-  TheHMC.Parameters.StartTrajectory = extraCPPars.AccPar->currentTrajectory();
+  TheHMC.Parameters.StartTrajectory =
+      extraCPPars.acceptance->currentTrajectory();
 
-  const tuning_mode_t tuningMode = extraCPPars.AccPar->tuningMode();
+  const tuning_mode_t tuningMode = extraCPPars.acceptance->tuningMode();
   switch (tuningMode) {
     case tuning_mode_t::monitoring:
       tuneAcceptance(false);
@@ -202,15 +201,15 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance(bool adjust) {
   // Measure acceptance rate
-  const NumberWithError<double> pacc = extraCPPars.AccPar->avgAcceptance();
+  const NumberWithError<double> pacc = extraCPPars.acceptance->avgAcceptance();
   const NumberWithError<double> paccClamped =
-      extraCPPars.AccPar->avgAcceptance(true);
+      extraCPPars.acceptance->avgAcceptance(true);
 
   std::cout << DJLogMessage << "Current acceptance rate is: " << pacc.value
             << " +/- " << pacc.error << std::endl;
 
-  if (pacc.isClose(extraCPPars.AccPar->targetAcceptance,
-                   extraCPPars.AccPar->deltaTargetAcceptance)) {
+  if (pacc.isClose(extraCPPars.acceptance->targetAcceptance,
+                   extraCPPars.acceptance->deltaTargetAcceptance)) {
     std::cout << DJLogMessage
               << "Acceptance within desired range; taking no action."
               << std::endl;
@@ -220,7 +219,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance(bool adjust) {
       // tune MD steps
       const int nextMDsteps = get_target_MDsteps(
           TheHMC.Parameters.MD.trajL, TheHMC.Parameters.MD.MDsteps,
-          paccClamped.value, extraCPPars.AccPar->targetAcceptance);
+          paccClamped.value, extraCPPars.acceptance->targetAcceptance);
 
       std::cout << DJLogMessage
                 << "Best approximation for target MDsteps: " << nextMDsteps
@@ -228,7 +227,7 @@ void DJ<HMCWrapper, DJSuccessfulExit>::tuneAcceptance(bool adjust) {
                 << static_cast<double>(TheHMC.Parameters.MD.trajL) / nextMDsteps
                 << std::endl;
 
-      extraCPPars.AccPar->MDsteps(nextMDsteps);
+      extraCPPars.acceptance->MDsteps(nextMDsteps);
     } else {
       std::cout << DJLogError
                 << "Acceptance outside prescribed limits in production!"

@@ -17,7 +17,7 @@
 // Special struct to handle the hard things in life
 class CheckpointerExtraParams {
  public:
-  AcceptanceObsParameters *AccPar;
+  std::shared_ptr<AcceptanceObsParameters> acceptance;
 };
 
 /* A checkpointer that also checks the time to trajectory completion,
@@ -87,7 +87,7 @@ class ILDGTimingHmcCheckpointer
                           Grid::GridSerialRNG &sRNG,
                           Grid::GridParallelRNG &pRNG) {
     TimerStatus status = timer->updateTiming(traj);
-    if (extraParams.AccPar->tuningMode() == tuning_mode_t::failed) {
+    if (extraParams.acceptance->tuningMode() == tuning_mode_t::failed) {
       status = TimerStatus::TUNING_FAILED;
     }
 
@@ -266,9 +266,9 @@ class ILDGTimingHmcCheckpointer
   /*
      Checkpointing of acceptance rate
    */
-  void saveAcceptance() { extraParams.AccPar->saveHistory(); }
+  void saveAcceptance() { extraParams.acceptance->saveHistory(); }
 
-  void loadAcceptance() { extraParams.AccPar->loadHistory(); }
+  void loadAcceptance() { extraParams.acceptance->loadHistory(); }
 };
 
 /* Wrap the ILDGTimingHmcCheckpointer in a CheckpointerModule
