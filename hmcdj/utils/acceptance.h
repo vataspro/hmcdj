@@ -54,10 +54,10 @@ struct AcceptanceObsParameters : Grid::Serializable {
   AcceptanceObsParameters(int thermalisationTrajectories = 0,
                           int rethermalisationTrajectories = 10,
                           int tuningCycleTrajectories = 50,
-                          double targetAcceptance = 0.8,
-                          double deltaTargetAcceptance = 0.05,
                           int monitoringCycleTrajectories = 100,
                           int maxTuningTrajectories = 500,
+                          double targetAcceptance = 0.8,
+                          double deltaTargetAcceptance = 0.05,
                           Grid::IntegratorParameters *MD = nullptr)
       : thermalisationTrajectories(thermalisationTrajectories),
         rethermalisationTrajectories(rethermalisationTrajectories),
@@ -76,9 +76,9 @@ struct AcceptanceObsParameters : Grid::Serializable {
                           Grid::IntegratorParameters *MD = nullptr)
       : AcceptanceObsParameters(
             reader.Thermalisations, reader.rethermalisationTrajectories,
-            reader.tuningCycleTrajectories, reader.targetAcceptance,
-            reader.deltaTargetAcceptance, reader.monitoringCycleTrajectories,
-            reader.maxTuningTrajectories, MD) {
+            reader.tuningCycleTrajectories, reader.monitoringCycleTrajectories,
+            reader.maxTuningTrajectories, reader.targetAcceptance,
+            reader.deltaTargetAcceptance, MD) {
     setOutputDirectory(reader.EnsembleDirectory);
     MDsteps(0, reader.initialMDsteps);
     if (reader.StartingTrajectory > 0) {

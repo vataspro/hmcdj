@@ -24,8 +24,8 @@ TEST(StepPointTest, StepPointTest) {
 
 TEST(AcceptanceObsTest, CurrentTrajectoryTest) {
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance);
   for (int trajectoryIndex = 0; trajectoryIndex < 2 * maxTuning;
        trajectoryIndex++) {
     EXPECT_EQ(params.currentTrajectory(), trajectoryIndex);
@@ -37,8 +37,8 @@ TEST(AcceptanceObsTest, CurrentTrajectoryTest) {
 TEST(AcceptanceObsTest, LastTuneIndexTest) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
   EXPECT_EQ(params.lastTuneIndex(), 0);
   params.MDsteps(10, 1);
   EXPECT_EQ(params.lastTuneIndex(), 10);
@@ -47,8 +47,8 @@ TEST(AcceptanceObsTest, LastTuneIndexTest) {
 TEST(AcceptanceObsTest, MDStepsTest) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
   EXPECT_EQ(params.MDsteps(), MDsteps);
   // Test setting with an explicit trajectory index
   params.MDsteps(10, 1);
@@ -69,8 +69,8 @@ TEST(AcceptanceObsTest, MDStepsTest) {
 TEST(AcceptanceObsTest, TuningModeTest) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Start of run: initialising
   EXPECT_EQ(params.tuningMode(), tuning_mode_t::init);
@@ -107,8 +107,8 @@ TEST(AcceptanceObsTest, TuningModeTest) {
 TEST(AcceptanceObsTest, TrajectoriesToNextTuneTest) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Thermalisations don't count in trajectory count
   // (as they are requested from Grid via the NoMetropolisUntil parameter,
@@ -156,8 +156,8 @@ TEST(AcceptanceObsTest, TrajectoriesToNextTuneTest) {
 TEST(AcceptanceObsTest, AvgAcceptance50Test) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Set up a run with 50% acceptance
   for (int trajectory = 0; trajectory < thermalisation + rethermalisation;
@@ -176,8 +176,8 @@ TEST(AcceptanceObsTest, AvgAcceptance50Test) {
 TEST(AcceptanceObsTest, AvgAcceptance100TestNoClamp) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Set up a run with 50% acceptance
   for (int trajectory = 0; trajectory < thermalisation + rethermalisation;
@@ -196,8 +196,8 @@ TEST(AcceptanceObsTest, AvgAcceptance100TestNoClamp) {
 TEST(AcceptanceObsTest, AvgAcceptance100TestClamp) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Set up a run with 50% acceptance
   for (int trajectory = 0; trajectory < thermalisation + rethermalisation;
@@ -216,8 +216,8 @@ TEST(AcceptanceObsTest, AvgAcceptance100TestClamp) {
 TEST(AcceptanceObsTest, AvgAcceptance0TestNoClamp) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Set up a run with 50% acceptance
   for (int trajectory = 0; trajectory < thermalisation + rethermalisation;
@@ -236,8 +236,8 @@ TEST(AcceptanceObsTest, AvgAcceptance0TestNoClamp) {
 TEST(AcceptanceObsTest, AvgAcceptance0TestClamp) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(thermalisation, rethermalisation, tuningCycle,
-                                 targetAcceptance, deltaTargetAcceptance,
-                                 monitoringCycle, maxTuning, &MDparams);
+                                 monitoringCycle, maxTuning, targetAcceptance,
+                                 deltaTargetAcceptance, &MDparams);
 
   // Set up a run with 50% acceptance
   for (int trajectory = 0; trajectory < thermalisation + rethermalisation;
@@ -257,8 +257,8 @@ TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
   TemporaryDirectory tmpDir("SaveLoadHistoryTest");
   Grid::IntegratorParameters saverMDparams(MDsteps, trajLength);
   AcceptanceObsParameters saverParams(
-      thermalisation, rethermalisation, tuningCycle, targetAcceptance,
-      deltaTargetAcceptance, monitoringCycle, maxTuning, &saverMDparams);
+      thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
+      targetAcceptance, deltaTargetAcceptance, &saverMDparams);
   saverParams.setOutputDirectory(tmpDir.getDirectoryPath());
 
   for (int trajectory = 0; trajectory < 300; trajectory++) {
@@ -271,8 +271,8 @@ TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
 
   Grid::IntegratorParameters loaderMDParams(MDsteps, trajLength);
   AcceptanceObsParameters loaderParams(
-      thermalisation, rethermalisation, tuningCycle, targetAcceptance,
-      deltaTargetAcceptance, monitoringCycle, maxTuning, &loaderMDParams);
+      thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
+      targetAcceptance, deltaTargetAcceptance, &loaderMDParams);
   loaderParams.setOutputDirectory(tmpDir.getDirectoryPath());
   loaderParams.loadHistory();
   ASSERT_EQ(loaderParams.acceptHistory->size(), 300);
