@@ -14,7 +14,7 @@ Global:
 
   HMC:
     MD:
-      MDsteps: 10
+      initialMDsteps: 10
       trajL: 1.0
 
     Thermalisations: 20
