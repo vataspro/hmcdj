@@ -15,17 +15,20 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   TemporaryDirectory tmpHomeDir(testName);
   TemporaryEnvironmentOverride homeDir("HOME",
                                        tmpHomeDir.getDirectoryPath().string());
+
+  // Create a run, but don't start it
   DJRun testRun(testName, overridePath);
 
-  std::filesystem::path ensemblePath =
+  std::filesystem::path expectedEnsemblePath =
       testRun.getDirectoryPath() / "NoParams" / "TestOverride";
 
   // Target directories created
-  EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg"));
-  EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand"));
+  EXPECT_TRUE(std::filesystem::exists(expectedEnsemblePath / "cnfg"));
+  EXPECT_TRUE(std::filesystem::exists(expectedEnsemblePath / "rand"));
 
   // Checkpoints being put in correct directory is tested in
   // ensembledir_base_test.cc, so doesn't need to be checked again here
+  // As such, we don't need to start the run at all here
 }
 
 int main(int argc, char** argv) {

@@ -12,7 +12,7 @@
    This header is used by all timing and output directorytests,
    and allows testing a full HMC run.
    Each HMC test run must be placed in a separate .cc file,
-   since each will call `Grid_Init()`,
+   since each will call `Grid_init()`,
    and calling this multiple times in a single run
    will cause Grid to error out.
 
@@ -135,8 +135,10 @@ class DJRun {
     }
     const static double beta = 7.2;
     int argc = 2;
-    std::string testTrackName =
-        std::string(TOP_SRCDIR) + "/example_tracks/NoParamsTrack.yaml";
+    std::string testTrackName = "track.yaml";
+    if (!std::filesystem::exists(testTrackName)) {
+      testTrackName = std::string(TOP_SRCDIR) + "/tests/NoParamsTestTrack.yaml";
+    }
     const char* argv[] = {"hmcdj_test", testTrackName.c_str()};
     const bool useReducedStorage = true;
     hmcdj = std::unique_ptr<DJ<HMCWrapper, DJSuccessfulExit> >(

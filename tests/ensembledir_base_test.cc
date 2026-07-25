@@ -48,7 +48,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
       // save block. Standard decks will see a Grid Finalize block.
       EXPECT_THAT(rereadStream.str().c_str(),
                   ::testing::EndsWith(
-                      " : :::::::::::::::::::::::::::::::::::::::::::\n"));
+                      " : Tuning is Run complete, taking no action.\n"));
     }
   }
   EXPECT_EQ(logCount, 1);

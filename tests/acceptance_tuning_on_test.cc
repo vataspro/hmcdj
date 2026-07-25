@@ -1,7 +1,7 @@
-#include "timing_tests.h"
+#include "run_test_helpers.h"
 
 TEST(AcceptanceTuningTest, TestPlayBeforeTuneFails) {
-  DJRun testRun("hmcdj_tune", true);
+  DJRun testRun("hmcdj_tune");
   EXPECT_EXIT(testRun.play(), ::testing::ExitedWithCode(EXIT_FAILURE), "");
 }
 

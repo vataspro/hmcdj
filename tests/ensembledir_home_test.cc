@@ -15,6 +15,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithHomeDir) {
   TemporaryEnvironmentOverride homeDir("HOME",
                                        tmpDir.getDirectoryPath().string());
 
+  // Create a run, but don't start it
   DJRun testRun(testName, nullptr, false);
 
   // Target directories created
@@ -25,6 +26,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithHomeDir) {
 
   // Checkpoints being put in correct directory is tested in
   // ensembledir_base_test.cc, so doesn't need to be checked again here
+  // As such, we don't need to start the run at all here
 }
 
 int main(int argc, char** argv) {

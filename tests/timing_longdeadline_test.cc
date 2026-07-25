@@ -24,8 +24,8 @@ TEST(TimerTest, TestCompleteWithLongDeadline) {
   EXPECT_TRUE(std::filesystem::exists(cnfgPath / "ckpoint_lat.5"));
   EXPECT_TRUE(std::filesystem::exists(cnfgPath / "ckpoint_lat.10"));
 
-  // Trajectories is 10, so don't expect anything beyond this
-  EXPECT_FALSE(std::filesystem::exists(cnfgPath / "ckpoint_lat.15"));
+  // Trajectories is 20, so don't expect anything beyond this
+  EXPECT_FALSE(std::filesystem::exists(cnfgPath / "ckpoint_lat.25"));
 }
 
 int main(int argc, char** argv) {

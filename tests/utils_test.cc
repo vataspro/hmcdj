@@ -55,9 +55,9 @@ TEST(UtilTest, EnsembleReaderTest) {
   // Check that the correct HMC parameters are loaded
   EXPECT_STREQ(reader.StartingType.c_str(), "HotStart");
   EXPECT_EQ(reader.trajL, 1.0);
-  EXPECT_EQ(reader.MDsteps, 10);
-  EXPECT_EQ(reader.Thermalisations, 0);
-  EXPECT_EQ(reader.Trajectories, 10);
+  EXPECT_EQ(reader.initialMDsteps, 10);
+  EXPECT_EQ(reader.Thermalisations, 20);
+  EXPECT_EQ(reader.Trajectories, 1000);
 }
 
 // Check that the RNG manager is consistent
