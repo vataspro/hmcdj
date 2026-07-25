@@ -59,6 +59,9 @@ NumberWithError<double> AcceptanceObsParameters::avgAcceptance(
 }
 
 tuning_mode_t AcceptanceObsParameters::tuningMode() const {
+  if (currentTrajectory() >= totalTrajectories) {
+    return tuning_mode_t::complete;
+  }
   if (currentTrajectory() >= maxTuningTrajectories) {
     return tuning_mode_t::monitoring;
   }
