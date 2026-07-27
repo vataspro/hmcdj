@@ -140,10 +140,17 @@ TEST(AcceptanceObsTest, TrajectoriesToNextTuneTest) {
     params.acceptHistory->push_back(1);
   }
   // Check we can go up until end of tuning correctly
+  while (params.currentTrajectory() + tuningCycle < maxTuning) {
+    for (int trajectories = 0; trajectories < tuningCycle; trajectories++) {
+      EXPECT_EQ(params.trajectoriesToNextTune(),
+                tuningCycle - trajectories % tuningCycle);
+      params.acceptHistory->push_back(1);
+    }
+  }
   for (int trajectories = 0; params.currentTrajectory() < maxTuning;
        trajectories++) {
     EXPECT_EQ(params.trajectoriesToNextTune(),
-              tuningCycle - trajectories % tuningCycle);
+              maxTuning - params.currentTrajectory());
     params.acceptHistory->push_back(1);
   }
   // We should now be in monitoring
@@ -163,6 +170,83 @@ TEST(AcceptanceObsTest, TrajectoriesToNextTuneTest) {
   // Should be finished now
   for (int trajectories = 0; trajectories < 10; trajectories++) {
     EXPECT_EQ(params.trajectoriesToNextTune(), 0);
+    params.acceptHistory->push_back(1);
+  }
+}
+
+TEST(AcceptanceObsTest, TrajectoriesToNextTuneTrajectoryEndTest) {
+  Grid::IntegratorParameters MDparams(MDsteps, trajLength);
+  AcceptanceObsParameters params(
+      thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
+      maxTrajectories, targetAcceptance, deltaTargetAcceptance, &MDparams);
+
+  // Thermalisations don't count in trajectory count
+  // (as they are requested from Grid via the NoMetropolisUntil parameter,
+  // not the Trajectories parameter)
+  for (int trajectories = 0; trajectories < thermalisation; trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              rethermalisation + tuningCycle);
+    params.acceptHistory->push_back(1);
+  }
+  // First cycle
+  for (int trajectories = 0; trajectories < rethermalisation + tuningCycle;
+       trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              rethermalisation + tuningCycle - trajectories);
+    params.acceptHistory->push_back(1);
+  }
+  // Subsequent cycles
+  for (int trajectories = 0; trajectories < tuningCycle * 3; trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              (tuningCycle - trajectories % tuningCycle) % tuningCycle);
+    params.acceptHistory->push_back(1);
+  }
+  // Tuning MDsteps resets
+  params.MDsteps(1);
+  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
+  params.acceptHistory->push_back(1);
+  for (int trajectories = 1; trajectories < rethermalisation + tuningCycle;
+       trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              rethermalisation + tuningCycle - trajectories);
+    params.acceptHistory->push_back(1);
+  }
+  // Check we can go up until end of tuning correctly
+  while (params.currentTrajectory() + tuningCycle < maxTuning) {
+    for (int trajectories = 0; trajectories < tuningCycle; trajectories++) {
+      EXPECT_EQ(params.trajectoriesToNextTune(true),
+                (tuningCycle - trajectories % tuningCycle) % tuningCycle);
+      params.acceptHistory->push_back(1);
+    }
+  }
+  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
+  params.acceptHistory->push_back(1);
+  for (int trajectories = 1; params.currentTrajectory() < maxTuning;
+       trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              maxTuning - params.currentTrajectory());
+    params.acceptHistory->push_back(1);
+  }
+  // We should now be in monitoring
+  for (int trajectories = 0;
+       params.currentTrajectory() < maxTrajectories - monitoringCycle;
+       trajectories++) {
+    EXPECT_EQ(
+        params.trajectoriesToNextTune(true),
+        (monitoringCycle - trajectories % monitoringCycle) % monitoringCycle);
+    params.acceptHistory->push_back(1);
+  }
+  // Approaching the maximum trajectory count
+  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
+  params.acceptHistory->push_back(1);
+  for (int trajectories = 1; trajectories < monitoringCycle; trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true),
+              maxTrajectories - params.currentTrajectory());
+    params.acceptHistory->push_back(1);
+  }
+  // Should be finished now
+  for (int trajectories = 0; trajectories < 10; trajectories++) {
+    EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
     params.acceptHistory->push_back(1);
   }
 }

@@ -107,7 +107,7 @@ std::filesystem::path getSubDir(std::filesystem::path baseDir) {
 class DJRun {
  private:
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
-  std::unique_ptr<DJ<HMCWrapper, DJSuccessfulExit> > hmcdj;
+  std::shared_ptr<DJ<HMCWrapper, DJSuccessfulExit> > hmcdj;
   std::unique_ptr<TemporaryDirectory> tmpDir;
   bool setBasePath;
 
@@ -141,10 +141,9 @@ class DJRun {
     }
     const char* argv[] = {"hmcdj_test", testTrackName.c_str()};
     const bool useReducedStorage = true;
-    hmcdj = std::unique_ptr<DJ<HMCWrapper, DJSuccessfulExit> >(
-        new DJ<HMCWrapper, DJSuccessfulExit>("NoParams", argc, (char**)argv,
-                                             useReducedStorage,
-                                             ensembleDirectoryPathOverride));
+    hmcdj = std::make_shared<DJ<HMCWrapper, DJSuccessfulExit> >(
+        "NoParams", argc, (char**)argv, useReducedStorage,
+        ensembleDirectoryPathOverride);
     static Grid::SpWilsonGaugeActionR Waction(beta);
     static Grid::ActionLevel<HMCWrapper::Field> Level1(1);
     Level1.push_back(&Waction);
@@ -171,6 +170,7 @@ class DJRun {
   std::filesystem::path getDirectoryPath() {
     return tmpDir->getDirectoryPath();
   };
+  std::shared_ptr<DJ<HMCWrapper, DJSuccessfulExit> > getDJ() { return hmcdj; };
 };
 
 std::filesystem::path mostRecentDirectory(const std::string prefix) {

@@ -147,6 +147,10 @@ void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::setupTuningStep() {
   setTuningTrajectories();
+
+  if (TheHMC.Parameters.StartTrajectory > 0) {
+    TheHMC.Parameters.StartingType = "CheckpointStart";
+  }
 }
 
 /*
