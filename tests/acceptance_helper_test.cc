@@ -40,7 +40,7 @@ TEST(AcceptanceObsTest, LastTuneIndexTest) {
   AcceptanceObsParameters params(
       thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
       maxTrajectories, targetAcceptance, deltaTargetAcceptance, &MDparams);
-  EXPECT_EQ(params.lastTuneIndex(), 0);
+  EXPECT_EQ(params.lastTuneIndex(), thermalisation);
   params.MDsteps(10, 1);
   EXPECT_EQ(params.lastTuneIndex(), 10);
 }
@@ -51,6 +51,9 @@ TEST(AcceptanceObsTest, MDStepsTest) {
       thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
       maxTrajectories, targetAcceptance, deltaTargetAcceptance, &MDparams);
   EXPECT_EQ(params.MDsteps(), MDsteps);
+  // Expect to have two copies of the initial MDsteps,
+  // one at 0 and one at thermalisation
+  EXPECT_EQ(params.stepCountHistory->size(), 2);
   // Test setting with an explicit trajectory index
   params.MDsteps(10, 1);
   EXPECT_EQ(params.MDsteps(), 1);
@@ -62,7 +65,7 @@ TEST(AcceptanceObsTest, MDStepsTest) {
   }
   params.MDsteps(2);
   EXPECT_EQ(params.MDsteps(), 2);
-  EXPECT_EQ(params.stepCountHistory->size(), 3);
+  EXPECT_EQ(params.stepCountHistory->size(), 4);
   EXPECT_EQ(params.stepCountHistory->back().trajectoryIndex, 20);
   EXPECT_EQ(params.stepCountHistory->back().stepCount, 2);
 }
@@ -382,7 +385,7 @@ TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
   for (int trajectory = 0; trajectory < 300; trajectory++) {
     saverParams.acceptHistory->push_back(trajectory % 3 && trajectory % 5);
   }
-  for (int tune = 1; tune < 4; tune++) {
+  for (int tune = 2; tune < 5; tune++) {
     saverParams.MDsteps(tune * 50, tune * tune);
   }
   saverParams.saveHistory();
@@ -395,14 +398,14 @@ TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
   loaderParams.setOutputDirectory(tmpDir.getDirectoryPath());
   loaderParams.loadHistory();
   ASSERT_EQ(loaderParams.acceptHistory->size(), 300);
-  ASSERT_EQ(loaderParams.stepCountHistory->size(), 4);
+  ASSERT_EQ(loaderParams.stepCountHistory->size(), 5);
   for (int trajectory = 0; trajectory < 300; trajectory++) {
     EXPECT_EQ((*loaderParams.acceptHistory)[trajectory],
               (trajectory % 3 && trajectory % 5));
   }
   EXPECT_EQ(loaderParams.stepCountHistory->front().stepCount, MDsteps);
   EXPECT_EQ(loaderParams.stepCountHistory->front().trajectoryIndex, 0);
-  for (int tune = 1; tune < 4; tune++) {
+  for (int tune = 2; tune < 5; tune++) {
     EXPECT_EQ((*loaderParams.stepCountHistory)[tune].stepCount, tune * tune);
     EXPECT_EQ((*loaderParams.stepCountHistory)[tune].trajectoryIndex,
               tune * 50);

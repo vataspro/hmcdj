@@ -30,28 +30,18 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand" / "ckpoint_rng.5"));
 
   // Check logs are created correctly
-  int logCount = 0;
-  for (auto& entry :
-       std::filesystem::directory_iterator(ensemblePath / "logs")) {
-    if (entry.is_regular_file()) {
-      logCount++;
+  std::vector<std::string> logs = getLogs(ensemblePath);
 
-      std::ifstream rereadFile;
-      rereadFile.open(entry.path());
-      std::ostringstream rereadStream;
-      rereadStream << rereadFile.rdbuf();
-
-      // We don't see the "Grid Finalize" block in this test
-      // as this won't get printed until testRun goes out of scope,
-      // but at that point the temporary directory holding the logs will be
-      // deleted. As a result, we expect to see the footer of the configuration
-      // save block. Standard decks will see a Grid Finalize block.
-      EXPECT_THAT(rereadStream.str().c_str(),
-                  ::testing::EndsWith(
-                      " : Tuning is Run complete, taking no action.\n"));
-    }
+  // We don't see the "Grid Finalize" block in this test
+  // as this won't get printed until testRun goes out of scope,
+  // but at that point the temporary directory holding the logs will be
+  // deleted. As a result, we expect to see the footer of the configuration
+  // save block. Standard decks will see a Grid Finalize block.
+  for (auto log : logs) {
+    EXPECT_THAT(log.c_str(),
+                ::testing::EndsWith(" : Run is complete; finishing up.\n"));
   }
-  EXPECT_EQ(logCount, 1);
+  EXPECT_EQ(logs.size(), 1);
 }
 
 int main(int argc, char** argv) {

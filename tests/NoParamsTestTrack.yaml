@@ -24,11 +24,11 @@ Global:
     StartingType: "HotStart"
 
   AcceptanceRateTuning:
-    rethermalisationTrajectories: 1
-    tuningCycleTrajectories: 1
-    targetAcceptance: 0.85
-    deltaTargetAcceptance: 0.15
+    rethermalisationTrajectories: 2
+    tuningCycleTrajectories: 5
+    targetAcceptance: 0.5
+    deltaTargetAcceptance: 0.6
     monitoringCycleTrajectories: 10
-    maxTuningTrajectories: 0
+    maxTuningTrajectories: 18
 
 NoParams:

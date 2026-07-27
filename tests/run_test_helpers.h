@@ -108,7 +108,7 @@ class DJRun {
  private:
   typedef Grid::GenericSpHMCRunner<Grid::MinimumNorm2> HMCWrapper;
   std::shared_ptr<DJ<HMCWrapper, DJSuccessfulExit> > hmcdj;
-  std::unique_ptr<TemporaryDirectory> tmpDir;
+  std::shared_ptr<TemporaryDirectory> tmpDir;
   bool setBasePath;
 
  public:
@@ -116,7 +116,7 @@ class DJRun {
         pathCallback ensembleDirectoryPathOverride = nullptr,
         bool setBasePath = true)
       : setBasePath(setBasePath) {
-    tmpDir = std::unique_ptr<TemporaryDirectory>(new TemporaryDirectory(name));
+    tmpDir = std::make_unique<TemporaryDirectory>(name);
     initialiseRun(ensembleDirectoryPathOverride);
   }
 
@@ -195,4 +195,19 @@ std::filesystem::path mostRecentDirectory(const std::string prefix) {
     throw "No matches found";
   }
   return mostRecentMatch;
+}
+
+std::vector<std::string> getLogs(std::filesystem::path ensemblePath) {
+  std::vector<std::string> result;
+  for (auto& entry :
+       std::filesystem::directory_iterator(ensemblePath / "logs")) {
+    if (entry.is_regular_file()) {
+      std::ifstream rereadFile;
+      rereadFile.open(entry.path());
+      std::ostringstream rereadStream;
+      rereadStream << rereadFile.rdbuf();
+      result.push_back(rereadStream.str());
+    }
+  }
+  return result;
 }

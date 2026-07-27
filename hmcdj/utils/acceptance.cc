@@ -69,10 +69,10 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
     return tuning_mode_t::monitoring;
   }
   // Verify that time has not gone backwards
-  assert(currentTrajectory() >= lastTuneIndex());
+  assert(currentTrajectory() < thermalisationTrajectories ||
+         currentTrajectory() >= lastTuneIndex());
 
-  if (currentTrajectory() < lastTuneIndex() >
-      0 + rethermalisationTrajectories) {
+  if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories) {
     return tuning_mode_t::init;
   }
   return tuning_mode_t::active;
@@ -82,6 +82,9 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
     bool atTrajectoryEnd) const {
   if (tuningMode() == tuning_mode_t::complete) {
     // Completed, no more trajectories
+    return 0;
+  }
+  if (atTrajectoryEnd && currentTrajectory() == maxTuningTrajectories) {
     return 0;
   }
   if (tuningMode() == tuning_mode_t::monitoring) {
@@ -106,7 +109,7 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
   }
   if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories) {
     if (atTrajectoryEnd && currentTrajectory() == lastTuneIndex() &&
-        stepCountHistory->size() > 1) {
+        stepCountHistory->size() > 2) {
       return 0;
     }
     // Complete the rethermalisation and do a single cycle
