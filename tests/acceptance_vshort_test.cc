@@ -27,6 +27,10 @@ TEST(AcceptanceDeathTest, TestAbortWithoutStarting) {
 
   // Need to clean up by ourselves as the subprocess containing the
   // TemporaryDirectory instance aborted
+  // Since the failed test created both a temporary home directory,
+  // and a temporary run directory,
+  // we need to get the _two_ most recent directories and remove them
+  std::filesystem::remove_all(mostRecentDirectory(testName));
   std::filesystem::remove_all(mostRecentDirectory(testName));
   std::filesystem::remove_all(tmpHomeDir.getDirectoryPath());
 }
