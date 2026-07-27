@@ -25,9 +25,6 @@ int main(int argc, char* argv[]) {
   DJ<HMCWrapper> hmcdj("TwoFundamentalFermions", argc, argv, params,
                        reducedStorage);
 
-  // Print the layout
-  Grid::GridLogLayout();
-
   /* Action */
   Grid::SpWilsonGaugeActionR Waction(beta);
 

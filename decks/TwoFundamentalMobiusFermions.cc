@@ -43,9 +43,6 @@ int main(int argc, char *argv[]) {
   DJ<HMCWrapper> hmcdj("TwoFundamentalMobiusFermions", argc, argv, params,
                        reducedStorage);
 
-  // Print the layout
-  Grid::GridLogLayout();
-
   /* Action */
   Grid::SpWilsonGaugeActionR Waction(beta);
 
@@ -100,7 +97,6 @@ int main(int argc, char *argv[]) {
   Level2.push_back(&Waction);
   hmcdj.TheHMC.TheAction.push_back(Level1);
   hmcdj.TheHMC.TheAction.push_back(Level2);
-  std::cout << Grid::GridLogMessage << " Action complete " << std::endl;
 
   /* RUN THE HMC */
   hmcdj.Play();
