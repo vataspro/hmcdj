@@ -136,9 +136,6 @@ template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
   while (extraCPPars.acceptance->tuningMode() != tuning_mode_t::complete &&
          extraCPPars.acceptance->tuningMode() != tuning_mode_t::failed) {
-    std::cout << "TUNING CYCLE: "
-              << static_cast<int>(extraCPPars.acceptance->tuningMode())
-              << std::endl;
     setupTuningStep();  // Set trajectory number
     TheHMC.Run();  // Will run up to exactly after next tuning step is reached
     endTuningStep();
@@ -153,6 +150,8 @@ void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
           << DJLogError
           << "Unable to tune acceptance in remaining trajectories; aborting."
           << std::endl;
+      Grid::Grid_finalize();
+      std::exit(EXIT_FAILURE);
       break;
     default:
       // Timing related exits happen elsewhere,
