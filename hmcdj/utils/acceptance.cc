@@ -61,15 +61,18 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
   if (currentTrajectory() >= totalTrajectories) {
     return tuning_mode_t::complete;
   }
+  if (lastTuneIndex() + rethermalisationTrajectories + tuningCycleTrajectories >
+      maxTuningTrajectories) {
+    return tuning_mode_t::failed;
+  }
   if (currentTrajectory() >= maxTuningTrajectories) {
     return tuning_mode_t::monitoring;
   }
   // Verify that time has not gone backwards
   assert(currentTrajectory() >= lastTuneIndex());
 
-  if (currentTrajectory() <
-      (lastTuneIndex() > 0 ? lastTuneIndex() : thermalisationTrajectories) +
-          rethermalisationTrajectories) {
+  if (currentTrajectory() < lastTuneIndex() >
+      0 + rethermalisationTrajectories) {
     return tuning_mode_t::init;
   }
   return tuning_mode_t::active;
@@ -77,13 +80,6 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
 
 int AcceptanceObsParameters::trajectoriesToNextTune(
     bool atTrajectoryEnd) const {
-  int correctedLastTuneIndex = lastTuneIndex();
-  if (stepCountHistory->size() == 1 &&
-      currentTrajectory() >= thermalisationTrajectories) {
-    // Until we tune for the first time,
-    // the initial thermalisation period messes up our counting
-    correctedLastTuneIndex += thermalisationTrajectories;
-  }
   if (tuningMode() == tuning_mode_t::complete) {
     // Completed, no more trajectories
     return 0;
@@ -108,24 +104,22 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
     // We will do the remaining thermalisations plus a single cycle
     return rethermalisationTrajectories + tuningCycleTrajectories;
   }
-  if (currentTrajectory() <
-      correctedLastTuneIndex + rethermalisationTrajectories) {
-    if (atTrajectoryEnd && currentTrajectory() == correctedLastTuneIndex &&
+  if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories) {
+    if (atTrajectoryEnd && currentTrajectory() == lastTuneIndex() &&
         stepCountHistory->size() > 1) {
       return 0;
     }
     // Complete the rethermalisation and do a single cycle
-    return correctedLastTuneIndex + rethermalisationTrajectories +
+    return lastTuneIndex() + rethermalisationTrajectories +
            tuningCycleTrajectories - currentTrajectory();
   }
   // We are mid-cycle
   const int targetTrajectories =
-      tuningCycleTrajectories - (currentTrajectory() - correctedLastTuneIndex -
-                                 rethermalisationTrajectories) %
-                                    tuningCycleTrajectories;
+      tuningCycleTrajectories -
+      (currentTrajectory() - lastTuneIndex() - rethermalisationTrajectories) %
+          tuningCycleTrajectories;
   if (atTrajectoryEnd && targetTrajectories == tuningCycleTrajectories &&
-      currentTrajectory() >
-          correctedLastTuneIndex + rethermalisationTrajectories) {
+      currentTrajectory() > lastTuneIndex() + rethermalisationTrajectories) {
     return 0;
   }
   if (targetTrajectories + currentTrajectory() > maxTuningTrajectories) {

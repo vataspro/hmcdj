@@ -68,7 +68,9 @@ struct AcceptanceObsParameters : Grid::Serializable {
         totalTrajectories(totalTrajectories),
         MD(MD) {
     if (MD != nullptr) {
+      // Restate the initial MDsteps to make computation of tuning cycles easier
       MDsteps(0, MD->MDsteps);
+      MDsteps(thermalisationTrajectories, MD->MDsteps);
     }
   }
 
@@ -81,7 +83,9 @@ struct AcceptanceObsParameters : Grid::Serializable {
             reader.targetAcceptance, reader.deltaTargetAcceptance, MD) {
     setOutputDirectory(reader.EnsembleDirectory);
     stepCountHistory->clear();
+    // Restate the initial MDsteps to make computation of tuning cycles easier
     MDsteps(0, reader.initialMDsteps);
+    MDsteps(reader.Thermalisations, reader.initialMDsteps);
     if (reader.StartingTrajectory > 0) {
       loadHistory();
     }

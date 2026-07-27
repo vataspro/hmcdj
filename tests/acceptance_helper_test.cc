@@ -105,6 +105,26 @@ TEST(AcceptanceObsTest, TuningModeTest) {
   }
 }
 
+TEST(AcceptanceObsTest, TuningModeFailedTest) {
+  Grid::IntegratorParameters MDparams(MDsteps, trajLength);
+  AcceptanceObsParameters params(
+      thermalisation, rethermalisation, tuningCycle, monitoringCycle, maxTuning,
+      maxTrajectories, targetAcceptance, deltaTargetAcceptance, &MDparams);
+
+  // Advance the ensemble to near the maximum tune time
+  for (int i = 0; i < maxTuning - tuningCycle + 1; i++) {
+    params.acceptHistory->push_back(1);
+  }
+  // Reset MDsteps, simulating a re-tune very near the maximum tune time
+  params.MDsteps(100);
+
+  // The ensemble should now report that tuning has failed
+  for (int i = 0; i < tuningCycle; i++) {
+    EXPECT_EQ(params.tuningMode(), tuning_mode_t::failed);
+    params.acceptHistory->push_back(1);
+  }
+}
+
 TEST(AcceptanceObsTest, TrajectoriesToNextTuneTest) {
   Grid::IntegratorParameters MDparams(MDsteps, trajLength);
   AcceptanceObsParameters params(

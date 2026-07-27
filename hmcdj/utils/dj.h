@@ -134,10 +134,32 @@ DJ<HMCWrapper, DJSuccessfulExit>::DJ(std::string deckName, int argc,
 /* Acceptance Rate Tuning */
 template <typename HMCWrapper, int DJSuccessfulExit>
 void DJ<HMCWrapper, DJSuccessfulExit>::Play() {
-  while (extraCPPars.acceptance->tuningMode() != tuning_mode_t::complete) {
+  while (extraCPPars.acceptance->tuningMode() != tuning_mode_t::complete &&
+         extraCPPars.acceptance->tuningMode() != tuning_mode_t::failed) {
+    std::cout << "TUNING CYCLE: "
+              << static_cast<int>(extraCPPars.acceptance->tuningMode())
+              << std::endl;
     setupTuningStep();  // Set trajectory number
     TheHMC.Run();  // Will run up to exactly after next tuning step is reached
     endTuningStep();
+  }
+  switch (extraCPPars.acceptance->tuningMode()) {
+    case tuning_mode_t::complete:
+      std::cout << DJLogMessage << "Run is complete; finishing up."
+                << std::endl;
+      break;
+    case tuning_mode_t::failed:
+      std::cout
+          << DJLogError
+          << "Unable to tune acceptance in remaining trajectories; aborting."
+          << std::endl;
+      break;
+    default:
+      // Timing related exits happen elsewhere,
+      // and other states should result in the while loop continuing,
+      // so not clear how this code could be reached.
+      std::cout << DJLogMessage
+                << "hmcdj is in an inconsistent state. Aborting." << std::endl;
   }
 }
 
@@ -194,6 +216,9 @@ void DJ<HMCWrapper, DJSuccessfulExit>::endTuningStep() {
       break;
     case tuning_mode_t::active:
       tuneAcceptance();
+      break;
+    case tuning_mode_t::failed:
+      std::cout << DJLogError << "Tuning has failed. Aborting." << std::endl;
       break;
     default:
       std::cout << DJLogDebug << "Tuning is "
