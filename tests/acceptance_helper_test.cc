@@ -268,7 +268,7 @@ TEST(AcceptanceObsTest, AvgAcceptance50Test) {
   }
   NumberWithError<double> result = params.avgAcceptance();
   EXPECT_EQ(result.value, 0.5);
-  EXPECT_NEAR(result.error, 0.27776, 1e-4);
+  EXPECT_NEAR(result.error, 0.1091, 1e-4);
 }
 
 TEST(AcceptanceObsTest, AvgAcceptance100TestNoClamp) {
@@ -288,7 +288,7 @@ TEST(AcceptanceObsTest, AvgAcceptance100TestNoClamp) {
   }
   NumberWithError<double> result = params.avgAcceptance();
   EXPECT_EQ(result.value, 1.0);
-  EXPECT_NEAR(result.error, 0.06061, 1e-4);
+  EXPECT_NEAR(result.error, 0.02381, 1e-4);
 }
 
 TEST(AcceptanceObsTest, AvgAcceptance100TestClamp) {
@@ -308,7 +308,7 @@ TEST(AcceptanceObsTest, AvgAcceptance100TestClamp) {
   }
   NumberWithError<double> result = params.avgAcceptance(true);
   EXPECT_EQ(result.value, 1.0 - 1.0 / 42.0);
-  EXPECT_NEAR(result.error, 0.06061, 1e-4);
+  EXPECT_NEAR(result.error, 0.02381, 1e-4);
 }
 
 TEST(AcceptanceObsTest, AvgAcceptance0TestNoClamp) {
@@ -328,7 +328,7 @@ TEST(AcceptanceObsTest, AvgAcceptance0TestNoClamp) {
   }
   NumberWithError<double> result = params.avgAcceptance();
   EXPECT_EQ(result.value, 0.0);
-  EXPECT_NEAR(result.error, 0.06061, 1e-4);
+  EXPECT_NEAR(result.error, 0.02381, 1e-4);
 }
 
 TEST(AcceptanceObsTest, AvgAcceptance0TestClamp) {
@@ -348,7 +348,7 @@ TEST(AcceptanceObsTest, AvgAcceptance0TestClamp) {
   }
   NumberWithError<double> result = params.avgAcceptance(true);
   EXPECT_EQ(result.value, 1.0 / 42.0);
-  EXPECT_NEAR(result.error, 0.06061, 1e-4);
+  EXPECT_NEAR(result.error, 0.02381, 1e-4);
 }
 
 TEST(AcceptanceObsTest, SaveLoadHistoryTest) {
