@@ -115,8 +115,7 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
   virtual ~AcceptanceLogger() = default;
 
   // Get the acceptance of the step
-  void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
-                          Grid::GridParallelRNG &pRNG, bool accept) override {
+  void updateAcceptance(int trajectory, bool accept) {
     std::cout << DJLogDebug
               << "Tuning mode: " << tuningModeDescription[Pars.tuningMode()]
               << std::endl;
@@ -124,16 +123,33 @@ class AcceptanceLogger : public Grid::HmcObservable<typename Impl::Field> {
     // Save the acceptance and trajectory index
     if (Pars.tuningMode() != tuning_mode_t::init) {
       // Print acceptance
-      std::cout << DJLogDebug << "Step acceptance: [ " << traj << " ] "
+      std::cout << DJLogDebug << "Step acceptance: [ " << trajectory << " ] "
                 << static_cast<int>(accept) << std::endl;
     }
     // Append the acceptance values
     Pars.acceptHistory->push_back(static_cast<int>(accept));
-    assert(traj == Pars.acceptHistory->size());
+    assert(trajectory == Pars.acceptHistory->size());
   }
 
   void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
-                          Grid::GridParallelRNG &pRNG) override {}
+                          Grid::GridParallelRNG &pRNG, bool accept) override {
+    updateAcceptance(traj, accept);
+  }
+
+  void TrajectoryComplete(int traj,
+                          Grid::ConfigurationBase<GaugeField> &SmartConfig,
+                          Grid::GridSerialRNG &sRNG,
+                          Grid::GridParallelRNG &pRNG, bool accept) {
+    updateAcceptance(traj, accept);
+  };
+
+  void TrajectoryComplete(int traj, Field &U, Grid::GridSerialRNG &sRNG,
+                          Grid::GridParallelRNG &pRNG) override {
+    // This overload should be unreachable;
+    // the cases above should always be reached instead,
+    // since we require knowing `accept`
+    assert(0);
+  }
 };
 
 // Acceptance Rate Observable Module
