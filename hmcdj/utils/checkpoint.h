@@ -91,7 +91,7 @@ class ILDGTimingHmcCheckpointer
       status = TimerStatus::TUNING_FAILED;
     }
     if ((traj % Params.saveInterval == 0) || status != TimerStatus::OK ||
-        extraParams.acceptance->trajectoriesToNextTune(true) == 0) {
+        extraParams.acceptance->atEndOfTuningCycle()) {
       writeConfiguration(traj, SmartConfig, sRNG, pRNG);
       saveAcceptance();
     }

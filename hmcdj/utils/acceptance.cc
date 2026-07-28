@@ -78,13 +78,37 @@ tuning_mode_t AcceptanceObsParameters::tuningMode() const {
   return tuning_mode_t::active;
 }
 
-int AcceptanceObsParameters::trajectoriesToNextTune(
-    bool atTrajectoryEnd) const {
+bool AcceptanceObsParameters::atEndOfTuningCycle() const {
   if (tuningMode() == tuning_mode_t::complete) {
     // Completed, no more trajectories
-    return 0;
+    return true;
   }
-  if (atTrajectoryEnd && currentTrajectory() == maxTuningTrajectories) {
+  if (currentTrajectory() == maxTuningTrajectories) {
+    return true;
+  }
+  if (tuningMode() == tuning_mode_t::monitoring) {
+    if ((currentTrajectory() - maxTuningTrajectories) %
+            monitoringCycleTrajectories ==
+        0) {
+      return true;
+    }
+    return false;
+  }
+  if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories +
+                                tuningCycleTrajectories) {
+    return false;
+  }
+  if ((currentTrajectory() - lastTuneIndex() - rethermalisationTrajectories) %
+          tuningCycleTrajectories ==
+      0) {
+    return true;
+  }
+  return false;
+}
+
+int AcceptanceObsParameters::trajectoriesToNextTune() const {
+  if (tuningMode() == tuning_mode_t::complete) {
+    // Completed, no more trajectories
     return 0;
   }
   if (tuningMode() == tuning_mode_t::monitoring) {
@@ -93,12 +117,7 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
         (currentTrajectory() - maxTuningTrajectories) %
             monitoringCycleTrajectories;
     if (targetTrajectories + currentTrajectory() <= totalTrajectories) {
-      if (atTrajectoryEnd &&
-          targetTrajectories == monitoringCycleTrajectories) {
-        return 0;
-      } else {
-        return targetTrajectories;
-      }
+      return targetTrajectories;
     } else {
       return std::max(totalTrajectories - currentTrajectory(), 0);
     }
@@ -108,10 +127,6 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
     return rethermalisationTrajectories + tuningCycleTrajectories;
   }
   if (currentTrajectory() < lastTuneIndex() + rethermalisationTrajectories) {
-    if (atTrajectoryEnd && currentTrajectory() == lastTuneIndex() &&
-        stepCountHistory->size() > 2) {
-      return 0;
-    }
     // Complete the rethermalisation and do a single cycle
     return lastTuneIndex() + rethermalisationTrajectories +
            tuningCycleTrajectories - currentTrajectory();
@@ -121,10 +136,6 @@ int AcceptanceObsParameters::trajectoriesToNextTune(
       tuningCycleTrajectories -
       (currentTrajectory() - lastTuneIndex() - rethermalisationTrajectories) %
           tuningCycleTrajectories;
-  if (atTrajectoryEnd && targetTrajectories == tuningCycleTrajectories &&
-      currentTrajectory() > lastTuneIndex() + rethermalisationTrajectories) {
-    return 0;
-  }
   if (targetTrajectories + currentTrajectory() > maxTuningTrajectories) {
     return maxTuningTrajectories - currentTrajectory();
   }

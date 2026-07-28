@@ -207,70 +207,93 @@ TEST(AcceptanceObsTest, TrajectoriesToNextTuneTrajectoryEndTest) {
   // (as they are requested from Grid via the NoMetropolisUntil parameter,
   // not the Trajectories parameter)
   for (int trajectories = 0; trajectories < thermalisation; trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              rethermalisation + tuningCycle);
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
   }
   // First cycle
-  for (int trajectories = 0; trajectories < rethermalisation + tuningCycle;
+  for (int trajectories = 0; trajectories < rethermalisation + tuningCycle - 1;
        trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              rethermalisation + tuningCycle - trajectories);
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
   }
+  params.acceptHistory->push_back(1);
+  std::cout << params.currentTrajectory() << std::endl;
+  EXPECT_TRUE(params.atEndOfTuningCycle());
   // Subsequent cycles
-  for (int trajectories = 0; trajectories < tuningCycle * 3; trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              (tuningCycle - trajectories % tuningCycle) % tuningCycle);
+  for (int cycles = 0; cycles < 3; cycles++) {
+    for (int trajectories = 0; trajectories < tuningCycle - 1; trajectories++) {
+      params.acceptHistory->push_back(1);
+      std::cout << params.currentTrajectory() << std::endl;
+      EXPECT_FALSE(params.atEndOfTuningCycle());
+    }
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_TRUE(params.atEndOfTuningCycle());
   }
   // Tuning MDsteps resets
   params.MDsteps(1);
-  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
-  params.acceptHistory->push_back(1);
-  for (int trajectories = 1; trajectories < rethermalisation + tuningCycle;
+  for (int trajectories = 0; trajectories < rethermalisation + tuningCycle - 1;
        trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              rethermalisation + tuningCycle - trajectories);
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
   }
+  params.acceptHistory->push_back(1);
+  std::cout << params.currentTrajectory() << std::endl;
+  EXPECT_TRUE(params.atEndOfTuningCycle());
   // Check we can go up until end of tuning correctly
   while (params.currentTrajectory() + tuningCycle < maxTuning) {
-    for (int trajectories = 0; trajectories < tuningCycle; trajectories++) {
-      EXPECT_EQ(params.trajectoriesToNextTune(true),
-                (tuningCycle - trajectories % tuningCycle) % tuningCycle);
+    for (int trajectories = 0; trajectories < tuningCycle - 1; trajectories++) {
       params.acceptHistory->push_back(1);
+      std::cout << params.currentTrajectory() << std::endl;
+      EXPECT_FALSE(params.atEndOfTuningCycle());
     }
+    params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_TRUE(params.atEndOfTuningCycle());
   }
-  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
+  while (params.currentTrajectory() < maxTuning - 1) {
+    params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
+  }
   params.acceptHistory->push_back(1);
-  for (int trajectories = 1; params.currentTrajectory() < maxTuning;
-       trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              maxTuning - params.currentTrajectory());
-    params.acceptHistory->push_back(1);
-  }
+  std::cout << params.currentTrajectory() << std::endl;
+  EXPECT_TRUE(params.atEndOfTuningCycle());
   // We should now be in monitoring
-  for (int trajectories = 0;
-       params.currentTrajectory() < maxTrajectories - monitoringCycle;
-       trajectories++) {
-    EXPECT_EQ(
-        params.trajectoriesToNextTune(true),
-        (monitoringCycle - trajectories % monitoringCycle) % monitoringCycle);
+  while (params.currentTrajectory() < maxTrajectories - monitoringCycle * 2) {
+    for (int trajectories = 0; trajectories < monitoringCycle - 1;
+         trajectories++) {
+      params.acceptHistory->push_back(1);
+      std::cout << params.currentTrajectory() << std::endl;
+      EXPECT_FALSE(params.atEndOfTuningCycle());
+    }
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_TRUE(params.atEndOfTuningCycle());
   }
   // Approaching the maximum trajectory count
-  EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
-  params.acceptHistory->push_back(1);
-  for (int trajectories = 1; trajectories < monitoringCycle; trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true),
-              maxTrajectories - params.currentTrajectory());
+  for (int trajectories = 0; trajectories < monitoringCycle - 1;
+       trajectories++) {
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
+  }
+  params.acceptHistory->push_back(1);
+  std::cout << params.currentTrajectory() << std::endl;
+  EXPECT_TRUE(params.atEndOfTuningCycle());
+  while (params.currentTrajectory() < maxTrajectories - 1) {
+    params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_FALSE(params.atEndOfTuningCycle());
   }
   // Should be finished now
   for (int trajectories = 0; trajectories < 10; trajectories++) {
-    EXPECT_EQ(params.trajectoriesToNextTune(true), 0);
     params.acceptHistory->push_back(1);
+    std::cout << params.currentTrajectory() << std::endl;
+    EXPECT_TRUE(params.atEndOfTuningCycle());
   }
 }
 

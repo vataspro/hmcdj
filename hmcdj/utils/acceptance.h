@@ -31,7 +31,8 @@ struct AcceptanceObsParameters : Grid::Serializable {
 
   // Tuning mode
   tuning_mode_t tuningMode() const;
-  int trajectoriesToNextTune(bool atTrajectoryEnd = false) const;
+  int trajectoriesToNextTune() const;
+  bool atEndOfTuningCycle() const;
   // Acceptance array
   // Since Grid creates a copy instance when constructing the HMC,
   // we must use shared_ptrs rather than unique_ptrs here
