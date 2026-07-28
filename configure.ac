@@ -1,5 +1,5 @@
 AC_PREREQ([2.63])
-AC_INIT([hmcDJ],[v0.1],[https://github.com/telos-collaboration/hmcdj],[hmcDJ])
+AC_INIT([hmcDJ],[v0.2],[https://github.com/telos-collaboration/hmcdj],[hmcDJ])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
