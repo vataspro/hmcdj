@@ -1,0 +1,34 @@
+Global:
+  name: "Ensemble"
+
+  volume:
+    nx: 4
+    ny: 4
+    nz: 4
+    nt: 4
+
+
+  checkpoint:
+    saveInterval: 5
+    format: "IEEE64BIG"
+
+  HMC:
+    MD:
+      initialMDsteps: 2
+      trajL: 1.0
+
+    Thermalisations: 5
+
+    Trajectories: 20
+
+    StartingType: "HotStart"
+
+  AcceptanceRateTuning:
+    rethermalisationTrajectories: 2
+    tuningCycleTrajectories: 5
+    targetAcceptance: 1.0
+    deltaTargetAcceptance: 0.1
+    monitoringCycleTrajectories: 10
+    maxTuningTrajectories: 18
+
+NoParams:
