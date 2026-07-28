@@ -9,8 +9,8 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithNoDir) {
                   "so this test cannot continue. "
                   "Try running again without `mpirun`.";
 #endif
-  std::string testName = "hmcdj_nodir";
-  std::filesystem::path initialPath = std::filesystem::current_path();
+  const std::string testName = "hmcdj_nodir";
+  const std::filesystem::path initialPath = std::filesystem::current_path();
   std::cout << initialPath << std::endl;
   TemporaryDirectory tmpDir(testName, true);
   std::filesystem::copy_file(

@@ -3,7 +3,7 @@
 /* Check that a directory is correctly created when no base directory is
  * specified, but $HOME exists */
 TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithHomeDir) {
-  std::string testName = "hmcdj_homedir";
+  const std::string testName = "hmcdj_homedir";
   TemporaryDirectory tmpDir(testName);
 
   // Ensure that we go down the home directory code path by suppressing any base

@@ -6,7 +6,7 @@
 // Check that teestdout writes what we expect to both expected destinations
 TEST(LoggingTest, TeeStdoutTest) {
   TemporaryDirectory tmpDir("teestdout");
-  std::string outputFilename =
+  const std::string outputFilename =
       (tmpDir.getDirectoryPath() / "test.out").string();
 
   std::string capturedStdout;

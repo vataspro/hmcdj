@@ -41,7 +41,7 @@ TEST(UtilTest, EnsembleReaderTest) {
                                        tmpDir.getDirectoryPath().string());
 
   // Load the test "track.yaml" file
-  std::string filename = TESTSEEDFILE;
+  const std::string filename = TESTSEEDFILE;
   EnsembleReader reader("NoParams", filename, {}, nullptr);
 
   // Check that the reader loads the correct values

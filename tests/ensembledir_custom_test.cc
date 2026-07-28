@@ -8,7 +8,7 @@ std::filesystem::path overridePath(EnsembleReader* ensemble,
 /* Check that a directory is correctly created when a custom subdirectory is
  * specified */
 TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
-  std::string testName = "hmcdj_basedir";
+  const std::string testName = "hmcdj_basedir";
 
   // Add a temporary home directory in case the test misbehaves, to not trample
   // the user home directory
@@ -19,7 +19,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   // Create a run, but don't start it
   DJRun testRun(testName, overridePath);
 
-  std::filesystem::path expectedEnsemblePath =
+  const std::filesystem::path expectedEnsemblePath =
       testRun.getDirectoryPath() / "NoParams" / "TestOverride";
 
   // Target directories created

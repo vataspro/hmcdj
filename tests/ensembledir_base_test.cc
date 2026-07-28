@@ -5,7 +5,7 @@
 /* Check that a directory is correctly created when the base directory is
  * specified */
 TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
-  std::string testName = "hmcdj_basedir";
+  const std::string testName = "hmcdj_basedir";
 
   // Add a temporary home directory in case the test misbehaves, to not trample
   // the user home directory
@@ -14,7 +14,8 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
                                        tmpHomeDir.getDirectoryPath().string());
   DJRun testRun(testName);
 
-  std::filesystem::path ensemblePath = getSubDir(testRun.getDirectoryPath());
+  const std::filesystem::path ensemblePath =
+      getSubDir(testRun.getDirectoryPath());
 
   // Target directories created
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "cnfg"));
@@ -30,7 +31,7 @@ TEST(EnsembleDirectoryTest, TestEnsembleDirectoryWithSpecifiedBaseDir) {
   EXPECT_TRUE(std::filesystem::exists(ensemblePath / "rand" / "ckpoint_rng.5"));
 
   // Check logs are created correctly
-  std::vector<std::string> logs = getLogs(ensemblePath);
+  const std::vector<std::string> logs = getLogs(ensemblePath);
 
   // We don't see the "Grid Finalize" block in this test
   // as this won't get printed until testRun goes out of scope,

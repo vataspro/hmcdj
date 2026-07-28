@@ -96,7 +96,7 @@ class TemporaryDirectory {
     std::filesystem::remove_all(directoryPath);
   }
 
-  std::filesystem::path getDirectoryPath() { return directoryPath; }
+  std::filesystem::path getDirectoryPath() const { return directoryPath; }
 };
 
 std::filesystem::path getSubDir(std::filesystem::path baseDir) {
@@ -134,7 +134,7 @@ class DJRun {
       unsetenv("HMCDJ_BASE_PATH");
     }
     const static double beta = 7.2;
-    int argc = 2;
+    const int argc = 2;
     std::string testTrackName = "track.yaml";
     if (!std::filesystem::exists(testTrackName)) {
       testTrackName = std::string(TOP_SRCDIR) + "/tests/NoParamsTestTrack.yaml";
@@ -159,7 +159,7 @@ class DJRun {
       // working
       unsetenv("HMCDJ_BASE_PATH");
     }
-    std::filesystem::path initialPath = std::filesystem::current_path();
+    const std::filesystem::path initialPath = std::filesystem::current_path();
     std::filesystem::current_path(tmpDir->getDirectoryPath());
 
     hmcdj->Play();
@@ -167,10 +167,12 @@ class DJRun {
     std::filesystem::current_path(initialPath);
   };
 
-  std::filesystem::path getDirectoryPath() {
+  std::filesystem::path getDirectoryPath() const {
     return tmpDir->getDirectoryPath();
   };
-  std::shared_ptr<DJ<HMCWrapper, DJSuccessfulExit> > getDJ() { return hmcdj; };
+  std::shared_ptr<DJ<HMCWrapper, DJSuccessfulExit> > getDJ() const {
+    return hmcdj;
+  };
 };
 
 std::filesystem::path mostRecentDirectory(const std::string prefix) {
