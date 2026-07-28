@@ -30,9 +30,9 @@ TEST(AcceptanceDeathTest, TestAbortWithoutStarting) {
   // Since the failed test created both a temporary home directory,
   // and a temporary run directory,
   // we need to get the _two_ most recent directories and remove them
-  std::filesystem::remove_all(mostRecentDirectory(testName));
-  std::filesystem::remove_all(mostRecentDirectory(testName));
   std::filesystem::remove_all(tmpHomeDir.getDirectoryPath());
+  std::filesystem::remove_all(mostRecentDirectory(testName));
+  std::filesystem::remove_all(mostRecentDirectory(testName, false));
 }
 
 int main(int argc, char** argv) {

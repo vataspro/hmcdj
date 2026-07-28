@@ -175,14 +175,16 @@ class DJRun {
   };
 };
 
-std::filesystem::path mostRecentDirectory(const std::string prefix) {
+std::filesystem::path mostRecentDirectory(const std::string prefix,
+                                          const bool checkSubDir = true) {
   const std::filesystem::path baseTempDir =
       std::filesystem::temp_directory_path();
   std::filesystem::path mostRecentMatch;
   bool haveMatch = false;
   for (auto const dirEntry : std::filesystem::directory_iterator{baseTempDir}) {
     if (dirEntry.path().filename().string().rfind(prefix, 0) == 0 &&
-        std::filesystem::exists(getSubDir(dirEntry.path()) / "logs")) {
+        (!checkSubDir ||
+         std::filesystem::exists(getSubDir(dirEntry.path()) / "logs"))) {
       if (haveMatch) {
         if (std::filesystem::last_write_time(dirEntry.path()) >
             std::filesystem::last_write_time(mostRecentMatch)) {

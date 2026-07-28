@@ -25,8 +25,8 @@ TEST(TimerDeathTest, TestAbortIfInsufficientTime) {
 
   // Need to clean up by ourselves as the subprocess containing the
   // TemporaryDirectory instance aborted
-  std::filesystem::remove_all(mostRecentDirectory(testName));
   std::filesystem::remove_all(testRun.getDirectoryPath());
+  std::filesystem::remove_all(mostRecentDirectory(testName));
 }
 
 int main(int argc, char** argv) {
